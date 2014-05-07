@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in syncano-client.gemspec
+# Specify your gem's dependencies in syncano.gemspec
 gemspec

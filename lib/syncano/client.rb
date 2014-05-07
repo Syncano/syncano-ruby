@@ -1,12 +1,46 @@
-require "syncano/client/version"
+class Syncano
+  module Resources
+  end
 
-module Syncano
-  module Client
-    SYNCANO_HOST = "#{SYNCANO_INSTANCE}.syncano.com"
+  class Client
+    attr_accessor :instance_name, :api_key, :client
 
-    def self.get_projects
-      client = ::Jimson::Client.new("https://#{SYNCANO_HOST}/api/jsonrpc")
-      client.send('project.get', api_key: 'f527ab610cc0748b37f6c4b54dcf0dcb21675f0a')
+    def initialize(instance_name, api_key)
+      super()
+
+      self.instance_name = instance_name
+      self.api_key = api_key
+      self.client = ::Jimson::Client.new(json_rpc_url)
+    end
+
+    def project
+      ::Syncano::Resources::Project.new(self)
+    end
+
+    def make_request(resource_name, method_name, params = {})
+      response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
+      parse_response(resource_name, response)
+    end
+
+    private
+
+    def json_rpc_url
+      "https://#{instance_name}.syncano.com/api/jsonrpc"
+    end
+
+    def request_params
+      { api_key: api_key }
+    end
+
+    def parse_response(resource_name, response)
+      return response if response.blank?
+
+      if response['result'] == 'OK'
+        response[resource_name]
+      else
+        # TODO: Error handling
+        { 'error' => 'Something went wrong' }
+      end
     end
   end
 end

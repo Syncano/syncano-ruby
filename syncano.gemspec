@@ -1,13 +1,13 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'syncano/client/version'
+require 'syncano/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "syncano-client"
-  spec.version       = Syncano::Client::VERSION
-  spec.authors       = ["TODO: Write your name"]
-  spec.email         = ["TODO: Write your email address"]
+  spec.name          = "syncano"
+  spec.version       = Syncano::VERSION
+  spec.authors       = ["Piotr Zadrożny"]
+  spec.email         = ["piotr.zadrozny@mindpower.pl"]
   spec.summary       = %q{TODO: Write a short summary. Required.}
   spec.description   = %q{TODO: Write a longer description. Optional.}
   spec.homepage      = ""
