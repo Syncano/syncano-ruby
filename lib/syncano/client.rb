@@ -35,10 +35,12 @@ class Syncano
     def parse_response(resource_name, response)
       return response if response.blank?
 
-      if response['result'] == 'OK'
+      case response['result']
+      when 'OK'
         response[resource_name]
+      when 'NOK'
+        { 'error' => response['error'] }
       else
-        # TODO: Error handling
         { 'error' => 'Something went wrong' }
       end
     end
