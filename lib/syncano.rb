@@ -2,6 +2,9 @@ require "syncano/version"
 
 class Syncano
 
+  # Used for initializing Syncano Client
+  # @param [Hash] options with keys: instance_name, api_key which can be also provided as constants in the initializer
+  # @return [Syncano::Client] Syncano client.
   def self.client(options = {})
     instance_name = options[:instance_name] || ::SYNCANO_INSTANCE_NAME
     raise 'Syncano instance name cannot be blank!' if instance_name.nil?

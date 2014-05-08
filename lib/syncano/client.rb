@@ -5,6 +5,9 @@ class Syncano
   class Client
     attr_accessor :instance_name, :api_key, :client
 
+    # Constructor for Syncano::Client object
+    # @param [String] instance_name
+    # @param [String] api_key
     def initialize(instance_name, api_key)
       super()
 
@@ -13,10 +16,17 @@ class Syncano
       self.client = ::Jimson::Client.new(json_rpc_url)
     end
 
+    # Proxy for new ::Syncano::Resources::Project object
+    # @return [Syncano::Resources::Project]
     def project
       ::Syncano::Resources::Project.new(self)
     end
 
+    # Performs request to Syncano api
+    # @param [String] resource_name resource name in Syncano api
+    # @param [String] method_name method name in Syncano api
+    # @param [Hash] params additional params sent in the request
+    # @return [Syncano::Response]
     def make_request(resource_name, method_name, params = {})
       response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
       parse_response(resource_name, response)
@@ -24,25 +34,26 @@ class Syncano
 
     private
 
+    # Generates url to json rpc api
+    # @return [String]
     def json_rpc_url
       "https://#{instance_name}.syncano.com/api/jsonrpc"
     end
 
+    # Prepares hash with default request params
+    # @return [Hash]
     def request_params
       { api_key: api_key }
     end
 
-    def parse_response(resource_name, response)
-      return response if response.blank?
+    # Parses Syncano api response and returns Syncano::Response object
+    # @return [Syncano::Response]
+    def parse_response(resource_name, raw_response)
+      status = raw_response.try(:[], 'result') != 'NOK'
+      data   = response.try(:[], resource_name)
+      errors = status ? [] : response['error']
 
-      case response['result']
-      when 'OK'
-        response[resource_name]
-      when 'NOK'
-        { 'error' => response['error'] }
-      else
-        { 'error' => 'Something went wrong' }
-      end
+      ::Syncano::Response.new(status, data, errors)
     end
   end
 end
