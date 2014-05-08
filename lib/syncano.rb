@@ -18,5 +18,6 @@ end
 
 require 'jimson/client'
 require 'syncano/client'
+require 'syncano/response'
 require 'syncano/resources/base'
 require 'syncano/resources/project'

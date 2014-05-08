@@ -49,9 +49,9 @@ class Syncano
     # Parses Syncano api response and returns Syncano::Response object
     # @return [Syncano::Response]
     def parse_response(resource_name, raw_response)
-      status = raw_response.try(:[], 'result') != 'NOK'
-      data   = response.try(:[], resource_name)
-      errors = status ? [] : response['error']
+      status = raw_response.nil? || raw_response['result'] != 'NOK'
+      data   = raw_response.nil? ? nil : raw_response[resource_name]
+      errors = status ? [] : raw_response['error']
 
       ::Syncano::Response.new(status, data, errors)
     end

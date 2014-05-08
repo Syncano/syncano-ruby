@@ -53,14 +53,14 @@ class Syncano
       # Converts resource class name to corresponding Syncano resource name
       # @return [String]
       def api_resource
-        self.class.to_s.demodulize.downcase
+        self.class.to_s.split('::').last.downcase
       end
 
       # Converts Syncano gem method to corresponding Syncano api method
       # @param [String] method_name
       # @return [String]
       def api_method(method_name)
-        mapping = { find_all: :get, find: :get_one, create: :new, update: :update, destroy: :delete }
+        mapping = { all: :get, find: :get_one, create: :new, update: :update, destroy: :delete }
         mapping.keys.include?(method_name.to_sym) ? mapping[method_name.to_sym] : method_name
       end
 
