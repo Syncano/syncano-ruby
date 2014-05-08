@@ -1,13 +1,15 @@
 class Syncano
   module Resources
     class Base
-      attr_accessor :client
+      attr_accessor :client, :attributes
 
       # Constructor for base resource
       # @param [Syncano::Client] client
-      def initialize(client)
+      # @param [Hash] attributes used in making requests to api (ie. parent id)
+      def initialize(client, attributes = {})
         super()
         self.client = client
+        self.attributes = attributes
       end
 
       # Wrapper for api "get" method
@@ -19,10 +21,10 @@ class Syncano
 
       # Wrapper for api "get_one" method
       # Returns one object from Syncano
-      # @param [Integer, String] id
+      # @param [Integer, Hash] key
       # @return [Syncano::Response]
-      def find(id)
-        make_member_request(id, __method__)
+      def find(key)
+        make_member_request(key, __method__)
       end
 
       # Wrapper for api "new" method
@@ -34,18 +36,18 @@ class Syncano
 
       # Wrapper for api "update" method
       # Updates object in Syncano
-      # @param [Integer, String] id
+      # @param [Integer, Hash] key
       # @return [Syncano::Response]
-      def update(id, attributes)
-        make_member_request(id, __method__, attributes)
+      def update(key, attributes)
+        make_member_request(key, __method__, attributes)
       end
 
       # Wrapper for api "delete" method
       # Destroys object in Syncano
-      # @param [Integer, String] id
+      # @param [Integer, Hash] key
       # @return [Syncano::Response]
-      def destroy(id)
-        make_member_request(id, __method__)
+      def destroy(key)
+        make_member_request(key, __method__)
       end
 
       private
@@ -69,17 +71,27 @@ class Syncano
       # @param [Hash] attributes for specific type of object
       # @return [Syncano::Response]
       def make_request(method_name, attributes = {})
-        client.make_request(api_resource, api_method(method_name), attributes)
+        client.make_request(api_resource, api_method(method_name), attributes.merge(self.attributes))
       end
 
       # Calls request to api for methods operating on a particular object
-      # @param [Integer] id
+      # @param [Integer, Hash] key
       # @param [String] method_name
       # @param [Hash] attributes for specific type of object
       # @return [Syncano::Response]
-      def make_member_request(id, method_name, attributes = {})
-        attributes.merge!({ "#{api_resource}_id" => id.to_s })
-        make_request(method_name, attributes)
+      def make_member_request(key, method_name, attributes = {})
+        key_type = 'id'
+
+        if key.is_a?(Hash)
+          if key.keys.include?(:key)
+            key_type = 'key'
+            key = key[:key]
+          else
+            key = key[:id]
+          end
+        end
+
+        make_request(method_name, attributes.merge({ "#{api_resource}_#{key_type}" => key.to_s }))
       end
     end
   end
