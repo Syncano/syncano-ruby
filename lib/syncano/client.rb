@@ -19,14 +19,14 @@ class Syncano
     # Proxy for new ::Syncano::Resources::Project object
     # @return [Syncano::Resources::Project]
     def projects
-      ::Syncano::Resources::Project.new(self)
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Project)
     end
 
     # Proxy for new ::Syncano::Resources::Collection object
     # @param [Integer, String] project_id
-    # @return [Syncano::Resources::Collection]
+    # @return [Syncano::Resources::Base]
     def collections(project_id)
-      ::Syncano::Resources::Collection.new(self, project_id)
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id)
     end
 
     # Performs request to Syncano api

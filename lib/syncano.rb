@@ -17,7 +17,9 @@ class Syncano
 end
 
 require 'jimson/client'
+require 'active_support/core_ext/hash/indifferent_access'
 require 'syncano/client'
+require 'syncano/query_builder'
 require 'syncano/response'
 require 'syncano/resources/base'
 require 'syncano/resources/project'
