@@ -29,6 +29,14 @@ class Syncano
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id)
     end
 
+    # Proxy for new ::Syncano::Resources::Folder object
+    # @param [Integer, String] project_id
+    # @param [Integer, String] collection_id
+    # @return [Syncano::Resources::Base]
+    def folders(project_id, collection_id)
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id, collection_id: collection_id)
+    end
+
     # Performs request to Syncano api
     # @param [String] resource_name resource name in Syncano api
     # @param [String] method_name method name in Syncano api

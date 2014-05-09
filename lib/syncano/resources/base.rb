@@ -4,10 +4,6 @@ class Syncano
       attr_accessor :attributes
       attr_reader :id, :errors, :destroyed
 
-      def collections
-        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::Collection, project_id: id)
-      end
-
       # Constructor for base resource
       # @param [Syncano::Client] client
       # @param [Hash] attributes used in making requests to api (ie. parent id)
@@ -15,10 +11,13 @@ class Syncano
         super()
 
         @attributes = ActiveSupport::HashWithIndifferentAccess.new(attributes)
+        @saved_attributes = ActiveSupport::HashWithIndifferentAccess.new
         self.id = @attributes.delete(:id)
 
         self.client = client
         self.errors = errors
+
+        mark_as_saved! if id.present? && errors.empty?
       end
 
       def attributes=(attributes)
@@ -39,7 +38,7 @@ class Syncano
       # Wrapper for api "get_one" method
       # Returns one object from Syncano
       # @param [Integer, Hash] key
-      # @return [Syncano::Response]
+      # @return [Syncano::Resource::Base]
       def self.find(client, id, scope_parameters = {})
         find_by(client, scope_parameters.merge(id: id))
       end
@@ -66,6 +65,9 @@ class Syncano
         if response.status
           response.data.delete('id')
           self.attributes = scope_parameters.merge(response.data)
+          mark_as_saved!
+        else
+          self.errors << 'Something went wrong'
         end
 
         self
@@ -76,6 +78,8 @@ class Syncano
           object = self.class.create(client, attributes)
           self.id = object.id
           self.attributes = object.attributes
+          self.errors = object.errors
+          mark_as_saved! if errors.empty?
         else
           self.update(attributes)
         end
@@ -97,13 +101,17 @@ class Syncano
         id.nil?
       end
 
+      def saved?
+        !new_record? && attributes == saved_attributes
+      end
+
       def destroyed?
         !!destroyed
       end
 
       def reload!
         unless new_record?
-          reloaded_object = self.class.find(client, id, scope_parameters)
+          reloaded_object = self.class.find(client, primary_key, scope_parameters)
           self.attributes = reloaded_object.attributes
           self.errors = []
         end
@@ -113,7 +121,7 @@ class Syncano
 
       private
 
-      attr_accessor :client
+      attr_accessor :client, :saved_attributes
       attr_writer :id, :errors, :destroyed
 
       # Converts resource class name to corresponding Syncano resource name
@@ -146,6 +154,8 @@ class Syncano
       def self.make_member_request(client, method_name, attributes = {})
         if attributes.keys.include?(:key)
           key_attributes = { "#{api_resource}_key" => attributes[:key].to_s }
+        elsif attributes.keys.include?(:name)
+          key_attributes = { "#{api_resource}_name" => attributes[:name].to_s }
         else
           key_attributes = { "#{api_resource}_id" => attributes[:id].to_s }
         end
@@ -169,6 +179,14 @@ class Syncano
 
       def scope_parameters
         self.class.map_to_scope_parameters(attributes)
+      end
+
+      def primary_key
+        id
+      end
+
+      def mark_as_saved!
+        self.saved_attributes = attributes.dup
       end
     end
   end

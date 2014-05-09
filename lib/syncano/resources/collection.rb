@@ -1,6 +1,9 @@
 class Syncano
   module Resources
     class Collection < ::Syncano::Resources::Base
+      def folders
+        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::Folder, scope_parameters.merge(collection_id: id))
+      end
 
       def self.find_by_key(client, key, scope_parameters = {})
         find_by(client, scope_parameters.merge(key: key))
@@ -52,9 +55,7 @@ class Syncano
 
       private
 
-      def scope_parameters
-        { project_id: attributes[:project_id] }
-      end
+      @@scope_parameters = [:project_id]
     end
   end
 end
