@@ -11,8 +11,8 @@ class Syncano
       # Wrapper for api "activate" method
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
-      def activate(key)
-        make_member_request(key, __method__)
+      def activate(key, force = false)
+        make_member_request(key, __method__, force: force)
       end
 
       # Wrapper for api "deactivate" method
