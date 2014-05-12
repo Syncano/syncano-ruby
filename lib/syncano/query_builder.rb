@@ -7,27 +7,31 @@ class Syncano
       self.scope_parameters = scope_parameters
     end
 
-    def all
-      resource_class.all(client, scope_parameters)
+    def all(conditions = {})
+      resource_class.all(client, conditions.merge(scope_parameters))
     end
 
-    def first
-      all.first
+    def count(conditions = {})
+      resource_class.count(client, conditions.merge(scope_parameters))
     end
 
-    def last
-      all.last
+    def first(conditions = {})
+      all(conditions).first
     end
 
-    def find(id)
-      resource_class.find(client, id, scope_parameters)
+    def last(conditions = {})
+      all(conditions).last
     end
 
-    def find_by_key(key)
-      resource_class.find_by_key(client, key, scope_parameters)
+    def find(id, conditions = {})
+      resource_class.find(client, id, scope_parameters, conditions)
     end
 
-    def new(attributes)
+    def find_by_key(key, conditions = {})
+      resource_class.find_by_key(client, key, scope_parameters, conditions)
+    end
+
+    def new(attributes = {})
       resource_class.new(client, attributes.merge(scope_parameters))
     end
 

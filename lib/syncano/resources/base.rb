@@ -27,20 +27,24 @@ class Syncano
       # Wrapper for api "get" method
       # Returns all objects from Syncano
       # @return [Syncano::Response]
-      def self.all(client, scope_parameters = {})
-        response = make_request(client, __method__, scope_parameters)
+      def self.all(client, scope_parameters = {}, conditions = {})
+        response = make_request(client, __method__, conditions.merge(scope_parameters))
 
         if response.status
           response.data.collect { |attributes| self.new(client, attributes.merge(scope_parameters)) }
         end
       end
 
+      def self.count(client, scope_parameters = {}, conditions = {})
+        all(client, scope_parameters, conditions).count
+      end
+
       # Wrapper for api "get_one" method
       # Returns one object from Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Resource::Base]
-      def self.find(client, id, scope_parameters = {})
-        find_by(client, scope_parameters.merge(id: id))
+      def self.find(client, id, scope_parameters = {}, conditions = {})
+        find_by(client, conditions.merge(scope_parameters.merge(id: id)))
       end
 
       # Wrapper for api "new" method
@@ -127,7 +131,7 @@ class Syncano
       # Converts resource class name to corresponding Syncano resource name
       # @return [String]
       def self.api_resource
-        to_s.split('::').last.downcase
+        syncano_model_name || to_s.split('::').last.downcase
       end
 
       # Converts Syncano gem method to corresponding Syncano api method
@@ -171,10 +175,13 @@ class Syncano
         end
       end
 
-      @@scope_parameters = []
+      class_attribute :syncano_model_name, :scope_parameters
+
+      self.syncano_model_name = nil
+      self.scope_parameters = []
 
       def self.map_to_scope_parameters(attributes)
-        Hash[@@scope_parameters.map{ |sym| [sym, attributes[sym]]}]
+        Hash[scope_parameters.map{ |sym| [sym, attributes[sym]]}]
       end
 
       def scope_parameters

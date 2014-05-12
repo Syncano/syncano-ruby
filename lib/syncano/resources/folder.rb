@@ -1,6 +1,11 @@
 class Syncano
   module Resources
     class Folder < ::Syncano::Resources::Base
+
+      def data_objects
+        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::DataObject, scope_parameters.merge(folder: @saved_attributes[:name]))
+      end
+
       # Wrapper for api "get_one" method
       # @param [Syncano::Client] client
       # @param [String] name
@@ -27,7 +32,7 @@ class Syncano
         @saved_attributes[:name]
       end
 
-      @@scope_parameters = [:project_id, :collection_id]
+      self.scope_parameters = [:project_id, :collection_id]
     end
   end
 end

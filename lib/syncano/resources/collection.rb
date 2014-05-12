@@ -5,8 +5,12 @@ class Syncano
         ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::Folder, scope_parameters.merge(collection_id: id))
       end
 
-      def self.find_by_key(client, key, scope_parameters = {})
-        find_by(client, scope_parameters.merge(key: key))
+      def data_objects
+        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::DataObject, scope_parameters.merge(collection_id: id))
+      end
+
+      def self.find_by_key(client, key, scope_parameters = {}, conditions = {})
+        find_by(client, conditions.merge(scope_parameters.merge(key: key)))
       end
 
       # Wrapper for api "activate" method
@@ -55,7 +59,7 @@ class Syncano
 
       private
 
-      @@scope_parameters = [:project_id]
+      self.scope_parameters = [:project_id]
     end
   end
 end

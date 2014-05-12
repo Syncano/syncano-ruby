@@ -37,6 +37,14 @@ class Syncano
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id, collection_id: collection_id)
     end
 
+    # Proxy for new ::Syncano::Resources::DataObject
+    # @param [Integer, String] project_id
+    # @param [Integer, String] collection_id
+    # @return [Syncano::Resources::Base]
+    def data_objects(project_id, collection_id)
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::DataObject, project_id: project_id, collection_id: collection_id)
+    end
+
     # Performs request to Syncano api
     # @param [String] resource_name resource name in Syncano api
     # @param [String] method_name method name in Syncano api
@@ -65,7 +73,13 @@ class Syncano
     # @return [Syncano::Response]
     def parse_response(resource_name, raw_response)
       status = raw_response.nil? || raw_response['result'] != 'NOK'
-      data   = raw_response.nil? ? nil : raw_response[resource_name]
+      if raw_response.nil?
+        data = nil
+      elsif raw_response[resource_name].present?
+        data = raw_response[resource_name]
+      else
+        data = raw_response['count']
+      end
       errors = status ? [] : raw_response['error']
 
       ::Syncano::Response.new(status, data, errors)
