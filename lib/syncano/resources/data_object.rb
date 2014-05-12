@@ -1,16 +1,27 @@
 class Syncano
   module Resources
     class DataObject < ::Syncano::Resources::Base
+      def initialize(client, attributes = {}, errors = [])
+        super(client, attributes, errors)
+        if self.attributes[:children].present?
+          self.attributes[:children] = self.attributes[:children].collect do |child|
+            if child.is_a?(Hash)
+              self.class.new(client, child)
+            else
+              child
+            end
+          end
+        end
+      end
+
       def self.find_by_key(client, key, scope_parameters = {})
         find_by(client, scope_parameters.merge(key: key))
       end
 
       def self.move(client, scope_parameters = {}, data_ids = [], conditions = {}, new_folder = nil, new_state = nil)
-        move_params = {}
-        move_params[:new_folder] = new_folder unless new_folder.nil?
-        move_params[:new_state] = new_state unless new_state.nil?
+        move_params = { new_folder: new_folder, new_state: new_state }.delete_if { |k, v| v.nil? }
 
-        response = make_request(client, __method__, conditions.merge({ data_ids: data_ids }.merge(move_params.merge(scope_parameters))))
+        response = make_request(client, __method__, [conditions, { data_ids: data_ids }, move_params, scope_parameters].inject(&:merge))
 
         if response.status
           self.all(client, scope_parameters, data_ids: data_ids)
