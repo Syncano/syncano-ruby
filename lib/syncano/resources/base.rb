@@ -31,7 +31,7 @@ class Syncano
         response = make_request(client, __method__, conditions.merge(scope_parameters))
 
         if response.status
-          response.data.collect { |attributes| self.new(client, attributes.merge(scope_parameters)) }
+          response.data.to_a.collect { |attributes| self.new(client, attributes.merge(scope_parameters)) }
         end
       end
 

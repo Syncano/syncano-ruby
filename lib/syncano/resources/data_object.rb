@@ -5,12 +5,33 @@ class Syncano
         find_by(client, scope_parameters.merge(key: key))
       end
 
-      def move
+      def self.move(client, scope_parameters = {}, data_ids = [], conditions = {}, new_folder = nil, new_state = nil)
+        move_params = {}
+        move_params[:new_folder] = new_folder unless new_folder.nil?
+        move_params[:new_state] = new_state unless new_state.nil?
 
+        response = make_request(client, __method__, conditions.merge({ data_ids: data_ids }.merge(move_params.merge(scope_parameters))))
+
+        if response.status
+          self.all(client, scope_parameters, data_ids: data_ids)
+        end
+      end
+
+      def move(new_folder = nil, new_state = nil)
+        self.class.move(client, scope_parameters, id, {}, new_folder, new_state).try(:first)
+        reload!
+      end
+
+      def self.copy(client, scope_parameters = {}, data_ids = [])
+        response = make_request(client, __method__, { data_ids: data_ids }.merge(scope_parameters))
+
+        if response.status
+          response.data.collect { |attributes| self.new(client, attributes.merge(scope_parameters)) }
+        end
       end
 
       def copy
-
+        self.class.copy(client, scope_parameters, id.to_s).try(:first)
       end
 
       def add_parent(parent_id, remove_other = false)

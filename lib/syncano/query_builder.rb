@@ -39,6 +39,14 @@ class Syncano
       resource_class.create(client, attributes.merge(scope_parameters))
     end
 
+    def copy(ids)
+      resource_class.copy(client, scope_parameters, ids)
+    end
+
+    def move(ids, conditions = {}, new_folder = nil, new_state = nil)
+      resource_class.move(client, scope_parameters, ids, conditions = {}, new_folder = nil, new_state = nil)
+    end
+
     private
 
     attr_accessor :client, :resource_class, :scope_parameters
