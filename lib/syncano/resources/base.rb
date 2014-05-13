@@ -51,8 +51,7 @@ class Syncano
       # Creates object in Syncano
       # @return [Syncano::Response]
       def self.create(client, attributes)
-        attributes.delete(:id)
-        response = make_request(client, __method__, attributes)
+        response = make_request(client, __method__, attributes_to_sync(attributes))
 
         if response.status
           self.new(client, map_to_scope_parameters(attributes).merge(response.data))
@@ -64,7 +63,7 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
       def update(attributes)
-        response = self.class.make_member_request(client, __method__, attributes.merge(id: id))
+        response = self.class.make_member_request(client, __method__, self.class.attributes_to_sync(attributes).merge(id: id))
 
         if response.status
           response.data.delete('id')
@@ -194,6 +193,14 @@ class Syncano
 
       def mark_as_saved!
         self.saved_attributes = attributes.dup
+      end
+
+      def self.attributes_to_sync(attributes = {})
+        attributes
+      end
+
+      def attributes_to_sync
+        self.class.attributes_to_sync(attributes)
       end
     end
   end

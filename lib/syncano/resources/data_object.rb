@@ -82,6 +82,20 @@ class Syncano
 
       self.syncano_model_name = 'data'
       self.scope_parameters = [:project_id, :collection_id]
+
+      def self.attributes_to_sync(attributes)
+        if attributes.keys.map(&:to_sym).include?(:image)
+          if attributes[:image].blank?
+            attributes[:image] = attributes[:image].to_s
+          elsif attributes[:image].is_a?(String)
+            attributes[:image] = Base64.encode64(File.read(attributes[:image]))
+          else
+            attributes.delete(:image)
+          end
+        end
+
+        attributes
+      end
     end
   end
 end
