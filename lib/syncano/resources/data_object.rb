@@ -12,6 +12,10 @@ class Syncano
             end
           end
         end
+
+        if self.attributes[:user].is_a?(Hash)
+          self.attributes[:user] = ::Syncano::Resources::User.new(client, self.attributes[:user])
+        end
       end
 
       def self.find_by_key(client, key, scope_parameters = {})
@@ -94,6 +98,8 @@ class Syncano
             attributes.delete(:image)
           end
         end
+
+        attributes.delete(:user)
 
         attributes
       end

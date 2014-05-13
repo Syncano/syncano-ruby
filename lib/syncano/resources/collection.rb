@@ -9,6 +9,10 @@ class Syncano
         ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::DataObject, scope_parameters.merge(collection_id: id))
       end
 
+      def users
+        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::User, scope_parameters.merge(collection_id: id))
+      end
+
       def self.find_by_key(client, key, scope_parameters = {}, conditions = {})
         find_by(client, conditions.merge(scope_parameters.merge(key: key)))
       end

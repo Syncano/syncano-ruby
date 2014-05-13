@@ -57,6 +57,10 @@ class Syncano
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::DataObject, project_id: project_id, collection_id: collection_id)
     end
 
+    def users(project_id, collection_id)
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::User, project_id: project_id, collection_id: collection_id)
+    end
+
     # Performs request to Syncano api
     # @param [String] resource_name resource name in Syncano api
     # @param [String] method_name method name in Syncano api
