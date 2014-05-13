@@ -84,6 +84,7 @@ class Syncano
       self.scope_parameters = [:project_id, :collection_id]
 
       def self.attributes_to_sync(attributes)
+        attributes = attributes.dup
         if attributes.keys.map(&:to_sym).include?(:image)
           if attributes[:image].blank?
             attributes[:image] = ''
