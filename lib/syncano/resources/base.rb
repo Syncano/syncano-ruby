@@ -166,6 +166,8 @@ class Syncano
           key_attributes = { "#{api_resource}_key" => attributes[:key].to_s }
         elsif attributes.keys.include?(:name)
           key_attributes = { "#{api_resource}_name" => attributes[:name].to_s }
+        elsif attributes.keys.include?(:email)
+          key_attributes = { "#{api_resource}_email" => attributes[:email].to_s }
         else
           key_attributes = { "#{api_resource}_id" => attributes[:id].to_s }
         end

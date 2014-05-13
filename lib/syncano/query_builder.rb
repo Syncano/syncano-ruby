@@ -31,6 +31,10 @@ class Syncano
       resource_class.find_by_key(client, key, scope_parameters, conditions)
     end
 
+    def find_by_email(email, conditions = {})
+      resource_class.find_by_email(client, email, scope_parameters, conditions)
+    end
+
     def new(attributes = {})
       resource_class.new(client, attributes.merge(scope_parameters))
     end

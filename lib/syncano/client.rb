@@ -16,6 +16,10 @@ class Syncano
       self.client = ::Jimson::Client.new(json_rpc_url)
     end
 
+    def admins
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Admin)
+    end
+
     def api_keys
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::ApiKey)
     end
@@ -89,6 +93,8 @@ class Syncano
         data = raw_response['count']
       end
       errors = status ? [] : raw_response['error']
+
+      raise(Syncano::ApiError.new(errors)) if errors.present?
 
       ::Syncano::Response.new(status, data, errors)
     end
