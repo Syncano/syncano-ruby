@@ -86,7 +86,7 @@ class Syncano
       def self.attributes_to_sync(attributes)
         if attributes.keys.map(&:to_sym).include?(:image)
           if attributes[:image].blank?
-            attributes[:image] = attributes[:image].to_s
+            attributes[:image] = ''
           elsif attributes[:image].is_a?(String)
             attributes[:image] = Base64.encode64(File.read(attributes[:image]))
           else
