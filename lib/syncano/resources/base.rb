@@ -28,6 +28,7 @@ class Syncano
       # Returns all objects from Syncano
       # @return [Syncano::Response]
       def self.all(client, scope_parameters = {}, conditions = {})
+        check_class_method_existance!(__method__)
         response = make_request(client, __method__, conditions.merge(scope_parameters))
 
         if response.status
@@ -36,6 +37,7 @@ class Syncano
       end
 
       def self.count(client, scope_parameters = {}, conditions = {})
+        check_class_method_existance!(__method__)
         all(client, scope_parameters, conditions).count
       end
 
@@ -44,6 +46,7 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Resource::Base]
       def self.find(client, id, scope_parameters = {}, conditions = {})
+        check_class_method_existance!(__method__)
         find_by(client, conditions.merge(scope_parameters.merge(id: id)))
       end
 
@@ -51,6 +54,7 @@ class Syncano
       # Creates object in Syncano
       # @return [Syncano::Response]
       def self.create(client, attributes)
+        check_class_method_existance!(__method__)
         response = make_request(client, __method__, attributes_to_sync(attributes))
 
         if response.status
@@ -63,6 +67,7 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
       def update(attributes)
+        check_instance_method_existance!(__method__)
         response = self.class.make_member_request(client, __method__, self.class.attributes_to_sync(attributes).merge(id: id))
 
         if response.status
@@ -77,6 +82,7 @@ class Syncano
       end
 
       def save
+        check_instance_method_existance!(__method__)
         if new_record?
           object = self.class.create(client, attributes)
           self.id = object.id
@@ -95,6 +101,7 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
       def destroy
+        check_instance_method_existance!(__method__)
         response = self.class.make_member_request(client, __method__, { id: id }.merge(scope_parameters))
         self.destroyed = response.status
         self
@@ -174,10 +181,12 @@ class Syncano
         end
       end
 
-      class_attribute :syncano_model_name, :scope_parameters
+      class_attribute :syncano_model_name, :scope_parameters, :crud_class_methods, :crud_instance_methods
 
       self.syncano_model_name = nil
       self.scope_parameters = []
+      self.crud_class_methods = [:all, :find, :new, :create, :count]
+      self.crud_instance_methods = [:save, :update, :destroy]
 
       def self.map_to_scope_parameters(attributes)
         Hash[scope_parameters.map{ |sym| [sym, attributes[sym]]}]
@@ -201,6 +210,14 @@ class Syncano
 
       def attributes_to_sync
         self.class.attributes_to_sync(attributes)
+      end
+
+      def self.check_class_method_existance!(method_name)
+        raise NoMethodError.new("undefined method `#{method_name}' for #{to_s}") unless crud_class_methods.include?(method_name.to_sym)
+      end
+
+      def check_instance_method_existance!(method_name)
+        raise NoMethodError.new("undefined method `#{method_name}' for #{to_s}") unless crud_instance_methods.include?(method_name.to_sym)
       end
     end
   end

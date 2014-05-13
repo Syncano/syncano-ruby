@@ -20,6 +20,10 @@ class Syncano
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::ApiKey)
     end
 
+    def roles
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Role)
+    end
+
     # Proxy for new ::Syncano::Resources::Project object
     # @return [Syncano::Resources::Project]
     def projects
