@@ -16,6 +16,10 @@ class Syncano
       self.client = ::Jimson::Client.new(json_rpc_url)
     end
 
+    def api_keys
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::ApiKey)
+    end
+
     # Proxy for new ::Syncano::Resources::Project object
     # @return [Syncano::Resources::Project]
     def projects
