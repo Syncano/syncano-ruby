@@ -11,27 +11,13 @@ class Syncano
       # @param [String] name
       # @param [Hash] scope_parameters
       # @return [Syncano::Resource::Folder]
-      def self.find(client, name, scope_parameters = {})
-        find_by_name(client, name, scope_parameters)
-      end
-
-      # Wrapper for api "get_one" method
-      # @param [Syncano::Client] client
-      # @param [String] name
-      # @param [Hash] scope_parameters
-      # @return [Syncano::Resource::Folder]
-      def self.find_by_name(client, name, scope_parameters = {})
-        find_by(client, scope_parameters.merge(name: name))
+      def self.find_by_name(client, name, scope_parameters = {}, conditions = {})
+        perform_find(client, :name, name, scope_parameters, conditions)
       end
 
       private
 
-      # Method for generating primary key used in api
-      # @return [String]
-      def primary_key
-        @saved_attributes[:name]
-      end
-
+      self.primary_key = :name
       self.scope_parameters = [:project_id, :collection_id]
     end
   end

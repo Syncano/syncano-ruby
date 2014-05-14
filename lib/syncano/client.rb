@@ -68,7 +68,24 @@ class Syncano
     # @return [Syncano::Response]
     def make_request(resource_name, method_name, params = {})
       response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
-      parse_response(resource_name, response)
+      response = parse_response(resource_name, response)
+
+      response.errors.present? ? raise(Syncano::ApiError.new(errors)) : response
+    end
+
+    def make_batch_request(batch_client, resource_name, method_name, params = {})
+      batch_client.send("#{resource_name}.#{method_name}", request_params.merge(params))
+    end
+
+    def batch
+      queue = ::Syncano::BatchQueue.new(client)
+      yield(queue)
+      queue.prune!
+
+      queue.responses.collect do |response|
+        resource_name = response.first.method.split('.').first
+        parse_response(resource_name, response.last.result)
+      end
     end
 
     private
@@ -97,8 +114,6 @@ class Syncano
         data = raw_response['count']
       end
       errors = status ? [] : raw_response['error']
-
-      raise(Syncano::ApiError.new(errors)) if errors.present?
 
       ::Syncano::Response.new(status, data, errors)
     end

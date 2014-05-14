@@ -24,12 +24,15 @@ class Syncano
         @attributes.merge!(attributes)
       end
 
+      def batch
+        ::Syncano::BatchQueueElement.new(self)
+      end
+
       # Wrapper for api "get" method
       # Returns all objects from Syncano
       # @return [Syncano::Response]
       def self.all(client, scope_parameters = {}, conditions = {})
-        check_class_method_existance!(__method__)
-        response = make_request(client, __method__, conditions.merge(scope_parameters))
+        response = perform_all(client, scope_parameters, conditions)
 
         if response.status
           response.data.to_a.collect { |attributes| self.new(client, attributes.merge(scope_parameters)) }
@@ -37,29 +40,34 @@ class Syncano
       end
 
       def self.count(client, scope_parameters = {}, conditions = {})
-        check_class_method_existance!(__method__)
-        all(client, scope_parameters, conditions).count
+        perform_count(client, scope_parameters, conditions)
       end
 
       # Wrapper for api "get_one" method
       # Returns one object from Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Resource::Base]
-      def self.find(client, id, scope_parameters = {}, conditions = {})
-        check_class_method_existance!(__method__)
-        find_by(client, conditions.merge(scope_parameters.merge(id: id)))
+      def self.find(client, key, scope_parameters = {}, conditions = {})
+        response = perform_find(client, primary_key, key, scope_parameters, conditions)
+
+        if response.status
+          self.new(client, scope_parameters.merge(response.data))
+        end
       end
 
       # Wrapper for api "new" method
       # Creates object in Syncano
       # @return [Syncano::Response]
       def self.create(client, attributes)
-        check_class_method_existance!(__method__)
-        response = make_request(client, __method__, attributes_to_sync(attributes))
+        response = perform_create(client, nil, attributes)
 
         if response.status
           self.new(client, map_to_scope_parameters(attributes).merge(response.data))
         end
+      end
+
+      def self.batch_create(batch_client, client, attributes)
+        perform_create(client, batch_client, attributes)
       end
 
       # Wrapper for api "update" method
@@ -67,8 +75,7 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
       def update(attributes)
-        check_instance_method_existance!(__method__)
-        response = self.class.make_member_request(client, __method__, self.class.attributes_to_sync(attributes).merge(id: id))
+        response = perform_update(nil, attributes)
 
         if response.status
           response.data.delete('id')
@@ -81,19 +88,25 @@ class Syncano
         self
       end
 
+      def batch_update(batch_client, attributes)
+        perform_update(batch_client, attributes)
+      end
+
       def save
-        check_instance_method_existance!(__method__)
+        response = perform_save(nil)
+
         if new_record?
-          object = self.class.create(client, attributes)
-          self.id = object.id
-          self.attributes = object.attributes
-          self.errors = object.errors
+          self.id = response.id
+          self.attributes = response.attributes
+          self.errors = response.errors
           mark_as_saved! if errors.empty?
-        else
-          self.update(attributes)
         end
 
         self
+      end
+
+      def batch_save(batch_client)
+        perform_save(batch_client)
       end
 
       # Wrapper for api "delete" method
@@ -101,10 +114,14 @@ class Syncano
       # @param [Integer, Hash] key
       # @return [Syncano::Response]
       def destroy
-        check_instance_method_existance!(__method__)
-        response = self.class.make_member_request(client, __method__, { id: id }.merge(scope_parameters))
+        response = perform_destroy(nil)
+
         self.destroyed = response.status
         self
+      end
+
+      def batch_destroy(batch_client)
+        perform_destroy(batch_client)
       end
 
       def new_record?
@@ -134,6 +151,46 @@ class Syncano
       attr_accessor :client, :saved_attributes
       attr_writer :id, :errors, :destroyed
 
+      def self.perform_all(client, scope_parameters, conditions)
+        check_class_method_existance!(:all)
+        make_request(client, nil, :all, conditions.merge(scope_parameters))
+      end
+
+      def self.perform_count(client, scope_parameters, conditions)
+        check_class_method_existance!(:count)
+        all(client, scope_parameters, conditions).count
+      end
+
+      def self.perform_find(client, key_name, key, scope_parameters, conditions)
+        check_class_method_existance!(:find)
+        make_member_request(client, nil, :find, key_name, conditions.merge(scope_parameters.merge(key_name.to_sym => key)))
+      end
+
+      def self.perform_create(client, batch_client, attributes)
+        check_class_method_existance!(:create)
+        make_request(client, batch_client, :create, attributes_to_sync(attributes))
+      end
+
+      def perform_update(batch_client, attributes)
+        check_instance_method_existance!(:update)
+        self.class.make_member_request(client, batch_client, :update, self.class.primary_key, self.class.attributes_to_sync(attributes).merge(self.class.primary_key.to_sym => primary_key))
+      end
+
+      def perform_save(batch_client)
+        check_instance_method_existance!(:save)
+
+        if new_record?
+          self.class.perform_create(client, batch_client, attributes)
+        else
+          perform_update(batch_client, attributes)
+        end
+      end
+
+      def perform_destroy(batch_client)
+        check_instance_method_existance!(:destroy)
+        self.class.make_member_request(client, batch_client, :destroy, scope_parameters.merge({ self.class.primary_key.to_sym => primary_key }))
+      end
+
       # Converts resource class name to corresponding Syncano resource name
       # @return [String]
       def self.api_resource
@@ -144,7 +201,9 @@ class Syncano
       # @param [String] method_name
       # @return [String]
       def self.api_method(method_name)
-        mapping = { all: :get, find_by: :get_one, create: :new, update: :update, destroy: :delete }
+        mapping = { all: :get, find: :get_one, create: :new, update: :update, destroy: :delete }
+
+        method_name = method_name.to_s.gsub('batch_', '')
         mapping.keys.include?(method_name.to_sym) ? mapping[method_name.to_sym] : method_name
       end
 
@@ -152,8 +211,12 @@ class Syncano
       # @param [String] method_name
       # @param [Hash] attributes for specific type of object
       # @return [Syncano::Response]
-      def self.make_request(client, method_name, attributes = {})
-        response = client.make_request(api_resource, api_method(method_name), attributes)
+      def self.make_request(client, batch_client, method_name, attributes = {})
+        if batch_client.present?
+          client.make_batch_request(batch_client, api_resource, api_method(method_name), attributes)
+        else
+          client.make_request(api_resource, api_method(method_name), attributes)
+        end
       end
 
       # Calls request to api for methods operating on a particular object
@@ -161,34 +224,18 @@ class Syncano
       # @param [String] method_name
       # @param [Hash] attributes for specific type of object
       # @return [Syncano::Response]
-      def self.make_member_request(client, method_name, attributes = {})
-        if attributes.keys.include?(:key)
-          key_attributes = { "#{api_resource}_key" => attributes[:key].to_s }
-        elsif attributes.keys.include?(:name)
-          key_attributes = { "#{api_resource}_name" => attributes[:name].to_s }
-        elsif attributes.keys.include?(:email)
-          key_attributes = { "#{api_resource}_email" => attributes[:email].to_s }
-        else
-          key_attributes = { "#{api_resource}_id" => attributes[:id].to_s }
-        end
-
-        make_request(client, method_name, attributes.merge(key_attributes))
+      def self.make_member_request(client, batch_client, method_name, key, attributes = {})
+        key_attributes = { "#{api_resource}_#{key}" => attributes[key].to_s }
+        make_request(client, batch_client, method_name, attributes.merge(key_attributes))
       end
 
-      def self.find_by(client, attributes)
-        response = make_member_request(client, __method__, attributes)
-
-        if response.status
-          self.new(client, attributes.merge(response.data))
-        end
-      end
-
-      class_attribute :syncano_model_name, :scope_parameters, :crud_class_methods, :crud_instance_methods
+      class_attribute :syncano_model_name, :scope_parameters, :crud_class_methods, :crud_instance_methods, :primary_key
 
       self.syncano_model_name = nil
       self.scope_parameters = []
       self.crud_class_methods = [:all, :find, :new, :create, :count]
       self.crud_instance_methods = [:save, :update, :destroy]
+      self.primary_key = :id
 
       def self.map_to_scope_parameters(attributes)
         Hash[scope_parameters.map{ |sym| [sym, attributes[sym]]}]
@@ -199,7 +246,7 @@ class Syncano
       end
 
       def primary_key
-        id
+        @saved_attributes[self.class.primary_key]
       end
 
       def mark_as_saved!

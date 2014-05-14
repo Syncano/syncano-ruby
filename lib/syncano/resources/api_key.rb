@@ -12,20 +12,6 @@ class Syncano
         end
       end
 
-      def update(attributes)
-        response = self.class.make_member_request(client, 'update_description', self.class.attributes_to_sync(attributes).merge(id: id))
-
-        if response.status
-          response.data.delete('id')
-          self.attributes = scope_parameters.merge(response.data)
-          mark_as_saved!
-        else
-          self.errors << 'Something went wrong'
-        end
-
-        self
-      end
-
       private
 
       def self.attributes_to_sync(attributes)
@@ -33,6 +19,10 @@ class Syncano
         [:role, :role_id].each { |attribute| attributes.delete(:attribute) }
 
         attributes
+      end
+
+      def perform_update(batch_client, attributes)
+        self.class.make_member_request(client, batch_client, :update_description, self.class.primary_key, self.class.attributes_to_sync(attributes).merge(self.class.primary_key.to_sym => primary_key))
       end
     end
   end

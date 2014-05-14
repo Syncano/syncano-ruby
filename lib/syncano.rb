@@ -17,11 +17,14 @@ class Syncano
 end
 
 require 'jimson/client'
+require 'syncano/jimson_client'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'
 require 'syncano/errors'
 require 'syncano/client'
 require 'syncano/query_builder'
+require 'syncano/batch_queue'
+require 'syncano/batch_queue_element'
 require 'syncano/response'
 require 'syncano/resources/base'
 require 'syncano/resources/admin'
