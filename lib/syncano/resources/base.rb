@@ -26,6 +26,21 @@ class Syncano
         @attributes.merge!(attributes)
       end
 
+      # Single attribute getter
+      # @param [Symbol, String] attribute_name
+      # @return [Object]
+      def [](attribute_name)
+        attributes[attribute_name]
+      end
+
+      # Single attribute setter
+      # @param [Symbol, String] attribute_name
+      # @param [Object] attribute_value
+      # @return [Object]
+      def []=(attribute_name, attribute_value)
+        attributes[attribute_name] = attribute_value
+      end
+
       # Proxy for preparing batch requests
       # ie. resource.batch.update will prepare BatchQueueElement
       # which invokes batch_update method on resource object
@@ -253,7 +268,7 @@ class Syncano
       # @return [Syncano::Response]
       def perform_destroy(batch_client)
         check_instance_method_existance!(:destroy)
-        self.class.make_member_request(client, batch_client, :destroy, scope_parameters.merge({ self.class.primary_key.to_sym => primary_key }))
+        self.class.make_member_request(client, batch_client, :destroy, self.class.primary_key, scope_parameters.merge({ self.class.primary_key.to_sym => primary_key }))
       end
 
       # Converts resource class name to corresponding Syncano resource name
@@ -279,10 +294,10 @@ class Syncano
       # @param [Hash] attributes
       # @return [Syncano::Response]
       def self.make_request(client, batch_client, method_name, attributes = {})
-        if batch_client.present?
-          client.make_batch_request(batch_client, api_resource, api_method(method_name), attributes)
-        else
+        if batch_client.nil?
           client.make_request(api_resource, api_method(method_name), attributes)
+        else
+          client.make_batch_request(batch_client, api_resource, api_method(method_name), attributes)
         end
       end
 
@@ -293,7 +308,12 @@ class Syncano
       # @param [Hash] attributes
       # @return [Syncano::Response]
       def self.make_member_request(client, batch_client, method_name, key, attributes = {})
-        key_attributes = { "#{api_resource}_#{key}" => attributes[key].to_s }
+        if attributes[key].present?
+          key_attributes = { "#{api_resource}_#{key}" => attributes[key].to_s }
+          attributes.delete(key)
+        else
+          key_attributes = {}
+        end
         make_request(client, batch_client, method_name, attributes.merge(key_attributes))
       end
 
@@ -313,7 +333,7 @@ class Syncano
       # Returns value of primary key
       # @return [Integer, String]
       def primary_key
-        @saved_attributes[self.class.primary_key]
+        self.class.primary_key == :id ? id : @saved_attributes[self.class.primary_key]
       end
 
       # Marks record as saved, by copying attributes to saved_attributes

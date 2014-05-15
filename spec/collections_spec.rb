@@ -1,79 +1,67 @@
 require 'spec_helper'
 
 describe 'Syncano::Resource::Collection' do
-  config.before(:all) do
-    @project = @client.projects.all.data.first
-    if @project.nil?
-      @client.projects.create(name: 'Test project')
-      @project = @client.projects.all.data.first
-    end
+  before(:all) do
+    @project = @client.projects.last || @client.projects.create(name: 'Test project')
   end
 
   it 'should create a new collection in Syncano' do
-    all_collections_before = @client.collections(@project['id']).all
+    count_before = @project.collections.count
 
-    response = @client.collections(@project['id']).create(name: 'Test collection', description: 'Just testing')
-    response.status.should == true
+    collection = @project.collections.create(name: 'Test collection', description: 'Just testing')
+    collection.id.should_not be_nil
 
-    all_collections_after = @client.collections(@project['id']).all
+    count_after = @project.collections.count
 
-    (all_collections_after.data.count - all_collections_before.data.count).should == 1
-    all_collections_after.data.last['name'].should == 'Test collection'
+    (count_after - count_before).should == 1
+    @project.collections.last[:name].should == 'Test collection'
   end
 
   it 'should get all collections' do
-    all_collections = @client.collections(@project['id']).all
-    all_collections.status.should == true
-
-    all_collections.data.each do |collection_data|
-      expect(collection_data.keys).to include('id')
-      collection_data['id'].should_not be_nil
-      expect(collection_data.keys).to include('name')
-      collection_data['name'].should_not be_nil
+    @project.collections.all.each do |collection|
+      collection.id.should_not be_nil
+      collection[:name].should_not be_nil
     end
   end
 
   it 'should get a one collection' do
-    collections_data = @client.collections(@project['id']).all.data.last
-
-    collection_data = @client.collections(@project['id']).find(collections_data.data.last['id'])
-    collection_data.data['name'].should == projects_data.data.last['name']
+    collection = @project.collections.last
+    @project.collections.find(collection.id)[:name].should == collection[:name]
   end
 
   it 'should activate inactive collection' do
-    collection = @client.collections(@project['id']).all.data.last
-    if collection['status'] == 'active'
-      @client.collections.deactivate(collection['id'])
-      collection = @client.collections(@project['id']).find(collection['id']).data
+    collection = @project.collections.last
+
+    if collection[:status] == 'active'
+      collection.deactivate
+      collection.reload!
     end
+    collection[:status].should == 'inactive'
 
-    collection['status'].should == 'inactive'
-    @client.collections(@project['id']).activate(collection['id'])
-
-    collection = @client.collections(@project['id']).find(collection['id']).data
+    collection.activate
+    collection.reload!
     collection['status'].should == 'active'
   end
 
   it 'should deactivate active collection' do
-    collection = @client.collections(@project['id']).all.data.last
-    if collection['status'] == 'inactive'
-      @client.collections.activate(collection['id'])
-      collection = @client.collections(@project['id']).find(collection['id']).data
+    collection = @project.collections.last
+
+    if collection[:status] == 'inactive'
+      collection.activate
+      collection.reload!
     end
+    collection[:status].should == 'active'
 
-    collection['status'].should == 'active'
-    @client.collections(@project['id']).activate(collection['id'])
-
-    collection = @client.collections(@project['id']).find(collection['id']).data
-    collection['status'].should == 'inactive'
+    collection.deactivate
+    collection.reload!
+    collection[:status].should == 'inactive'
   end
 
   it 'should destroy a collection' do
-    all_collections_before = @client.collections(@project['id']).all
-    collection_id = all_collections_before.data.last['id']
-    @client.collections(@project['id']).destroy(collection_id)
-    all_collections_after = @client.collections(@project['id']).all
+    count_before = @project.collections.count
+    @project.collections.last.destroy
+    count_after = @project.collections.count
 
-    (all_collections_before.data.count - all_collections_after.data.count).should == 1
+    (count_before - count_after).should == 1
   end
 end

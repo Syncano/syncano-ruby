@@ -80,7 +80,7 @@ class Syncano
       response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
       response = self.class.parse_response(resource_name, response)
 
-      response.errors.present? ? raise(Syncano::ApiError.new(errors)) : response
+      response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
     end
 
     # Performs batch request to Syncano api
