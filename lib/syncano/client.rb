@@ -16,67 +16,85 @@ class Syncano
       self.client = ::Jimson::Client.new(json_rpc_url)
     end
 
+    # Returns query builder for Syncano::Resources::Admin objects
+    # @return [Syncano::QueryBuilder]
     def admins
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Admin)
     end
 
+    # Returns query builder for Syncano::Resources::ApiKey objects
+    # @return [Syncano::QueryBuilder]
     def api_keys
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::ApiKey)
     end
 
+    # Returns query builder for Syncano::Resources::Role objects
+    # @return [Syncano::QueryBuilder]
     def roles
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Role)
     end
 
-    # Proxy for new ::Syncano::Resources::Project object
-    # @return [Syncano::Resources::Project]
+    # Returns query builder for Syncano::Resources::Project objects
+    # @return [Syncano::QueryBuilder]
     def projects
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Project)
     end
 
-    # Proxy for new ::Syncano::Resources::Collection object
+    # Returns query builder for Syncano::Resources::Project objects
     # @param [Integer, String] project_id
-    # @return [Syncano::Resources::Base]
+    # @return [Syncano::QueryBuilder]
     def collections(project_id)
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id)
     end
 
-    # Proxy for new ::Syncano::Resources::Folder object
+    # Returns query builder for Syncano::Resources::Folder objects
     # @param [Integer, String] project_id
     # @param [Integer, String] collection_id
-    # @return [Syncano::Resources::Base]
+    # @return [Syncano::QueryBuilder]
     def folders(project_id, collection_id)
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Collection, project_id: project_id, collection_id: collection_id)
     end
 
-    # Proxy for new ::Syncano::Resources::DataObject
+    # Returns query builder for Syncano::Resources::DataObject objects
     # @param [Integer, String] project_id
     # @param [Integer, String] collection_id
-    # @return [Syncano::Resources::Base]
+    # @return [Syncano::QueryBuilder]
     def data_objects(project_id, collection_id)
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::DataObject, project_id: project_id, collection_id: collection_id)
     end
 
+    # Returns query builder for Syncano::Resources::User objects
+    # @param [Integer, String] project_id
+    # @param [Integer, String] collection_id
+    # @return [Syncano::QueryBuilder]
     def users(project_id, collection_id)
       ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::User, project_id: project_id, collection_id: collection_id)
     end
 
     # Performs request to Syncano api
-    # @param [String] resource_name resource name in Syncano api
-    # @param [String] method_name method name in Syncano api
+    # @param [String] resource_name
+    # @param [String] method_name
     # @param [Hash] params additional params sent in the request
     # @return [Syncano::Response]
     def make_request(resource_name, method_name, params = {})
       response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
-      response = parse_response(resource_name, response)
+      response = self.class.parse_response(resource_name, response)
 
       response.errors.present? ? raise(Syncano::ApiError.new(errors)) : response
     end
 
+    # Performs batch request to Syncano api
+    # @param [Jimson::BatchClient] batch_client
+    # @param [String] resource_name
+    # @param [String] method_name
+    # @param [Hash] params additional params sent in the request
     def make_batch_request(batch_client, resource_name, method_name, params = {})
       batch_client.send("#{resource_name}.#{method_name}", request_params.merge(params))
     end
 
+    # Gets block in which Syncano::BatchQueue object is provided and batch requests can be executed
+    # @param [Block]
+    # @return [Array] collection of parsed responses
     def batch
       queue = ::Syncano::BatchQueue.new(client)
       yield(queue)
@@ -84,7 +102,7 @@ class Syncano
 
       queue.responses.collect do |response|
         resource_name = response.first.method.split('.').first
-        parse_response(resource_name, response.last.result)
+        self.class.parse_response(resource_name, response.last.result)
       end
     end
 
@@ -103,8 +121,10 @@ class Syncano
     end
 
     # Parses Syncano api response and returns Syncano::Response object
+    # @param [String] resource_name
+    # @param [Hash] raw_response
     # @return [Syncano::Response]
-    def parse_response(resource_name, raw_response)
+    def self.parse_response(resource_name, raw_response)
       status = raw_response.nil? || raw_response['result'] != 'NOK'
       if raw_response.nil?
         data = nil
