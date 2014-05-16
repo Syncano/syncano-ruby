@@ -18,9 +18,13 @@ end
 
 require 'jimson/client'
 require 'syncano/jimson_client'
+require 'multi_json'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'
 require 'active_support/core_ext/object/blank.rb'
+require 'active_support/json/decoding.rb'
+require 'active_support/json/encoding.rb'
+require 'active_support/time_with_zone.rb'
 require 'syncano/errors'
 require 'syncano/client'
 require 'syncano/query_builder'

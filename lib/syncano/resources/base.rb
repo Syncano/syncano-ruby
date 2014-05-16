@@ -177,10 +177,12 @@ class Syncano
 
       # Reloads record from Syncano
       # @return [TrueClass, FalseClass]
-      def reload!
+      def reload!(conditions = {})
         unless new_record?
-          reloaded_object = self.class.find(client, primary_key, scope_parameters)
+          reloaded_object = self.class.find(client, primary_key, scope_parameters, conditions)
+          self.attributes.clear
           self.attributes = reloaded_object.attributes
+          mark_as_saved!
         end
 
         self
