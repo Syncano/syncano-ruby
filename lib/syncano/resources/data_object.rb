@@ -249,8 +249,8 @@ class Syncano
       # @param [TrueClass, FalseClass] remove_other
       # @return [Syncano::Response]
       def perform_add_parent(batch_client, parent_id, remove_other = false)
-        self.class.make_member_request(client, batch_client, :add_parent, self.class.primary_key, scope_parameters.merge(
-          self.class.primary_key => primary_key,
+        self.class.make_request(client, batch_client, :add_parent, scope_parameters.merge(
+          self.class.primary_key_name => primary_key,
           parent_id: parent_id,
           remove_other: remove_other
         ))
@@ -261,8 +261,8 @@ class Syncano
       # @param [Integer] parent_id
       # @return [Syncano::Response]
       def perform_remove_parent(batch_client, parent_id)
-        self.class.make_member_request(client, batch_client, :remove_parent, self.class.primary_key, scope_parameters.merge(
-            self.class.primary_key => primary_key,
+        self.class.make_request(client, batch_client, :remove_parent, scope_parameters.merge(
+            self.class.primary_key_name => primary_key,
             parent_id: parent_id
         ))
       end
@@ -273,8 +273,8 @@ class Syncano
       # @param [TrueClass, FalseClass] remove_other
       # @return [Syncano::Response]
       def perform_add_child(batch_client, child_id, remove_other = false)
-        self.class.make_member_request(client, batch_client, :add_child, self.class.primary_key, scope_parameters.merge(
-            self.class.primary_key => primary_key,
+        self.class.make_request(client, batch_client, :add_child, scope_parameters.merge(
+            self.class.primary_key_name => primary_key,
             child_id: child_id,
             remove_other: remove_other
         ))
@@ -285,8 +285,8 @@ class Syncano
       # @param [Integer] child_id
       # @return [Syncano::Response]
       def perform_remove_child(batch_client, child_id)
-        self.class.make_member_request(client, batch_client, :remove_child, self.class.primary_key, scope_parameters.merge(
-            self.class.primary_key => primary_key,
+        self.class.make_request(client, batch_client, :remove_child, scope_parameters.merge(
+            self.class.primary_key_name => primary_key,
             child_id: child_id
         ))
       end

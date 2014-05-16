@@ -111,8 +111,8 @@ class Syncano
       # @param [TrueClass, FalseClass] force
       # @return [Syncano::Response]
       def perform_activate(batch_client, force)
-        self.class.make_member_request(client, batch_client, :activate, self.class.primary_key, scope_parameters.merge(
-          self.class.primary_key.to_sym => primary_key,
+        self.class.make_request(client, batch_client, :activate, scope_parameters.merge(
+          self.class.primary_key_name => primary_key,
           force: force
         ))
       end
@@ -121,8 +121,8 @@ class Syncano
       # @param [Jimson::BatchClient] batch_client
       # @return [Syncano::Response]
       def perform_deactivate(batch_client)
-        self.class.make_member_request(client, batch_client, :deactivate, self.class.primary_key, scope_parameters.merge(
-          self.class.primary_key.to_sym => primary_key
+        self.class.make_request(client, batch_client, :deactivate, scope_parameters.merge(
+          self.class.primary_key_name => primary_key
         ))
       end
 
@@ -133,8 +133,8 @@ class Syncano
       # @param [TrueClass, FalseClass] remove_other
       # @return [Syncano::Response]
       def perform_add_tag(batch_client, tags, weight, remove_other)
-        self.class.make_member_request(client, batch_client, :add_tag, self.class.primary_key, scope_parameters.merge(
-          self.class.primary_key.to_sym => primary_key,
+        self.class.make_request(client, batch_client, :add_tag, scope_parameters.merge(
+          self.class.primary_key_name => primary_key,
           tags: tags,
           weight: weight,
           remove_other: remove_other
@@ -146,8 +146,8 @@ class Syncano
       # @param [String, Array] tags
       # @return [Syncano::Response]
       def perform_delete_tag(batch_client, tags)
-        self.class.make_member_request(client, batch_client, :delete_tag, self.class.primary_key, scope_parameters.merge(
-          self.class.primary_key.to_sym => primary_key,
+        self.class.make_request(client, batch_client, :delete_tag, scope_parameters.merge(
+          self.class.primary_key_name => primary_key,
           tags: tags
         ))
       end

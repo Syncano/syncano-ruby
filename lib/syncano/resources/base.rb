@@ -78,7 +78,7 @@ class Syncano
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       def self.find(client, key, scope_parameters = {}, conditions = {})
-        response = perform_find(client, primary_key, key, scope_parameters, conditions)
+        response = perform_find(client, primary_key_name, key, scope_parameters, conditions)
         new(client, scope_parameters.merge(response.data))
       end
 
@@ -228,7 +228,7 @@ class Syncano
       # @return [Syncano::Response]
       def self.perform_find(client, key_name, key, scope_parameters, conditions)
         check_class_method_existance!(:find)
-        make_member_request(client, nil, :find, key_name, conditions.merge(scope_parameters.merge(key_name.to_sym => key)))
+        make_request(client, nil, :find, conditions.merge(scope_parameters.merge(key_name.to_sym => key)))
       end
 
       # Executes proper create request
@@ -247,7 +247,7 @@ class Syncano
       # @return [Syncano::Response]
       def perform_update(batch_client, attributes)
         check_instance_method_existance!(:update)
-        self.class.make_member_request(client, batch_client, :update, self.class.primary_key, self.class.attributes_to_sync(attributes).merge(self.class.primary_key.to_sym => primary_key))
+        self.class.make_request(client, batch_client, :update, self.class.attributes_to_sync(attributes).merge(self.class.primary_key_name => primary_key))
       end
 
       # Executes proper save request
@@ -268,7 +268,7 @@ class Syncano
       # @return [Syncano::Response]
       def perform_destroy(batch_client)
         check_instance_method_existance!(:destroy)
-        self.class.make_member_request(client, batch_client, :destroy, self.class.primary_key, scope_parameters.merge({ self.class.primary_key.to_sym => primary_key }))
+        self.class.make_request(client, batch_client, :destroy, scope_parameters.merge({ self.class.primary_key_name => primary_key }))
       end
 
       # Converts resource class name to corresponding Syncano resource name
@@ -301,22 +301,6 @@ class Syncano
         end
       end
 
-      # Calls request to api for methods operating on a particular object
-      # @param [Syncano::Client] client
-      # @param [Jimson::BatchClient] batch_client
-      # @param [String] method_name
-      # @param [Hash] attributes
-      # @return [Syncano::Response]
-      def self.make_member_request(client, batch_client, method_name, key, attributes = {})
-        if attributes[key].present?
-          key_attributes = { "#{api_resource}_#{key}" => attributes[key].to_s }
-          attributes.delete(key)
-        else
-          key_attributes = {}
-        end
-        make_request(client, batch_client, method_name, attributes.merge(key_attributes))
-      end
-
       # Returns scope parameters from provided hash with attributes
       # @param [Hash] attributes
       # @return [Hash]
@@ -328,6 +312,10 @@ class Syncano
       # @return [Hash]
       def scope_parameters
         self.class.map_to_scope_parameters(attributes)
+      end
+
+      def self.primary_key_name
+        "#{api_resource}_#{primary_key}".to_sym
       end
 
       # Returns value of primary key

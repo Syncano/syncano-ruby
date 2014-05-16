@@ -8,7 +8,7 @@ class Syncano
       # @param [Hash] conditions
       # @return [Syncano::Resources::Admin]
       def self.find_by_email(client, email, scope_parameters = {}, conditions = {})
-        perform_find(client, :email, email, scope_parameters, conditions)
+        perform_find(client, :admin_email, email, scope_parameters, conditions)
       end
 
       # Wrapper for api "new" method

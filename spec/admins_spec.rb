@@ -11,7 +11,7 @@ describe 'Syncano::Resource::Admin' do
   it 'should get one admin' do
     admins = @client.admins.all
 
-    @client.admins.find(admins.last[:admin_email])[:name].should == admins.last[:name]
-    @client.admins.find_by_email(admins.last[:admin_email])[:name].should == admins.last[:name]
+    @client.admins.find(admins.last.id)[:name].should == admins.last[:name]
+    @client.admins.find_by_email(admins.last[:email])[:email].should == admins.last[:email]
   end
 end

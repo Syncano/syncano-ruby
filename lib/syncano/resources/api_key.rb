@@ -27,12 +27,16 @@ class Syncano
         attributes
       end
 
+      def self.primary_key_name
+        :api_client_id
+      end
+
       # Executes proper update request
       # @param [Jimson::BatchClient] batch_client
       # @param [Hash] attributes
       # @return [Syncano::Response]
       def perform_update(batch_client, attributes)
-        self.class.make_member_request(client, batch_client, :update_description, self.class.primary_key, self.class.attributes_to_sync(attributes).merge(self.class.primary_key.to_sym => primary_key))
+        self.class.make_request(client, batch_client, :update_description, self.class.attributes_to_sync(attributes).merge(self.class.primary_key_name.to_sym => primary_key))
       end
     end
   end

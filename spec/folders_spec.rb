@@ -7,12 +7,13 @@ describe 'Syncano::Resource::Folder' do
   end
 
   it 'should create new folder in Syncano' do
+    folder_name = "Test folder ##{Time.now.to_i}"
     count_before = @collection.folders.count
-    folder = @collection.folders.create(name: 'Test folder')
+    folder = @collection.folders.create(name: folder_name)
     count_after = @collection.folders.count
 
     (count_after - count_before).should == 1
-    @collection.folders.last[:name].should == 'Test folder'
+    @collection.folders.last[:name].should == folder_name
   end
 
   it 'should get folders' do
