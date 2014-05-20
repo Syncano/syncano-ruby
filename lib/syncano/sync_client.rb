@@ -86,6 +86,10 @@ class Syncano
       connection.remove_callback(callback_name)
     end
 
+    def send_notification(data)
+      make_request('notification', 'send', data)
+    end
+
     def make_request(resource_name, method_name, params = {})
       packet = ::Syncano::Packets::Call.new(resource_name: resource_name, method_name: method_name, data: params)
       connection.send_data("#{packet.to_json}\n")

@@ -16,7 +16,7 @@ class Syncano
           type: 'call',
           method: "#{resource_name}.#{method_name}",
           params: data,
-          message_id: message_id
+          message_id: message_id.to_s
         }
       end
     end

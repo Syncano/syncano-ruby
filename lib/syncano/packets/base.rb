@@ -14,6 +14,7 @@ class Syncano
           auth: ::Syncano::Packets::Auth,
           call: ::Syncano::Packets::Call,
           callresponse: ::Syncano::Packets::CallResponse,
+          error: ::Syncano::Packets::Error,
           message: ::Syncano::Packets::Message,
           new: ::Syncano::Packets::Notification,
           change: ::Syncano::Packets::Notification,
