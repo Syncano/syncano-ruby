@@ -5,7 +5,7 @@ class Syncano
 
     def initialize
       super
-      self.callbacks = ActiveSupport::HashWithIndifferentAccess.new
+      self.callbacks = ::ActiveSupport::HashWithIndifferentAccess.new
       self.callbacks_queue = []
     end
 
@@ -24,10 +24,22 @@ class Syncano
     end
 
     def receive_data(data)
-      notification = JSON.parse(data)
+      begin
+        data = ::ActiveSupport::HashWithIndifferentAccess.new(JSON.parse(data))
+        packet = ::Syncano::Packets::Base.instantize_packet(data)
 
-      callbacks_queue.each do |callback_name|
-        callbacks[callback_name].call(notification)
+        if packet.notification?
+          notification = ::Syncano::Notifications::Base.instantize_notification(packet)
+
+          callbacks_queue.each do |callback_name|
+            callbacks[callback_name].call(notification)
+          end
+        elsif packet.call_response?
+
+        end
+      rescue Exception => e
+        p e.inspect
+        p e.backtrace
       end
     end
 

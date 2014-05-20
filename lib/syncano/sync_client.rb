@@ -87,7 +87,7 @@ class Syncano
     end
 
     def make_request(resource_name, method_name, params = {})
-      packet = ::Syncano::Packets::Call.new(resource_name, method_name, params)
+      packet = ::Syncano::Packets::Call.new(resource_name: resource_name, method_name: method_name, data: params)
       connection.send_data("#{packet.to_json}\n")
     end
   end

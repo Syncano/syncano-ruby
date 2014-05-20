@@ -1,7 +1,9 @@
 class Syncano
-  class Packet::Ping < Packet::Base
-    def to_json
-
+  module Packets
+    class Ping < Syncano::Packets::Base
+      def ping?
+        true
+      end
     end
   end
 end

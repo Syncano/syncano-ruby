@@ -1,20 +1,43 @@
 class Syncano
   module Packets
     class Base
-      attr_accessor :timestamp, :data, :resource_name, :method_name
+      attr_accessor :timestamp, :object
 
-      def initialize(resource_name, method_name, data)
-        self.resource_name = resource_name
-        self.method_name = method_name
-        self.data = data
+      def initialize(attributes)
+        super()
+        self.timestamp = attributes[:timestamp]
+        self.object = attributes[:object]
       end
 
-      def self.instantize_packet(type, *args)
-        mapping  = {
-          ping: Syncano::Packets::Ping
+      def self.instantize_packet(data)
+        mapping = {
+          auth: ::Syncano::Packets::Auth,
+          call: ::Syncano::Packets::Call,
+          callresponse: ::Syncano::Packets::CallResponse,
+          message: ::Syncano::Packets::Message,
+          new: ::Syncano::Packets::Notification,
+          change: ::Syncano::Packets::Notification,
+          delete: ::Syncano::Packets::Notification,
+          ping: ::Syncano::Packets::Ping
         }
 
-        mapping[type.to_sym].new(args)
+        mapping[data[:type].to_sym].new(data)
+      end
+
+      def notification?
+        false
+      end
+
+      def ping?
+        false
+      end
+
+      def call_response?
+        false
+      end
+
+      def message?
+        false
       end
     end
   end
