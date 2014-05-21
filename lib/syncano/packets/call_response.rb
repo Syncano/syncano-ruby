@@ -1,11 +1,17 @@
 class Syncano
   module Packets
     class CallResponse < Syncano::Packets::Base
-      attr_accessor :message_id
+      attr_accessor :message_id, :data, :result
 
       def initialize(attributes)
         super(attributes)
         self.message_id = attributes[:message_id]
+        self.data = attributes[:data]
+        self.result = attributes[:result]
+      end
+
+      def to_response
+        { result: result }.merge(data)
       end
 
       def call_response?

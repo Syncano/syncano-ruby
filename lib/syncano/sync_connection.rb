@@ -1,12 +1,16 @@
 class Syncano
   class SyncConnection < EventMachine::Connection
 
-    attr_accessor :callbacks, :callbacks_queue
+    attr_accessor :callbacks, :callbacks_queue, :responses, :responses_queue
 
     def initialize
       super
+
       self.callbacks = ::ActiveSupport::HashWithIndifferentAccess.new
       self.callbacks_queue = []
+
+      self.responses = ::ActiveSupport::HashWithIndifferentAccess.new
+      self.responses_queue = []
     end
 
     def connection_completed
@@ -19,7 +23,7 @@ class Syncano
         instance: SYNCANO_INSTANCE_NAME
       }
 
-      Syncano::SyncClient.instance.connection = self
+      ::Syncano::Clients::Sync.instance.connection = self
       send_data "#{auth_data.to_json}\n"
     end
 
@@ -35,7 +39,7 @@ class Syncano
             callbacks[callback_name].call(notification)
           end
         elsif packet.call_response?
-
+          queue_response(packet)
         end
       rescue Exception => e
         p e.inspect
@@ -56,6 +60,32 @@ class Syncano
     def remove_callback(callback_name)
       callbacks.delete(callback_name)
       callbacks_queue.delete(callback_name)
+    end
+
+    def get_response(message_id)
+      responses.delete(message_id)
+    end
+
+    private
+
+    def queue_response(packet)
+      prune_responses_queue
+      message_id = packet.message_id.to_i
+      responses[message_id] = packet
+      responses_queue << message_id
+    end
+
+    def prune_responses_queue
+      while !responses_queue.empty?
+        message_id = responses_queue.first
+
+        if responses_queue[message_id].nil? || Time.now - responses[message_id].timestamp.to_time > 2.minutes
+          responses_queue.shift
+          responses.delete(message_id)
+        else
+          break
+        end
+      end
     end
   end
 end

@@ -42,9 +42,7 @@ class Syncano
           sleep 1
         end
 
-        if timeout == 0
-          raise 'Connection timeout'
-        end
+        raise 'Connection timeout' if timeout == 0
       end
     end
 
@@ -90,9 +88,49 @@ class Syncano
       make_request('notification', 'send', data)
     end
 
+    def admins
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Admin)
+    end
+
+    def projects
+      ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Project)
+    end
+
     def make_request(resource_name, method_name, params = {})
       packet = ::Syncano::Packets::Call.new(resource_name: resource_name, method_name: method_name, data: params)
       connection.send_data("#{packet.to_json}\n")
+
+      response_packet = nil
+      timer = 600
+
+      while timer > 0
+        response_packet = connection.get_response(packet.message_id)
+        if response_packet.nil?
+          timer -= 1
+          sleep 1.0 / 10.0
+        else
+          break
+        end
+      end
+
+      response = self.class.parse_response(resource_name, response_packet.to_response)
+      response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
+    end
+
+    private
+
+    def self.parse_response(resource_name, raw_response)
+      status = raw_response.nil? || raw_response['result'] != 'NOK'
+      if raw_response.nil?
+        data = nil
+      elsif raw_response[resource_name].present?
+        data = raw_response[resource_name]
+      else
+        data = raw_response['count']
+      end
+      errors = status ? [] : raw_response['error']
+
+      ::Syncano::Response.new(status, data, errors)
     end
   end
 end

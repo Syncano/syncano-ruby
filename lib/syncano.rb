@@ -6,13 +6,13 @@ class Syncano
   # @param [Hash] options with keys: instance_name, api_key which can be also provided as constants in the initializer
   # @return [Syncano::Client] Syncano client.
   def self.client(options = {})
-    auth_data = auth_data
-    Syncano::Client.new(auth_data[:instance_name], auth_data[:api_key])
+    auth_data = self.auth_data
+    Syncano::Clients::Rest.new(auth_data[:instance_name], auth_data[:api_key])
   end
 
   def self.sync_client(options = {})
     auth_data = self.auth_data
-    client = Syncano::SyncClient.instance(auth_data[:instance_name], auth_data[:api_key])
+    client = Syncano::Clients::Sync.instance(auth_data[:instance_name], auth_data[:api_key])
     client.connect
     client
   end
@@ -41,8 +41,9 @@ require 'active_support/json/decoding.rb'
 require 'active_support/json/encoding.rb'
 require 'active_support/time_with_zone.rb'
 require 'syncano/errors'
-require 'syncano/client'
-require 'syncano/sync_client'
+require 'syncano/clients/base'
+require 'syncano/clients/rest'
+require 'syncano/clients/sync'
 require 'syncano/sync_connection'
 require 'syncano/query_builder'
 require 'syncano/batch_queue'
