@@ -195,6 +195,7 @@ class Syncano
       # @return [Hash]
       def self.attributes_to_sync(attributes)
         attributes = attributes.dup
+
         if attributes.keys.map(&:to_sym).include?(:image)
           if attributes[:image].blank?
             attributes[:image] = ''

@@ -354,6 +354,14 @@ class Syncano
       def check_instance_method_existance!(method_name)
         raise NoMethodError.new("undefined method `#{method_name}' for #{to_s}") unless crud_instance_methods.include?(method_name.to_sym)
       end
+
+      def self.check_if_sync_client!(client)
+        raise 'Operation available only for Sync client!' unless client.is_a?(::Syncano::Clients::Sync)
+      end
+
+      def check_if_sync_client!
+        self.class.check_if_sync_client!(client)
+      end
     end
   end
 end

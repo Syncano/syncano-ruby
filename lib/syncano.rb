@@ -57,6 +57,7 @@ require 'syncano/resources/collection'
 require 'syncano/resources/folder'
 require 'syncano/resources/project'
 require 'syncano/resources/role'
+require 'syncano/resources/subscription'
 require 'syncano/resources/user'
 
 require 'syncano/packets/base'

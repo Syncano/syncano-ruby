@@ -102,6 +102,20 @@ class Syncano
         perform_delete_tag(batch_client, tags)
       end
 
+      # Wrapper for api "subscription.subscribe_project" method
+      # @return [Syncano::Resource::Project]
+      def subscribe
+        perform_subscribe
+        reload!
+      end
+
+      # Wrapper for api "subscription.unsubscribe_project" method
+      # @return [Syncano::Resource::Project]
+      def unsubscribe
+        perform_subscribe
+        reload!
+      end
+
       private
 
       self.scope_parameters = [:project_id]
@@ -150,6 +164,20 @@ class Syncano
           self.class.primary_key_name => primary_key,
           tags: tags
         ))
+      end
+
+      # Executes proper subscribe request
+      # @return [Syncano::Response]
+      def perform_subscribe
+        check_if_sync_client!
+        client.make_request(:subscription, :subscribe_collection, scope_parameters.merge(collection_id: id))
+      end
+
+      # Executes proper unsubscribe request
+      # @return [Syncano::Response]
+      def perform_unsubscribe
+        check_if_sync_client!
+        client.make_request(:subscription, :unsubscribe_collection, scope_parameters.merge(collection_id: id))
       end
     end
   end

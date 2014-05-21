@@ -56,20 +56,10 @@ class Syncano
         connect
       end
 
-      def subscribe_project(project_id)
-        make_request('subscription', 'subscribe_project', { project_id: project_id })
-      end
-
-      def unsubscribe_project(project_id)
-        make_request('subscription', 'unsubscribe_project', { project_id: project_id })
-      end
-
-      def subscribe_collection(project_id, collection_id)
-        make_request('subscription', 'subscribe_collection', { project_id: project_id, collection_id: collection_id })
-      end
-
-      def unsubscribe_collection(project_id, collection_id)
-        make_request('subscription', 'unsubscribe_collection', { project_id: project_id, collection_id: collection_id })
+      # Returns query builder for Syncano::Resources::Subscription objects
+      # @return [Syncano::QueryBuilder]
+      def subscriptions
+        ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Subscription)
       end
 
       def append_callback(callback_name, &callback)
