@@ -295,9 +295,9 @@ class Syncano
       # @param [String] method_name
       # @param [Hash] attributes
       # @return [Syncano::Response]
-      def self.make_request(client, batch_client, method_name, attributes = {})
+      def self.make_request(client, batch_client, method_name, attributes = {}, response_key = nil)
         if batch_client.nil?
-          client.make_request(api_resource, api_method(method_name), attributes)
+          client.make_request(api_resource, api_method(method_name), attributes, response_key)
         else
           client.make_batch_request(batch_client, api_resource, api_method(method_name), attributes)
         end

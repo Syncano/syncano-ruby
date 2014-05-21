@@ -1,7 +1,7 @@
 class Syncano
   class SyncConnection < EventMachine::Connection
 
-    attr_accessor :callbacks, :callbacks_queue, :responses, :responses_queue
+    attr_accessor :client, :callbacks, :callbacks_queue, :responses, :responses_queue
 
     def initialize
       super
@@ -11,6 +11,8 @@ class Syncano
 
       self.responses = ::ActiveSupport::HashWithIndifferentAccess.new
       self.responses_queue = []
+
+      self.client = ::Syncano::Clients::Sync.instance
     end
 
     def connection_completed
@@ -23,7 +25,8 @@ class Syncano
         instance: SYNCANO_INSTANCE_NAME
       }
 
-      ::Syncano::Clients::Sync.instance.connection = self
+      client.connection = self
+
       send_data "#{auth_data.to_json}\n"
     end
 
@@ -33,7 +36,7 @@ class Syncano
         packet = ::Syncano::Packets::Base.instantize_packet(data)
 
         if packet.notification?
-          notification = ::Syncano::Notifications::Base.instantize_notification(packet)
+          notification = ::Syncano::Resources::Notifications::Base.instantize_notification(client, packet)
 
           callbacks_queue.each do |callback_name|
             callbacks[callback_name].call(notification)

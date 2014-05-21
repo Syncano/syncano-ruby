@@ -62,6 +62,12 @@ class Syncano
         ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Subscription)
       end
 
+      # Returns query builder for Syncano::Resources::Notifications::Base objects
+      # @return [Syncano::QueryBuilder]
+      def notifications
+        ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::Notifications::Base)
+      end
+
       def append_callback(callback_name, &callback)
         connection.append_callback(callback_name, callback)
       end
@@ -78,7 +84,9 @@ class Syncano
         make_request('notification', 'send', data)
       end
 
-      def make_request(resource_name, method_name, params = {})
+      def make_request(resource_name, method_name, params = {}, response_key = nil)
+        response_key ||= resource_name
+
         packet = ::Syncano::Packets::Call.new(resource_name: resource_name, method_name: method_name, data: params)
         connection.send_data("#{packet.to_json}\n")
 
@@ -95,7 +103,7 @@ class Syncano
           end
         end
 
-        response = self.class.parse_response(resource_name, response_packet.to_response)
+        response = self.class.parse_response(response_key, response_packet.to_response)
         response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
       end
     end

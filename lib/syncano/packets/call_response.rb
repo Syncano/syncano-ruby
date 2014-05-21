@@ -11,7 +11,7 @@ class Syncano
       end
 
       def to_response
-        { result: result }.merge(data)
+        data.merge(result: result)
       end
 
       def call_response?

@@ -90,12 +90,12 @@ class Syncano
       # @param [String] resource_name
       # @param [Hash] raw_response
       # @return [Syncano::Response]
-      def self.parse_response(resource_name, raw_response)
+      def self.parse_response(response_key, raw_response)
         status = raw_response.nil? || raw_response['result'] != 'NOK'
         if raw_response.nil?
           data = nil
-        elsif raw_response[resource_name].present?
-          data = raw_response[resource_name]
+        elsif raw_response[response_key].present?
+          data = raw_response[response_key]
         else
           data = raw_response['count']
         end

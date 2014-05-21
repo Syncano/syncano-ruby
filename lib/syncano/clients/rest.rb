@@ -13,9 +13,10 @@ class Syncano
       # @param [String] method_name
       # @param [Hash] params additional params sent in the request
       # @return [Syncano::Response]
-      def make_request(resource_name, method_name, params = {})
+      def make_request(resource_name, method_name, params = {}, response_key = nil)
+        response_key ||= resource_name
         response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
-        response = self.class.parse_response(resource_name, response)
+        response = self.class.parse_response(response_key, response)
 
         response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
       end
