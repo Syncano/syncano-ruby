@@ -2,7 +2,7 @@ class Syncano
   module Clients
     # Client used for communication with the Sync Server
     class Sync < Syncano::Clients::Base
-      include Singleton
+      include ::Singleton
 
       attr_accessor :connection
 
@@ -35,8 +35,13 @@ class Syncano
           port = 8200
 
           Thread.new do
-            EM.run do
-              EM.connect(hostname, port, Syncano::SyncConnection)
+            begin
+              EM.run do
+                EM.connect(hostname, port, Syncano::SyncConnection)
+              end
+            rescue Exception => e
+              p e.message
+              p e.backtrace
             end
           end
 

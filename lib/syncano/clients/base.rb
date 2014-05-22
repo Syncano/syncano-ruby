@@ -3,7 +3,7 @@ class Syncano
   module Clients
     # Base class for representing clients
     class Base
-      attr_accessor :instance_name, :api_key
+      attr_reader :instance_name, :api_key
 
       # Constructor for Syncano::Clients::Base object
       # @param [String] instance_name
@@ -90,6 +90,8 @@ class Syncano
       end
 
       private
+
+      attr_writer :instance_name, :api_key
 
       # Parses Syncano api response and returns Syncano::Response object
       # @param [String] response_key

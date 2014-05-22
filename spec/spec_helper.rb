@@ -7,6 +7,7 @@ RSpec.configure do |config|
     @syncano_api_key = ENV['SYNCANO_API_KEY'] || raise('Set SYNCANO_API_KEY environment variable!')
     @syncano_instance_name = ENV['SYNCANO_INSTANCE_NAME'] || raise('Set SYNCANO_INSTANCE_NAME environment variable!')
 
-    @client = ::Syncano.client({ instance_name: @syncano_instance_name, api_key: @syncano_api_key })
+    @client = ::Syncano.client(instance_name: @syncano_instance_name, api_key: @syncano_api_key)
+    @sync_client = ::Syncano.sync_client(instance_name: @syncano_instance_name, api_key: @syncano_api_key)
   end
 end

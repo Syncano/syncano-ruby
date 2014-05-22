@@ -46,6 +46,9 @@ require 'multi_json'
 # Eventmachine
 require 'eventmachine'
 
+# Singleton
+require 'singleton'
+
 # ActiveSupport
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'

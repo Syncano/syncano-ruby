@@ -24,8 +24,8 @@ class Syncano
     # Eventmachine callback invoked completing ssl handshake
     def ssl_handshake_completed
       auth_data = {
-        api_key: SYNCANO_API_KEY,
-        instance: SYNCANO_INSTANCE_NAME
+        api_key: client.api_key,
+        instance: client.instance_name
       }
 
       client.connection = self
