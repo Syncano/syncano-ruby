@@ -11,7 +11,7 @@ class Syncano
           super(client, attributes)
 
           if attributes.is_a?(::Syncano::Packets::Base)
-            self[:channel] = packet.channel
+            self[:channel] = attributes.channel
           end
         end
       end
