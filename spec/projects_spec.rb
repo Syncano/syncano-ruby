@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'Syncano::Resource::Project' do
   it 'should create new project in Syncano' do
     count_before = @client.projects.count
-    project = @client.projects.create(name: 'Test project', description: 'Just testing')
+    @client.projects.create(name: 'Test project', description: 'Just testing')
     count_after = @client.projects.count
 
     (count_after - count_before).should == 1

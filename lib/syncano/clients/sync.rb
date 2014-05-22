@@ -4,7 +4,7 @@ class Syncano
     class Sync < Syncano::Clients::Base
       include ::Singleton
 
-      attr_reader :connection
+      attr_accessor :connection
 
       # Constructor for Syncano::Clients::Sync object
       # @param [String] instance_name
@@ -127,10 +127,6 @@ class Syncano
         response = self.class.parse_response(response_key, response_packet.to_response)
         response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
       end
-
-      private
-
-      attr_writer :connection
     end
   end
 end
