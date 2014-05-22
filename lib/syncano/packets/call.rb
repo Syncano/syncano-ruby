@@ -2,7 +2,7 @@ class Syncano
   module Packets
     # Class representing call packets used in communication with the Sync Server
     class Call < Syncano::Packets::Base
-      attr_accessor :message_id, :resource_name, :method_name, :data
+      attr_reader :message_id, :resource_name, :method_name, :data
 
       # Constructor for Syncano::Packets::Call object
       # @param [Hash] attributes
@@ -25,6 +25,10 @@ class Syncano
           message_id: message_id.to_s
         }
       end
+
+      private
+
+      attr_writer :message_id, :resource_name, :method_name, :data
     end
   end
 end

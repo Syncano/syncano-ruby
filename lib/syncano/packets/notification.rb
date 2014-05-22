@@ -2,7 +2,7 @@ class Syncano
   module Packets
     # Class representing notification packets used in communication with the Sync Server
     class Notification < Syncano::Packets::Base
-      attr_accessor :type, :id, :channel, :source, :target, :data
+      attr_reader :id, :type, :channel, :source, :target, :data
 
       # Constructor for Syncano::Packets::Notification object
       # @param [Hash] attributes
@@ -30,6 +30,10 @@ class Syncano
       def notification?
         true
       end
+
+      private
+
+      attr_writer :id, :type, :channel, :source, :target, :data
     end
   end
 end

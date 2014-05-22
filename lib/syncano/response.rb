@@ -1,7 +1,7 @@
 class Syncano
   # Represents response from Syncano API
   class Response
-    attr_accessor :status, :data, :errors
+    attr_reader :status, :data, :errors
 
     # Constructor for Syncano::Response
     # @param [Boolean] status
@@ -14,5 +14,9 @@ class Syncano
       self.data   = data
       self.errors = errors
     end
+
+    private
+
+    attr_writer :status, :data, :errors
   end
 end

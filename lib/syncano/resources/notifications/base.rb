@@ -4,8 +4,6 @@ class Syncano
     module Notifications
       # Base notification class used for inheritance
       class Base < Syncano::Resources::Base
-        attr_accessor :id, :source, :target, :data
-
         # Constructor for Syncano::Notifications::Base object
         # @param [Syncano::Clients::Base] client
         # @param [Hash] attributes

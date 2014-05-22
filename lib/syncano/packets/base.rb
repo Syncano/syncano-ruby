@@ -3,7 +3,7 @@ class Syncano
   module Packets
     # Base class for representing packets used in communication with the Sync Server
     class Base
-      attr_accessor :timestamp, :object
+      attr_reader :object, :timestamp
 
       # Constructor for Syncano::Packets::Base object
       # @param [Hash] attributes
@@ -55,6 +55,10 @@ class Syncano
       def message?
         false
       end
+
+      private
+
+      attr_writer :object, :timestamp
     end
   end
 end

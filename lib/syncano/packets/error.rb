@@ -2,7 +2,7 @@ class Syncano
   module Packets
     # Class representing error packets used in communication with the Sync Server
     class Error < Syncano::Packets::Base
-      attr_accessor :error
+      attr_reader :error
 
       # Constructor for Syncano::Packets::Error object
       # @param [Hash] attributes
@@ -10,6 +10,10 @@ class Syncano
         super(attributes)
         self.error = attributes[:error]
       end
+
+      private
+
+      attr_writer :error
     end
   end
 end

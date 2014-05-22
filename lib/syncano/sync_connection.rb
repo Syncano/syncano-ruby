@@ -1,7 +1,7 @@
 class Syncano
   # Represents connection with Sync Server
   class SyncConnection < EventMachine::Connection
-    attr_accessor :client, :callbacks, :callbacks_queue, :responses, :responses_queue
+    attr_reader :client
 
     # Constructor for Syncano::SyncConnection object
     def initialize
@@ -81,6 +81,8 @@ class Syncano
     end
 
     private
+
+    attr_accessor :client, :callbacks, :callbacks_queue, :responses, :responses_queue
 
     # Adds call response packet to the responses queue
     # @param [Syncano::Packets::CallResponse] packet

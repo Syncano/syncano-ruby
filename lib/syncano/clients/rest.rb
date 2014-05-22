@@ -2,7 +2,7 @@ class Syncano
   module Clients
     # Client used for communication with the JSON-RPC endpoint
     class Rest < Syncano::Clients::Base
-      attr_accessor :client
+      attr_reader :client
 
       # Constructor for Syncano::Clients::Rest object
       # @param [String] instance_name
@@ -50,6 +50,8 @@ class Syncano
       end
 
       private
+
+      attr_writer :client
 
       # Generates url to json rpc api
       # @return [String]
