@@ -251,7 +251,7 @@ class Syncano
       # @return [Syncano::Response]
       def perform_update(batch_client, attributes)
         check_instance_method_existance!(:update)
-        self.class.make_request(client, batch_client, :update, self.class.attributes_to_sync(attributes).merge(self.class.primary_key_name => primary_key))
+        self.class.make_request(client, batch_client, :update, scope_parameters.merge(self.class.attributes_to_sync(attributes).merge(self.class.primary_key_name => primary_key)))
       end
 
       # Executes proper save request

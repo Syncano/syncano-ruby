@@ -61,7 +61,7 @@ class Syncano
         # @param [Hash] attributes
         # @return [Syncano::Resources::Base]
         def self.create(client, attributes)
-          response = perform_create(client, nil, attributes)
+          perform_create(client, nil, attributes)
           ::Syncano::Resources::Notifications::Message.new(client, map_to_scope_parameters(attributes))
         end
 

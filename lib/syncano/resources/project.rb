@@ -18,7 +18,7 @@ class Syncano
       # Wrapper for api "subscription.unsubscribe_project" method
       # @return [Syncano::Resource::Project]
       def unsubscribe
-        perform_subscribe
+        perform_unsubscribe
         reload!
       end
 

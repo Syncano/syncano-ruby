@@ -114,7 +114,7 @@ class Syncano
       # Wrapper for api "subscription.unsubscribe_collection" method
       # @return [Syncano::Resource::Collection]
       def unsubscribe
-        perform_subscribe
+        perform_unsubscribe
         reload!
       end
 
