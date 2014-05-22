@@ -23,7 +23,7 @@ class Syncano
       # @return [Hash] prepared attributes
       def self.attributes_to_sync(attributes)
         attributes = attributes.dup
-        [:role, :role_id].each { |attribute| attributes.delete(attribute) }
+        attributes.delete(:role)
 
         attributes
       end
