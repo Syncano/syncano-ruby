@@ -1,17 +1,20 @@
-require "syncano/version"
+require 'syncano/version'
 
+# Main class used for instantizing clients and as scope for other classes
 class Syncano
-
-  # Used for initializing Syncano Client
+  # Used for initializing Syncano Rest Client
   # @param [Hash] options with keys: instance_name, api_key which can be also provided as constants in the initializer
-  # @return [Syncano::Client] Syncano client.
+  # @return [Syncano::Clients::Rest] Syncano client.
   def self.client(options = {})
-    auth_data = self.auth_data
+    auth_data = self.auth_data(options)
     Syncano::Clients::Rest.new(auth_data[:instance_name], auth_data[:api_key])
   end
 
+  # Used for initializing Syncano Sync Client
+  # @param [Hash] options with keys: instance_name, api_key which can be also provided as constants in the initializer
+  # @return [Syncano::Clients::Rest] Syncano client.
   def self.sync_client(options = {})
-    auth_data = self.auth_data
+    auth_data = self.auth_data(options)
     client = Syncano::Clients::Sync.instance(auth_data[:instance_name], auth_data[:api_key])
     client.connect
     client
@@ -19,6 +22,9 @@ class Syncano
 
   private
 
+  # Prepares hash with auth data from options or constants in initializer
+  # @param [Hash] options with keys: instance_name, api_key which can be also provided as constants in the initializer
+  # @return [Hash]
   def self.auth_data(options = {})
     instance_name = options[:instance_name] || ::SYNCANO_INSTANCE_NAME
     raise 'Syncano instance name cannot be blank!' if instance_name.nil?
@@ -30,16 +36,25 @@ class Syncano
   end
 end
 
+# Jimson client
 require 'jimson/client'
 require 'syncano/jimson_client'
-require 'eventmachine'
+
+# Multi Json
 require 'multi_json'
+
+# Eventmachine
+require 'eventmachine'
+
+# ActiveSupport
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'
 require 'active_support/core_ext/object/blank.rb'
 require 'active_support/json/decoding.rb'
 require 'active_support/json/encoding.rb'
 require 'active_support/time_with_zone.rb'
+
+# Syncano
 require 'syncano/errors'
 require 'syncano/clients/base'
 require 'syncano/clients/rest'
@@ -59,7 +74,6 @@ require 'syncano/resources/project'
 require 'syncano/resources/role'
 require 'syncano/resources/subscription'
 require 'syncano/resources/user'
-
 require 'syncano/packets/base'
 require 'syncano/packets/auth'
 require 'syncano/packets/call'
@@ -68,7 +82,6 @@ require 'syncano/packets/error'
 require 'syncano/packets/message'
 require 'syncano/packets/notification'
 require 'syncano/packets/ping'
-
 require 'syncano/resources/notifications/base'
 require 'syncano/resources/notifications/create'
 require 'syncano/resources/notifications/update'

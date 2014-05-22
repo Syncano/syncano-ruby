@@ -1,10 +1,12 @@
 class Syncano
+  # Class representing queues used in batch requests
   class BatchQueue
+    # Limit for amount of batch operations send in one request
     REQUEST_LIMIT = 10
     attr_reader :responses
 
     # Constructor for Syncano::BatchQueue
-    # @param [Syncano::Client] client
+    # @param [Syncano::Clients::Base] client
     def initialize(client)
       super()
       self.client = client

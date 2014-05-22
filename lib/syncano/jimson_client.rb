@@ -1,4 +1,6 @@
+# Overwritten module from Jimson gem
 module Jimson
+  # Overwritten helper from Jimson gem
   class ClientHelper
     # Overwritten send_batch method, so it now returns collection of responses
     # @return [Array] collection of responses
@@ -21,6 +23,7 @@ module Jimson
     end
   end
 
+  # Overwritten Request class from Jimson gem
   class Request
     # Overwritten as_json method which solves bug with serialization batch requests
     # @return [Hash]

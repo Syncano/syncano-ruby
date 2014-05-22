@@ -1,5 +1,6 @@
 class Syncano
   module Resources
+    # Role resource
     class Role < ::Syncano::Resources::Base
       private
 

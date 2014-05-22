@@ -1,8 +1,9 @@
 class Syncano
   module Resources
+    # Admin resource
     class Admin < ::Syncano::Resources::Base
       # Wrapper for api "get_one" method with admin_email as a key
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [String] email
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
@@ -13,7 +14,7 @@ class Syncano
 
       # Wrapper for api "new" method
       # Creates object in Syncano
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes
       # @return [Syncano::Resources::Base]
       def self.create(client, attributes)

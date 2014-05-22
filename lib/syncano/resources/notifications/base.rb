@@ -1,9 +1,14 @@
 class Syncano
   module Resources
+    # Module used as a scope for classes representing notifications
     module Notifications
+      # Base notification class used for inheritance
       class Base < Syncano::Resources::Base
         attr_accessor :id, :source, :target, :data
 
+        # Constructor for Syncano::Notifications::Base object
+        # @param [Syncano::Clients::Base] client
+        # @param [Hash] attributes
         def initialize(client, attributes)
           if attributes.is_a?(::Syncano::Packets::Base)
             super(client, {})
@@ -13,6 +18,10 @@ class Syncano
           end
         end
 
+        # Proxy method for creating instance of proper subclass
+        # @param [Syncano::Clients::Base] client
+        # @param [Syncano::Packets::Base] packet
+        # @return [Syncano::Notifications::Base]
         def self.instantize_notification(client, packet)
           if packet.message?
             ::Syncano::Resources::Notifications::Message.new(client, packet)
@@ -29,7 +38,7 @@ class Syncano
 
         # Wrapper for api "get" method
         # Returns all objects from Syncano
-        # @param [Syncano::Client] client
+        # @param [Syncano::Clients::Base] client
         # @param [Hash] scope_parameters
         # @param [Hash] conditions
         # @return [Array] which contains Syncano::Resources::Base objects
@@ -50,7 +59,7 @@ class Syncano
 
         # Wrapper for api "send" method
         # Creates object in Syncano
-        # @param [Syncano::Client] client
+        # @param [Syncano::Clients::Base] client
         # @param [Hash] attributes
         # @return [Syncano::Resources::Base]
         def self.create(client, attributes)
@@ -65,7 +74,7 @@ class Syncano
         self.crud_instance_methods = [:save]
 
         # Executes proper all request
-        # @param [Syncano::Client] client
+        # @param [Syncano::Clients::Base] client
         # @param [Hash] scope_parameters
         # @param [Hash] conditions
         # @return [Syncano::Response]
@@ -74,7 +83,7 @@ class Syncano
         end
 
         # Executes proper create request
-        # @param [Syncano::Client] client
+        # @param [Syncano::Clients::Base] client
         # @param [Jimson::BatchClient] batch_client
         # @param [Hash] attributes
         # @return [Syncano::Response]

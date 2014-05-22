@@ -1,8 +1,9 @@
 class Syncano
   module Resources
+    # User resource
     class User < ::Syncano::Resources::Base
       # Wrapper for api "count" method
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Integer]
@@ -34,7 +35,7 @@ class Syncano
       end
 
       # Executes proper count request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Syncano::Response]

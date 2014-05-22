@@ -1,7 +1,8 @@
 class Syncano
+  # Proxy class for creating proper requests to api through ActiveRecord pattern
   class QueryBuilder
     # Constructor for Syncano::QueryBuilder object
-    # @param [Syncano::Client] client
+    # @param [Syncano::Clients::Base] client
     # @param [String] resource_class
     # @param [Hash] scope_parameters
     def initialize(client, resource_class, scope_parameters = {})
@@ -122,7 +123,7 @@ class Syncano
     # @param [String] new_state
     # @return [Array] collection of Syncano::Resource objects
     def move(ids, conditions = {}, new_folder = nil, new_state = nil)
-      resource_class.move(client, scope_parameters, ids, conditions = {}, new_folder = nil, new_state = nil)
+      resource_class.move(client, scope_parameters, ids, conditions, new_folder, new_state)
     end
 
     # Proxy for calling "batch_move" method on the resource object
@@ -133,7 +134,7 @@ class Syncano
     # @param [String] new_state
     # @return [Syncano::Response]
     def batch_move(batch_client, ids, conditions = {}, new_folder = nil, new_state = nil)
-      resource_class.batch_move(batch_client, scope_parameters, ids, conditions = {}, new_folder = nil, new_state = nil)
+      resource_class.batch_move(batch_client, scope_parameters, ids, conditions, new_folder, new_state)
     end
 
     private

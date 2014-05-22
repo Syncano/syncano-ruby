@@ -1,5 +1,6 @@
 class Syncano
   module Resources
+    # Project resource
     class Project < ::Syncano::Resources::Base
       # Association has_many :collections
       # @return [Syncano::QueryBuilder] query builder for resource Syncano::Resources::Collection

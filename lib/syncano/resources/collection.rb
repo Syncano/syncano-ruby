@@ -1,5 +1,6 @@
 class Syncano
   module Resources
+    # Collection resource
     class Collection < ::Syncano::Resources::Base
       # Association has_many :folders
       # @return [Syncano::QueryBuilder] query builder for resource Syncano::Resources::Folder
@@ -20,7 +21,7 @@ class Syncano
       end
 
       # Wrapper for api "get_one" method with collection_key as a key
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [String] key
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
@@ -97,20 +98,21 @@ class Syncano
 
       # Batch version of "delete_tag" method
       # @param [Jimson::BatchClient] batch_client
+      # @param [String, Array] tags
       # @return [Syncano::Response]
       def batch_delete_tag(batch_client, tags)
         perform_delete_tag(batch_client, tags)
       end
 
-      # Wrapper for api "subscription.subscribe_project" method
-      # @return [Syncano::Resource::Project]
+      # Wrapper for api "subscription.subscribe_collection" method
+      # @return [Syncano::Resource::Collection]
       def subscribe
         perform_subscribe
         reload!
       end
 
-      # Wrapper for api "subscription.unsubscribe_project" method
-      # @return [Syncano::Resource::Project]
+      # Wrapper for api "subscription.unsubscribe_collection" method
+      # @return [Syncano::Resource::Collection]
       def unsubscribe
         perform_subscribe
         reload!

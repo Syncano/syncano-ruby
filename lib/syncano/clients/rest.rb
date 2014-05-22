@@ -1,8 +1,12 @@
 class Syncano
   module Clients
+    # Client used for communication with the JSON-RPC endpoint
     class Rest < Syncano::Clients::Base
       attr_accessor :client
 
+      # Constructor for Syncano::Clients::Rest object
+      # @param [String] instance_name
+      # @param [String] api_key
       def initialize(instance_name, api_key)
         super(instance_name, api_key)
         self.client = ::Jimson::Client.new(json_rpc_url)
@@ -12,6 +16,7 @@ class Syncano
       # @param [String] resource_name
       # @param [String] method_name
       # @param [Hash] params additional params sent in the request
+      # @param [String] response_key for cases when response from api is incompatible with the convention
       # @return [Syncano::Response]
       def make_request(resource_name, method_name, params = {}, response_key = nil)
         response_key ||= resource_name

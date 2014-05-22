@@ -1,5 +1,6 @@
 class Syncano
   module Resources
+    # Folder resource
     class Folder < ::Syncano::Resources::Base
       # Association has_many :data_objects
       # @return [Syncano::QueryBuilder] query builder for resource Syncano::Resources::DataObject
@@ -8,7 +9,7 @@ class Syncano
       end
 
       # Wrapper for api "get_one" method with folder_name as a key
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [String] name
       # @param [Hash] scope_parameters
       # @param [Hash] conditions

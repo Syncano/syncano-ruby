@@ -1,9 +1,11 @@
 class Syncano
+  # Module used as a scope for classes representing clients
   module Clients
+    # Base class for representing clients
     class Base
       attr_accessor :instance_name, :api_key
 
-      # Constructor for Syncano::Client object
+      # Constructor for Syncano::Clients::Base object
       # @param [String] instance_name
       # @param [String] api_key
       def initialize(instance_name, api_key)
@@ -69,14 +71,17 @@ class Syncano
       end
 
       # Performs request to Syncano api
+      # This should be overwritten in inherited classes
       # @param [String] resource_name
       # @param [String] method_name
       # @param [Hash] params additional params sent in the request
+      # @param [String] response_key for cases when response from api is incompatible with the convention
       # @return [Syncano::Response]
-      def make_request(resource_name, method_name, params = {})
+      def make_request(resource_name, method_name, params = {}, response_key = nil)
       end
 
       # Performs batch request to Syncano api
+      # This should be overwritten in inherited classes
       # @param [Jimson::BatchClient] batch_client
       # @param [String] resource_name
       # @param [String] method_name
@@ -87,7 +92,7 @@ class Syncano
       private
 
       # Parses Syncano api response and returns Syncano::Response object
-      # @param [String] resource_name
+      # @param [String] response_key
       # @param [Hash] raw_response
       # @return [Syncano::Response]
       def self.parse_response(response_key, raw_response)

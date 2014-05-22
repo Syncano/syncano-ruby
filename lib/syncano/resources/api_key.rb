@@ -1,8 +1,9 @@
 class Syncano
   module Resources
+    # Api key resource
     class ApiKey < ::Syncano::Resources::Base
       # Overwritten constructor with initializing associated role object
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes
       def initialize(client, attributes = {})
         super(client, attributes)
@@ -22,11 +23,13 @@ class Syncano
       # @return [Hash] prepared attributes
       def self.attributes_to_sync(attributes)
         attributes = attributes.dup
-        [:role, :role_id].each { |attribute| attributes.delete(:attribute) }
+        [:role, :role_id].each { |attribute| attributes.delete(attribute) }
 
         attributes
       end
 
+      # Name of attribute used as primary key
+      # @return [Symbol]
       def self.primary_key_name
         :api_client_id
       end

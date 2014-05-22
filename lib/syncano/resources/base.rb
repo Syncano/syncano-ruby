@@ -1,11 +1,13 @@
 class Syncano
+  # Module used as a scope for classes representing resources
   module Resources
+    # Base resource used for inheritance
     class Base
       attr_accessor :attributes
       attr_reader :id, :destroyed
 
       # Constructor for base resource
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes used in making requests to api (ie. parent id)
       def initialize(client, attributes = {})
         super()
@@ -51,7 +53,7 @@ class Syncano
 
       # Wrapper for api "get" method
       # Returns all objects from Syncano
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Array] which contains Syncano::Resources::Base objects
@@ -63,7 +65,7 @@ class Syncano
       end
 
       # Returns amount of elements returned from all method
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Integer]
@@ -73,7 +75,7 @@ class Syncano
 
       # Wrapper for api "get_one" method
       # Returns one object from Syncano
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Integer, String] key
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
@@ -84,7 +86,7 @@ class Syncano
 
       # Wrapper for api "new" method
       # Creates object in Syncano
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes
       # @return [Syncano::Resources::Base]
       def self.create(client, attributes)
@@ -94,7 +96,7 @@ class Syncano
 
       # Batch version of "create" method
       # @param [Jimson::BatchClient] batch_client
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes
       # @return [Syncano::Response]
       def self.batch_create(batch_client, client, attributes)
@@ -202,7 +204,7 @@ class Syncano
       attr_writer :id, :destroyed
 
       # Executes proper all request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Syncano::Response]
@@ -212,7 +214,7 @@ class Syncano
       end
 
       # Executes proper count request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Syncano::Response]
@@ -222,7 +224,7 @@ class Syncano
       end
 
       # Executes proper find request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Symbol, String] key_name
       # @param [Integer, String] key
       # @param [Hash] scope_parameters
@@ -234,7 +236,7 @@ class Syncano
       end
 
       # Executes proper create request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Jimson::BatchClient] batch_client
       # @param [Hash] attributes
       # @return [Syncano::Response]
@@ -290,10 +292,11 @@ class Syncano
       end
 
       # Calls request to api through client object
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Jimson::BatchClient] batch_client
       # @param [String] method_name
       # @param [Hash] attributes
+      # @param [String] response_key
       # @return [Syncano::Response]
       def self.make_request(client, batch_client, method_name, attributes = {}, response_key = nil)
         if batch_client.nil?
@@ -316,6 +319,8 @@ class Syncano
         self.class.map_to_scope_parameters(attributes)
       end
 
+      # Returns name for primary key
+      # @return [Hash]
       def self.primary_key_name
         "#{api_resource}_#{primary_key}".to_sym
       end
@@ -334,6 +339,7 @@ class Syncano
       end
 
       # Prepares hash with attributes used in synchronization with Syncano
+      # @param [Hash] attributes
       # @return [Hash]
       def self.attributes_to_sync(attributes = {})
         attributes
@@ -355,10 +361,12 @@ class Syncano
         raise NoMethodError.new("undefined method `#{method_name}' for #{to_s}") unless crud_instance_methods.include?(method_name.to_sym)
       end
 
+      # Checks if sync connection is used
       def self.check_if_sync_client!(client)
-        raise 'Operation available only for Sync client!' unless client.is_a?(::Syncano::Clients::Sync)
+        raise Syncano::BaseError.new('Operation available only for Sync client') unless client.is_a?(::Syncano::Clients::Sync)
       end
 
+      # Checks if object uses sync connection
       def check_if_sync_client!
         self.class.check_if_sync_client!(client)
       end

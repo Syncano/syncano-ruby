@@ -1,5 +1,6 @@
 class Syncano
   module Resources
+    # Subscription resource
     class Subscription < ::Syncano::Resources::Base
 
       private

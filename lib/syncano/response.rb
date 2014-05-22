@@ -1,4 +1,5 @@
 class Syncano
+  # Represents response from Syncano API
   class Response
     attr_accessor :status, :data, :errors
 

@@ -1,8 +1,9 @@
 class Syncano
   module Resources
+    # Data object resource - corresponds to Syncano data resource
     class DataObject < ::Syncano::Resources::Base
       # Overwritten constructor with recursive initializing associated children objects
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] attributes
       def initialize(client, attributes = {})
         super(client, attributes)
@@ -22,7 +23,7 @@ class Syncano
       end
 
       # Wrapper for api "get_one" method with data_key as a key
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [String] key
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
@@ -32,7 +33,7 @@ class Syncano
       end
 
       # Wrapper for api "count" method
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Integer]
@@ -42,7 +43,7 @@ class Syncano
       end
 
       # Wrapper for api "move" method
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids
       # @param [Hash] conditions
@@ -56,7 +57,7 @@ class Syncano
 
       # Batch version of "move" method
       # @param [Jimson::BatchClient] batch_client
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids
       # @param [Hash] conditions
@@ -86,7 +87,7 @@ class Syncano
       end
 
       # Wrapper for api "copy" method
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids
       # @return [Array] collection of Syncano::Resource::DataObject objects
@@ -97,7 +98,7 @@ class Syncano
 
       # Batch version of "move" method
       # @param [Jimson::BatchClient] batch_client
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids
       # @return [Syncano::Response]
@@ -212,7 +213,7 @@ class Syncano
       end
 
       # Executes proper count request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters
       # @param [Hash] conditions
       # @return [Syncano::Response]
@@ -221,7 +222,7 @@ class Syncano
       end
 
       # Executes proper move request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Jimson::BatchClient] batch_client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids
@@ -235,7 +236,7 @@ class Syncano
       end
 
       # Executes proper copy request
-      # @param [Syncano::Client] client
+      # @param [Syncano::Clients::Base] client
       # @param [Jimson::BatchClient] batch_client
       # @param [Hash] scope_parameters
       # @param [Array] data_ids

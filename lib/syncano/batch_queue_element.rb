@@ -1,4 +1,5 @@
 class Syncano
+  # Class representing objects batch requests queued for processing
   class BatchQueueElement
     # Constructor for Syncano::BatchQueueElement
     # @param [Syncano::QueryBuilder, Syncano::Resources::Base] resource
