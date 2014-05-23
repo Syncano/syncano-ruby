@@ -76,20 +76,20 @@ class Syncano
         self
       end
 
-      # Batch version of "add_tag" method
+      # Batch version of "add_tags" method
       # @param [Jimson::BatchClient] batch_client
       # @param [String, Array] tags
       # @param [Numeric] weight
       # @param [TrueClass, FalseClass] remove_other
       # @return [Syncano::Response]
-      def batch_add_tag(batch_client, tags, weight = 1, remove_other = false)
+      def batch_add_tags(batch_client, tags, weight = 1, remove_other = false)
         perform_add_tag(batch_client, tags, weight, remove_other)
       end
 
       # Wrapper for api "delete_tag" method
       # @param [String, Array] tags
       # @return [Syncano::Resources::Collection]
-      def delete_tag(tags)
+      def delete_tags(tags)
         response = perform_delete_tag(nil, tags)
         reload! if response.status
 
@@ -142,13 +142,13 @@ class Syncano
         ))
       end
 
-      # Executes proper add_tag request
+      # Executes proper add_tags request
       # @param [Jimson::BatchClient] batch_client
       # @param [String, Array] tags
       # @param [Numeric] weight
       # @param [TrueClass, FalseClass] remove_other
       # @return [Syncano::Response]
-      def perform_add_tag(batch_client, tags, weight, remove_other)
+      def perform_add_tags(batch_client, tags, weight, remove_other)
         self.class.make_request(client, batch_client, :add_tag, scope_parameters.merge(
           self.class.primary_key_name => primary_key,
           tags: tags,
@@ -157,11 +157,11 @@ class Syncano
         ))
       end
 
-      # Executes proper delete_tag request
+      # Executes proper delete_tags request
       # @param [Jimson::BatchClient] batch_client
       # @param [String, Array] tags
       # @return [Syncano::Response]
-      def perform_delete_tag(batch_client, tags)
+      def perform_delete_tags(batch_client, tags)
         self.class.make_request(client, batch_client, :delete_tag, scope_parameters.merge(
           self.class.primary_key_name => primary_key,
           tags: tags
