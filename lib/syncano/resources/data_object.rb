@@ -20,6 +20,10 @@ class Syncano
         if self.attributes[:user].is_a?(Hash)
           self.attributes[:user] = ::Syncano::Resources::User.new(client, self.attributes[:user])
         end
+
+        if self.attributes[:additional].is_a?(Hash)
+          self.attributes.merge!(self.attributes.delete(:additional))
+        end
       end
 
       # Wrapper for api "get_one" method with data_key as a key
@@ -208,6 +212,9 @@ class Syncano
         end
 
         attributes.delete(:user)
+        attributes.delete(:created_at)
+        attributes.delete(:updated_at)
+        attributes.delete(:children_count)
 
         attributes
       end
