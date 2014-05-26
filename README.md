@@ -1,10 +1,10 @@
 # Syncano
 
-Syncano ruby gem provides communication with Syncano [www.syncano.com](www.syncano.com) via HTTPS RESTful interface and TCP sockets.
+Syncano ruby gem provides communication with Syncano ([www.syncano.com](www.syncano.com)) via HTTPS RESTful interface and TCP sockets.
 
-The full source code can be found on Github - feel free to browse or contribute.
+The full source code can be found on [Github](https://github.com/Syncano/syncano-ruby) - feel free to browse or contribute.
 
-Click here to learn more about Syncano or create an account!
+Click here to learn more about [Syncano](www.syncano.com) or [create an account](https://login.syncano.com/sign_up)!
 
 ## Installation
 
@@ -54,7 +54,7 @@ client.connect
 client.reconnect
 client.disconnect
 ```
-* managing callbacks for handling notifications (it is covered few paragraphs later)
+* managing callbacks for handling notifications (it is described later in this document)
 
 ### Resources
 
@@ -76,6 +76,7 @@ Below is a list of standard methods implemented in resources.
 Some of resources do not implement all standard methods and others have some custom methods, ie. data_object.copy.
 
 Every resource has attributes which can be accessed as a hash ie.:
+
 * object[:attribute]
 * object[:attribute] = 'value'
 * object.attributes = { attribute: 'value' }
@@ -266,11 +267,37 @@ client.subscriptions.all
 
 #### Handling notifications
 
+Notifications are handled by callbacks passed to the sync client:
 
+```ruby
+client.append_callback(:callback_name) do |notification|
+p "We have received a new notification #{notification.inspect}! Yaaay!"
+end
+```
+
+Callbacks form a queue. You can add new callback to the end of the queue (like above) or to the beginning:
+
+```ruby
+client.prepend_callback(:callback_name) do |notification|
+p "We have received a new notification #{notification.inspect}! Yaaay!"
+end
+```
+
+To delete callback from the queue just call remove_callback method:
+ 
+```ruby
+client.remove_callback(:callback_name)
+```
+
+### Errors and exceptions
+
+This library does not implement any validations. All errors from the api will cause throwing an exception.
+It is thought that user will create his own validation mechanisms specific not only for restrictions imposed by the Syncano, but also for his own logic.
+It can be compared to the exceptions after violating constraints in the MySQL database.
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/syncano/fork )
+1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
