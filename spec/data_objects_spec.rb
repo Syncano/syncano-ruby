@@ -16,13 +16,13 @@ describe 'Syncano::Resource::DataObject' do
 
   it 'should create new data object in Syncano' do
     count_before = @collection.data_objects.count
-    @collection.data_objects.create(title: 'Test data object', additional: { test_attribute: 'test_value' })
+    @collection.data_objects.create(title: 'Test data object', test_attribute: 'test_value')
     count_after = @collection.data_objects.count
 
     (count_after - count_before).should == 1
     data_object = @collection.data_objects.last
     data_object[:title].should == 'Test data object'
-    data_object[:additional][:test_attribute].should == 'test_value'
+    data_object[:test_attribute].should == 'test_value'
   end
 
   it 'should copy data object in Syncano' do
