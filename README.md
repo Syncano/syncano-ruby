@@ -271,7 +271,7 @@ Notifications are handled by callbacks passed to the sync client:
 
 ```ruby
 client.append_callback(:callback_name) do |notification|
-p "We have received a new notification #{notification.inspect}! Yaaay!"
+  p "We have received a new notification #{notification.inspect}! Yaaay!"
 end
 ```
 
@@ -279,7 +279,7 @@ Callbacks form a queue. You can add new callback to the end of the queue (like a
 
 ```ruby
 client.prepend_callback(:callback_name) do |notification|
-p "We have received a new notification #{notification.inspect}! Yaaay!"
+  p "We have received a new notification #{notification.inspect}! Yaaay!"
 end
 ```
 
