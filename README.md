@@ -1,10 +1,10 @@
 # Syncano
 
-Syncano ruby gem provides communication with Syncano ([www.syncano.com](www.syncano.com)) via HTTPS RESTful interface and TCP sockets.
+Syncano ruby gem provides communication with Syncano ([www.syncano.com](http://www.syncano.com)) via HTTPS RESTful interface and TCP sockets.
 
 The full source code can be found on [Github](https://github.com/Syncano/syncano-ruby) - feel free to browse or contribute.
 
-Click here to learn more about [Syncano](www.syncano.com) or [create an account](https://login.syncano.com/sign_up)!
+Click here to learn more about [Syncano](http://www.syncano.com) or [create an account](https://login.syncano.com/sign_up)!
 
 ## Installation
 
