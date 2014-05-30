@@ -3,16 +3,24 @@ class Syncano
   module Clients
     # Base class for representing clients
     class Base
-      attr_reader :instance_name, :api_key
+      attr_reader :instance_name, :api_key, :auth_key
 
       # Constructor for Syncano::Clients::Base object
       # @param [String] instance_name
       # @param [String] api_key
-      def initialize(instance_name, api_key)
+      def initialize(instance_name, api_key, auth_key)
         super()
 
         self.instance_name = instance_name
         self.api_key = api_key
+        self.auth_key = auth_key if auth_key.present?
+      end
+
+      # Deletes saved auth_key
+      # @return [TrueClass, FalseClass]
+      def logout
+        self.auth_key = nil
+        self.auth_key.nil?
       end
 
       # Returns query builder for Syncano::Resources::Admin objects
@@ -66,8 +74,8 @@ class Syncano
       # @param [Integer, String] project_id
       # @param [Integer, String] collection_id
       # @return [Syncano::QueryBuilder]
-      def users(project_id, collection_id)
-        ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::User, project_id: project_id, collection_id: collection_id)
+      def users
+        ::Syncano::QueryBuilder.new(self, ::Syncano::Resources::User)
       end
 
       # Performs request to Syncano api
@@ -91,7 +99,7 @@ class Syncano
 
       private
 
-      attr_writer :instance_name, :api_key
+      attr_writer :instance_name, :api_key, :auth_key
 
       # Parses Syncano api response and returns Syncano::Response object
       # @param [String] response_key
@@ -101,8 +109,8 @@ class Syncano
         status = raw_response.nil? || raw_response['result'] != 'NOK'
         if raw_response.nil?
           data = nil
-        elsif raw_response[response_key].present?
-          data = raw_response[response_key]
+        elsif raw_response[response_key.to_s].present?
+          data = raw_response[response_key.to_s]
         else
           data = raw_response['count']
         end

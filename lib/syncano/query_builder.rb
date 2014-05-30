@@ -51,7 +51,7 @@ class Syncano
     # @param [Integer, String] key
     # @param [Hash] conditions
     # @return [Syncano::Resources::Base]
-    def find(key, conditions = {})
+    def find(key = nil, conditions = {})
       resource_class.find(client, key, scope_parameters, conditions)
     end
 
@@ -135,6 +135,14 @@ class Syncano
     # @return [Syncano::Response]
     def batch_move(batch_client, ids, conditions = {}, new_folder = nil, new_state = nil)
       resource_class.batch_move(batch_client, scope_parameters, ids, conditions, new_folder, new_state)
+    end
+
+    # Proxy for calling "login" method on the resource object
+    # @param [String] username
+    # @param [String] password
+    # @return [Array] collection of Syncano::Resource objects
+    def login(username = nil, password = nil)
+      resource_class.login(client, username, password)
     end
 
     private

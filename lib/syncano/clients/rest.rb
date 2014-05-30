@@ -7,9 +7,17 @@ class Syncano
       # Constructor for Syncano::Clients::Rest object
       # @param [String] instance_name
       # @param [String] api_key
-      def initialize(instance_name, api_key)
-        super(instance_name, api_key)
+      def initialize(instance_name, api_key, auth_key = nil)
+        super(instance_name, api_key, auth_key)
         self.client = ::Jimson::Client.new(json_rpc_url)
+      end
+
+      # Gets auth_key based on username and password
+      # @return [TrueClass, FalseClass]
+      def login(username, password)
+        logout
+        self.auth_key = users.login(username, password)
+        !self.auth_key.nil?
       end
 
       # Performs request to Syncano api
@@ -19,6 +27,8 @@ class Syncano
       # @param [String] response_key for cases when response from api is incompatible with the convention
       # @return [Syncano::Response]
       def make_request(resource_name, method_name, params = {}, response_key = nil)
+        params.merge!(auth_key: auth_key) if auth_key.present?
+
         response_key ||= resource_name
         response = client.send("#{resource_name}.#{method_name}", request_params.merge(params))
         response = self.class.parse_response(response_key, response)

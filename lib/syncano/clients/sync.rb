@@ -9,20 +9,21 @@ class Syncano
       # Constructor for Syncano::Clients::Sync object
       # @param [String] instance_name
       # @param [String] api_key
-      def initialize(instance_name, api_key)
-        super(instance_name, api_key)
+      def initialize(instance_name, api_key, auth_key = nil)
+        super(instance_name, api_key, auth_key)
         self.connection = nil
+        self.auth_key = auth_key if auth_key.present?
       end
 
       # Getter for Singleton instance
       # @param [String] instance_name
       # @param [String] api_key
       # @return [Syncano::Clients::Base]
-      def self.instance(instance_name = nil, api_key = nil)
+      def self.instance(instance_name = nil, api_key = nil, auth_key = nil)
         unless @singleton__instance__
           @singleton__mutex__.synchronize do
             return @singleton__instance__ if @singleton__instance__
-            @singleton__instance__ = new(instance_name, api_key)
+            @singleton__instance__ = new(instance_name, api_key, auth_key)
           end
         end
         @singleton__instance__
@@ -53,6 +54,15 @@ class Syncano
           end
 
           raise ::Syncano::ConnectionError.new('Connection timeout') unless timeout > 0
+
+          timeout = 300
+
+          while (response = connection.get_response('auth')).blank? && timeout > 0
+            timeout -= 1
+            sleep 1.0/10.0
+          end
+
+          raise ::Syncano::ConnectionError.new(response.error) if response.status == 'NOK'
         end
       end
 
@@ -66,6 +76,15 @@ class Syncano
       def reconnect
         disconnect
         connect
+      end
+
+      # Gets auth_key based on username and password
+      # @return [TrueClass, FalseClass]
+      def login(username, password)
+        logout
+        rest_client = ::Syncano.client(api_key: api_key)
+        self.auth_key = rest_client.users.login(username, password)
+        !self.auth_key.nil?
       end
 
       # Returns query builder for Syncano::Resources::Subscription objects
@@ -124,8 +143,10 @@ class Syncano
           end
         end
 
+        raise(::Syncano::ApiError.new('Request timeout error!')) if timer == 0
+
         response = self.class.parse_response(response_key, response_packet.to_response)
-        response.errors.present? ? raise(Syncano::ApiError.new(response.errors)) : response
+        response.errors.present? ? raise(::Syncano::ApiError.new(response.errors)) : response
       end
     end
   end

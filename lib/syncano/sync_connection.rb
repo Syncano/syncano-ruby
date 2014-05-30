@@ -21,12 +21,14 @@ class Syncano
       start_tls
     end
 
-    # Eventmachine callback invoked completing ssl handshake
+    # Eventmachine callback invoked after completing ssl handshake
     def ssl_handshake_completed
       auth_data = {
         api_key: client.api_key,
         instance: client.instance_name
       }
+
+      auth_data[:auth_key] = client.auth_key if client.auth_key.present?
 
       client.connection = self
 
@@ -46,6 +48,8 @@ class Syncano
           callbacks[callback_name].call(notification)
         end
       elsif packet.call_response?
+        queue_response(packet)
+      elsif packet.auth?
         queue_response(packet)
       end
     end
@@ -77,7 +81,7 @@ class Syncano
     # @param [Integer, String] message_id
     # @return [Syncano::Packets::CallResponse]
     def get_response(message_id)
-      responses.delete(message_id)
+      responses.delete(message_id.to_s)
     end
 
     private
@@ -88,9 +92,9 @@ class Syncano
     # @param [Syncano::Packets::CallResponse] packet
     def queue_response(packet)
       prune_responses_queue
-      message_id = packet.message_id.to_i
+      message_id = packet.message_id.to_s
       responses[message_id] = packet
-      responses_queue << message_id
+      responses_queue << message_id.to_s
     end
 
     # Removes old call response packets from the responses queue
@@ -98,7 +102,7 @@ class Syncano
       while !responses_queue.empty?
         message_id = responses_queue.first
 
-        if responses_queue[message_id].nil? || Time.now - responses[message_id].timestamp.to_time > 2.minutes
+        if responses[message_id].nil? || Time.now - responses[message_id].timestamp.to_time > 2.minutes
           responses_queue.shift
           responses.delete(message_id)
         else

@@ -56,6 +56,12 @@ class Syncano
         false
       end
 
+      # Returns true if is an auth packet
+      # @return [TrueClass, FalseClass]
+      def auth?
+        false
+      end
+
       private
 
       attr_writer :object, :timestamp
