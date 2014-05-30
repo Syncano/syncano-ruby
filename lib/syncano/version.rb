@@ -1,4 +1,4 @@
 class Syncano
   # Syncano version number
-  VERSION = '3.1.1.beta'
+  VERSION = '3.1.1.beta2'
 end
