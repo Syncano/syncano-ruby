@@ -10,7 +10,7 @@ Click here to learn more about [Syncano](http://www.syncano.com) or [create an a
 
 Add this line to your application's Gemfile:
 
-    gem 'syncano', '~> 3.1.1.beta'
+    gem 'syncano', '~> 3.1.1.beta2'
 
 And then execute:
 
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install syncano -v 3.1.1.beta --pre
+    $ gem install syncano -v 3.1.1.beta2 --pre
     
 At the end generate initializer with api key and api instance name:
 
