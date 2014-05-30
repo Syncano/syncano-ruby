@@ -56,6 +56,18 @@ client.disconnect
 ```
 * managing callbacks for handling notifications (it is described later in this document)
 
+#### User api key
+
+If you want to use an user api key, you have to pass auth key or username and password to the client's constructor.
+
+```ruby
+client = Syncano.client(api_key: 'api key', instance_name: 'instance name', auth_key: 'auth key')
+```
+
+```ruby
+client = Syncano.client(api_key: 'api key', instance_name: 'instance name', username: 'username', password: 'password')
+```
+
 ### Resources
 
 Syncano gem utilizes an ActiveRecord pattern for managing resources. You can use it in similar way with both type of clients.
@@ -85,7 +97,9 @@ Below is a list of all implemented resources with information about what methods
 
 #### Project
 
-Implements all standard methods.
+Implements all standard methods and following custom:
+
+* project.authorize(api_key_id, permission)
 
 ##### Examples
 
@@ -108,6 +122,12 @@ project[:description] = 'Lorem ipsum'
 project.save
 ```
 
+* Authorizing user api key with read permission
+
+```ruby
+project.authorize(api_key_id, 'read_data')
+```
+
 #### Collection
 
 Implements all standard methods and following custom:
@@ -117,6 +137,7 @@ Implements all standard methods and following custom:
 * collection.deactivate
 * collection.add_tag(tag, weight, remove_others)
 * collection.delete_tag(tag)
+* collection.authorize(api_key_id, permission)
 
 ##### Examples
 
@@ -150,6 +171,7 @@ collection2.add_tags('tag3', 1, true)
 Implements all standard methods and following custom:
 
 * folders.find_by_name(folder_name)
+* folder.authorize(api_key_id, permission)
 
 Find method uses folder name as a key.
 

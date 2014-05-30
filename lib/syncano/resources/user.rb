@@ -12,6 +12,16 @@ class Syncano
         response.data if response.status
       end
 
+      # Wrapper for api "login" method
+      # @param [Syncano::Clients::Base] client
+      # @param [String] username
+      # @param [String] password
+      # @return [Integer]
+      def self.login(client, username, password)
+        response = perform_login(client, user_name: username, password: password)
+        response.data
+      end
+
       private
 
       self.scope_parameters = [:project_id, :collection_id]
@@ -41,6 +51,14 @@ class Syncano
       # @return [Syncano::Response]
       def self.perform_count(client, scope_parameters, conditions)
         make_request(client, nil, :count, conditions.merge(scope_parameters))
+      end
+
+      # Executes proper login request
+      # @param [Syncano::Clients::Base] client
+      # @param [Hash] parameters
+      # @return [Syncano::Response]
+      def self.perform_login(client, parameters = {})
+        make_request(client, nil, :login, parameters, :auth_key)
       end
     end
   end

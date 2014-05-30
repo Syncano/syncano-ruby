@@ -10,4 +10,8 @@ class Syncano
   # Class representing errors during connections
   class ConnectionError < BaseError
   end
+
+  # Class representing timeout errors
+  class TimeoutError < BaseError
+  end
 end

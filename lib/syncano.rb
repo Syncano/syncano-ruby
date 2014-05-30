@@ -7,7 +7,9 @@ class Syncano
   # @return [Syncano::Clients::Rest] Syncano client.
   def self.client(options = {})
     auth_data = self.auth_data(options)
-    Syncano::Clients::Rest.new(auth_data[:instance_name], auth_data[:api_key])
+    client = Syncano::Clients::Rest.new(auth_data[:instance_name], auth_data[:api_key], auth_data[:auth_key])
+    client.login(options[:username], options[:password]) if client.auth_key.nil? && options[:username].present?
+    client
   end
 
   # Used for initializing Syncano Sync Client
@@ -15,7 +17,8 @@ class Syncano
   # @return [Syncano::Clients::Rest] Syncano client.
   def self.sync_client(options = {})
     auth_data = self.auth_data(options)
-    client = Syncano::Clients::Sync.instance(auth_data[:instance_name], auth_data[:api_key])
+    client = Syncano::Clients::Sync.instance(auth_data[:instance_name], auth_data[:api_key], auth_data[:auth_key])
+    client.login(options[:username], options[:password]) if client.auth_key.nil? && options[:username].present?
     client.connect
     client
   end
@@ -32,7 +35,7 @@ class Syncano
     api_key = options[:api_key] || ::SYNCANO_API_KEY
     raise 'Syncano api key cannot be blank!' if api_key.nil?
 
-    { instance_name: instance_name, api_key: api_key }
+    { instance_name: instance_name, api_key: api_key, auth_key: options[:auth_key] }
   end
 end
 
