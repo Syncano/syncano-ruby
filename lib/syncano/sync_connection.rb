@@ -14,6 +14,7 @@ class Syncano
       self.responses_queue = []
 
       self.client = ::Syncano::Clients::Sync.instance
+      self.received_data = ''
     end
 
     # Eventmachine callback invoked after completing connection
@@ -38,20 +39,8 @@ class Syncano
     # Eventmachine callback invoked after receiving data from socket
     # Data are parsed here and processed by callbacks chain
     def receive_data(data)
-      data = ::ActiveSupport::HashWithIndifferentAccess.new(JSON.parse(data))
-      packet = ::Syncano::Packets::Base.instantize_packet(data)
-
-      if packet.notification?
-        notification = ::Syncano::Resources::Notifications::Base.instantize_notification(client, packet)
-
-        callbacks_queue.each do |callback_name|
-          callbacks[callback_name].call(notification)
-        end
-      elsif packet.call_response?
-        queue_response(packet)
-      elsif packet.auth?
-        queue_response(packet)
-      end
+      self.received_data += data
+      process_data if data.end_with?("\n")
     end
 
     # Appends callback method to the end of callbacks chain
@@ -84,9 +73,38 @@ class Syncano
       responses.delete(message_id.to_s)
     end
 
+    protected
+
+    attr_accessor :received_data
+
     private
 
     attr_accessor :client, :callbacks, :callbacks_queue, :responses, :responses_queue
+
+    # Processes data received in the receive_data callback
+    def process_data
+      begin
+        data = ::ActiveSupport::HashWithIndifferentAccess.new(JSON.parse(received_data))
+        packet = ::Syncano::Packets::Base.instantize_packet(data)
+
+        if packet.notification?
+          notification = ::Syncano::Resources::Notifications::Base.instantize_notification(client, packet)
+
+          callbacks_queue.each do |callback_name|
+            callbacks[callback_name].call(notification)
+          end
+        elsif packet.call_response?
+          queue_response(packet)
+        elsif packet.auth?
+          queue_response(packet)
+        end
+
+        self.received_data = ''
+      rescue Exception => e
+        p 'EXCEPTION!'
+        p e.inspect
+      end
+    end
 
     # Adds call response packet to the responses queue
     # @param [Syncano::Packets::CallResponse] packet
