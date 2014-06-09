@@ -29,9 +29,15 @@ class Syncano
         @singleton__instance__
       end
 
+      # Checks if client is connected
+      # @return [TrueClass, FalseClass]
+      def connected?
+        !connection.blank?
+      end
+
       # Connects with the Sync api
       def connect
-        if connection.blank?
+        unless connected?
           hostname = 'api.syncano.com'
           port = 8200
 
@@ -68,7 +74,7 @@ class Syncano
 
       # Disconnects with the Sync api
       def disconnect
-        EM.stop
+        EM.stop if EM::reactor_running?
         self.connection = nil
       end
 
@@ -125,9 +131,12 @@ class Syncano
       # @param [String] response_key for cases when response from api is incompatible with the convention
       # @return [Syncano::Response]
       def make_request(resource_name, method_name, params = {}, response_key = nil)
+        raise(::Syncano::ConnectionError.new('Not connected to the Sync Server!')) unless connected?
+
         response_key ||= resource_name
 
         packet = ::Syncano::Packets::Call.new(resource_name: resource_name, method_name: method_name, data: params)
+
         connection.send_data("#{packet.to_json}\n")
 
         response_packet = nil

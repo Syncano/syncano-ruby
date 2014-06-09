@@ -1,4 +1,4 @@
-module Syncano
+class Syncano
   # Module for generators used implemented in the gem
   module Generators
     # Install generator used for initializing gem in a Rails application
