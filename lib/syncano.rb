@@ -19,7 +19,7 @@ class Syncano
     auth_data = self.auth_data(options)
     client = Syncano::Clients::Sync.instance(auth_data[:instance_name], auth_data[:api_key], auth_data[:auth_key])
     client.login(options[:username], options[:password]) if client.auth_key.nil? && options[:username].present?
-    client.connect
+    client.reconnect
     client
   end
 
