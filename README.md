@@ -10,7 +10,7 @@ Click here to learn more about [Syncano](http://www.syncano.com) or [create an a
 
 Add this line to your application's Gemfile:
 
-    gem 'syncano', '~> 3.1.1.beta4'
+    gem 'syncano', '~> 3.1.1.beta5'
 
 And then execute:
 
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install syncano -v 3.1.1.beta4 --pre
+    $ gem install syncano -v 3.1.1.beta5 --pre
     
 At the end generate initializer with api key and api instance name:
 
@@ -309,6 +309,26 @@ To delete callback from the queue just call remove_callback method:
  
 ```ruby
 client.remove_callback(:callback_name)
+```
+
+To list notifications ie. after connection use all method:
+
+```ruby
+client.notifications.all
+```
+
+#### Sending notifications
+
+To send notification just create new notification object:
+
+```ruby
+client.notifications.create(key: 'value')
+```
+
+You can also pass additional attributes specified for api 'notification.send' method:
+
+```ruby
+client.notifications.create(key: 'value', api_client_id: 512)
 ```
 
 ### Errors and exceptions
