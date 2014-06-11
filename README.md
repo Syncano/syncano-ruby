@@ -311,6 +311,26 @@ To delete callback from the queue just call remove_callback method:
 client.remove_callback(:callback_name)
 ```
 
+To list notifications ie. after connection use all method:
+
+```ruby
+client.notifications.all
+```
+
+#### Sending notifications
+
+To send notification just create new notification object:
+
+```ruby
+client.notifications.create(key: 'value')
+```
+
+You can also pass additional attributes specified for api 'notification.send' method:
+
+```ruby
+client.notifications.create(key: 'value', api_client_id: 512)
+```
+
 ### Errors and exceptions
 
 This library does not implement any validations. All errors from the api will cause throwing an exception.
