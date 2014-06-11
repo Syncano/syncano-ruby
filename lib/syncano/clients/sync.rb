@@ -41,6 +41,8 @@ class Syncano
           hostname = 'api.syncano.com'
           port = 8200
 
+          sleep(3)
+
           Thread.new do
             begin
               EM.run do
