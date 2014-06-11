@@ -128,8 +128,11 @@ class Syncano
         response = perform_save(nil)
 
         if new_record?
-          self.id = response.id
-          self.attributes = response.attributes
+          response_data = ActiveSupport::HashWithIndifferentAccess.new(response.data)
+          created_object = self.class.new(client, self.class.map_to_scope_parameters(attributes).merge(response_data))
+
+          self.id = created_object.id
+          self.attributes.merge!(created_object.attributes)
           mark_as_saved!
         end
 
