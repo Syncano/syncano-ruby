@@ -59,6 +59,16 @@ require 'active_support/core_ext/object/blank.rb'
 require 'active_support/json/decoding.rb'
 require 'active_support/json/encoding.rb'
 require 'active_support/time_with_zone.rb'
+require 'active_support/concern'
+require 'active_support/inflector/inflections'
+
+# ActiveModel
+require 'active_model/forbidden_attributes_protection'
+require 'active_model/dirty'
+
+# ActiveAttr
+require 'active_attr/model'
+require 'active_attr/dirty'
 
 # Syncano
 require 'syncano/errors'
@@ -93,3 +103,4 @@ require 'syncano/resources/notifications/create'
 require 'syncano/resources/notifications/update'
 require 'syncano/resources/notifications/destroy'
 require 'syncano/resources/notifications/message'
+require 'syncano/active_record/base'

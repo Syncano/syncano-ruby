@@ -20,8 +20,10 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'jimson-client'
   spec.add_dependency 'activesupport'
+  spec.add_dependency 'activemodel'
   spec.add_dependency 'multi_json', '~> 1.10'
   spec.add_dependency 'eventmachine'
+  spec.add_dependency 'active_attr'
 
   spec.add_development_dependency 'bundler', '~> 1.6'
   spec.add_development_dependency 'rake'
