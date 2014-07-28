@@ -5,7 +5,7 @@ class Syncano
       # Association has_many :data_objects
       # @return [Syncano::QueryBuilder] query builder for resource Syncano::Resources::DataObject
       def data_objects
-        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::DataObject, scope_parameters.merge(folder: @saved_attributes[:name]))
+        ::Syncano::QueryBuilder.new(client, ::Syncano::Resources::DataObject, scope_parameters.merge(folders: @saved_attributes[:name]))
       end
 
       # Wrapper for api "get_one" method with folder_name as a key

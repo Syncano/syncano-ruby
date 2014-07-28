@@ -126,16 +126,18 @@ class Syncano
       # @return [Syncano::Resources::Base]
       def save
         response = perform_save(nil)
+        response_data = ActiveSupport::HashWithIndifferentAccess.new(response.data)
 
         if new_record?
-          response_data = ActiveSupport::HashWithIndifferentAccess.new(response.data)
           created_object = self.class.new(client, self.class.map_to_scope_parameters(attributes).merge(response_data))
 
           self.id = created_object.id
           self.attributes.merge!(created_object.attributes)
-          mark_as_saved!
+        else
+          self[:updated_at] = response_data[:updated_at]
         end
 
+        mark_as_saved!
         self
       end
 

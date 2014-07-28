@@ -211,6 +211,11 @@ class Syncano
           end
         end
 
+        if attributes.keys.map(&:to_sym).include?(:folders) && !attributes.keys.map(&:to_sym).include?(:folder)
+          attributes[:folder] = attributes[:folders]
+          attributes.delete(:folders)
+        end
+
         attributes.delete(:user)
         attributes.delete(:created_at)
         attributes.delete(:updated_at)

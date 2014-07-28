@@ -10,7 +10,7 @@ Click here to learn more about [Syncano](http://www.syncano.com) or [create an a
 
 Add this line to your application's Gemfile:
 
-    gem 'syncano', '~> 3.1.1.beta5'
+    gem 'syncano', '~> 3.1.1'
 
 And then execute:
 
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install syncano -v 3.1.1.beta5 --pre
+    $ gem install syncano -v 3.1.1
     
 At the end generate initializer with api key and api instance name:
 
@@ -336,6 +336,168 @@ client.notifications.create(key: 'value', api_client_id: 512)
 This library does not implement any validations. All errors from the api will cause throwing an exception.
 It is thought that user will create his own validation mechanisms specific not only for restrictions imposed by the Syncano, but also for his own logic.
 It can be compared to the exceptions after violating constraints in the MySQL database.
+
+### Integration with Ruby on Rails
+
+Syncano gem provides handy class for implementing model with ActiveRecord pattern. See example below: 
+
+```ruby
+class Category < Syncano::ActiveRecord::Base
+  has_many :articles
+  
+  attribute :name, type: String
+  validates :name, presence: true  
+end
+
+class Article < Syncano::ActiveRecord::Base
+  belongs_to :category
+  
+  attribute :title, type: String
+  attribute :text, type: String
+  attribute :promoted, type: Integer, filterable: :data1
+  validates :title, presence: true
+  validates :text, presence: true
+  
+  scope :promoted, -> { where('promoted = ?', 1) }
+  
+  before_save :sanitize_content
+  
+  private
+  
+  def sanitize_content
+    self.title = Sanitize.clean(title)
+    self.text = Sanitize.clean(text)
+  end
+end
+```
+
+#### Attributes
+
+As you can see above every attribute has to be declared with a type. Every ActiveRecord class has also three standard attributes:
+- :id, type: Integer
+- :created_at, type: DateTime
+- :updated_at, type: DateTime
+
+There can be up to three filterable attributes (mapped to the Syncano data1, data2, data3 attributes), which can be used in where and order clauses. They always should have Integer type.
+   
+Attributes can be validated like in standard ActiveRecord.
+
+#### Scopes and query building
+
+You can sort and filter by filterable attributes:
+
+```ruby
+where('attribute1 > ? AND attribute2 <= ?', 0, 30).order('attribute3 ASC').where('attribute 2 > ?', 5)
+```
+
+As you can see methods can be chained. 
+
+#### Callbacks
+
+There are available ten different callbacks fired in the following sequence:
+
+1. before_validation
+2. after_validation
+3. before_save
+4. before_create / before_update
+5. after_create / after_save
+6. after_save
+
+1. before_destroy
+2. after_destroy
+
+#### Associations
+
+There are three types of relations (belongs_to, has_one, has_many) which are based on Syncano parent - child mechanism.
+
+##### belongs_to :category
+
+Adds following methods:
+
+```ruby
+self.category
+self.category = Category.first
+self.category_id
+self.category_id = Category.first.id
+```
+
+Remember to always declare belongs_to association! It creates proper attribute in model.
+
+##### has_one :article
+
+```ruby
+self.article
+self.article = Article.first # this method updates article object
+self.build_article(article_attributes)
+self.create_article(article_attributes)
+```
+
+##### has_many :articles
+
+```ruby
+self.articles
+self.articles = Article.first(5) # this method updates each article object
+self.articles << Article.first # this method updates article object
+self.articles.build(article_attributes)
+self.articles.create(article_attributes)
+```
+
+You can also call scope builder methods on has_many collection:
+
+```ruby
+self.articles.promoted.all
+```
+
+#### Other useful methods in examples
+
+```ruby
+Article.promoted.find(id)
+Article.where('promoted = ?', 0).count
+Article.since(min_id).before(max_id)
+Article.since(Time.now - 10.days)
+```
+
+For all methods please see reference for Syncano::ActiveRecord::Base class.
+
+#### Collection and folders
+
+Classes which inherit from Syncano::ActiveRecord::Base needs a collection and a folders in Syncano. 
+
+Collection can be configured as constant in initializer:
+ 
+```ruby
+SYNCANO_ACTIVERECORD_COLLECTION = Syncano.client.project.first.collection.first
+```
+
+or it can be overwritten in selected model:
+
+```ruby
+class Article < Syncano::ActiveRecord::Base
+
+  private
+  
+  def self.collection
+    Syncano.client.project.first.collection.first
+  end
+end
+```
+
+Folders are used as classes - each model as his own folder (ie. Articles). Folder is automatically created and used without any additional configuration, but you can customize convention by overwriting folder_name or folder method:
+
+```ruby
+class Article < Syncano::ActiveRecord::Base
+
+  private
+  
+  def self.folder_name
+    'Posts'
+  end
+  
+  def self.folder
+    collection.folders.find_by_name(folder_name)
+  end
+end
+```
 
 ## Contributing
 
