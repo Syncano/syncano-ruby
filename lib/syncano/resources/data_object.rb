@@ -224,6 +224,13 @@ class Syncano
         attributes
       end
 
+      # Overwritten destroy request with non-standard primary key
+      # @param [Jimson::BatchClient] batch_client
+      # @return [Syncano::Response]
+      def perform_destroy(batch_client)
+        self.class.make_request(client, batch_client, :destroy, scope_parameters.merge({ data_ids: [primary_key] }))
+      end
+
       # Executes proper count request
       # @param [Syncano::Clients::Base] client
       # @param [Hash] scope_parameters

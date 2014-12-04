@@ -64,6 +64,7 @@ require 'active_support/inflector/inflections'
 
 # ActiveModel
 require 'active_model/forbidden_attributes_protection'
+require 'active_model/attribute_methods'
 require 'active_model/dirty'
 
 # ActiveAttr
