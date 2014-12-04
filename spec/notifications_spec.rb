@@ -9,34 +9,34 @@ describe 'Handling notifications' do
     sleep 3
 
     @sync_client.append_callback(:test) do |notification|
-      p "Notification received: #{notification.inspect}"
+      p "Notification received: #{notification.inspect}" if ENV['VERBOSE']
     end
   end
 
   it 'should subscribe to project' do
     @project.subscribe
-    p 'Notification should be seen'
+    p 'Notification should be seen' if ENV['VERBOSE']
     @object.update(title: 'Test object 2')
     sleep 3
   end
 
   it 'should unsubscribe from project' do
     @project.unsubscribe
-    p 'Notification should not be seen'
+    p 'Notification should not be seen' if ENV['VERBOSE']
     @object.update(title: 'Test object 3')
     sleep 3
   end
 
   it 'should subscribe to collection' do
     @collection.subscribe
-    p 'Notification should be seen'
+    p 'Notification should be seen' if ENV['VERBOSE']
     @object.update(title: 'Test object 4')
     sleep 3
   end
 
   it 'should unsubscribe from collection' do
     @collection.unsubscribe
-    p 'Notification should not be seen'
+    p 'Notification should not be seen' if ENV['VERBOSE']
     @object.update(title: 'Test object 5')
     sleep 3
   end
