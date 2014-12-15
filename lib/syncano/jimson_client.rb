@@ -11,7 +11,7 @@ module Jimson
           'params'  => args,
           'id'      => self.class.make_id
       }.to_json
-      resp = RestClient.post(@url, post_data, :content_type => 'application/json', :user_agent => "syncano-ruby-#{Syncano::VERSION}")
+      resp = RestClient.post(@url, post_data, content_type: 'application/json', user_agent: "syncano-ruby-#{Syncano::VERSION}")
       if resp.nil? || resp.body.nil? || resp.body.empty?
         raise Jimson::ClientError::InvalidResponse.new
       end
@@ -26,7 +26,7 @@ module Jimson
     # @return [Array] collection of responses
     def send_batch_request(batch)
       post_data = batch.to_json
-      resp = RestClient.post(@url, post_data, :content_type => 'application/json', :user_agent => "syncano-ruby-#{Syncano::VERSION}")
+      resp = RestClient.post(@url, post_data, content_type: 'application/json', user_agent: "syncano-ruby-#{Syncano::VERSION}")
       if resp.nil? || resp.body.nil? || resp.body.empty?
         raise Jimson::ClientError::InvalidResponse.new
       end

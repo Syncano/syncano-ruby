@@ -26,7 +26,8 @@ class Syncano
     def ssl_handshake_completed
       auth_data = {
         api_key: client.api_key,
-        instance: client.instance_name
+        instance: client.instance_name,
+        'user-agent' => "syncano-ruby-#{Syncano::VERSION}"
       }
 
       auth_data[:auth_key] = client.auth_key if client.auth_key.present?
