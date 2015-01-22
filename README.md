@@ -6,6 +6,8 @@ The full source code can be found on [Github](https://github.com/Syncano/syncano
 
 Click here to learn more about [Syncano](http://www.syncano.com) or [create an account](https://login.syncano.com/sign_up)!
 
+You can read the guide here, or check our [reference](http://www.rubydoc.info/gems/syncano/3.1.1/frames) for more in-depth info.
+
 ## Installation
 
 Add this line to your application's Gemfile:
