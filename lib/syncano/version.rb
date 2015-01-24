@@ -1,4 +1,3 @@
-class Syncano
-  # Syncano version number
+module Syncano
   VERSION = '4.0.0.dev'
 end

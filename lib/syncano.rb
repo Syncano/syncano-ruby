@@ -1,5 +1,5 @@
 require 'syncano/version'
+require 'syncano/api'
 
 module Syncano
-  autoload :Api, "syncano/api"
 end
