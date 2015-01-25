@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'faraday'
+
 group :console do
   gem 'pry'
 end
@@ -9,6 +11,7 @@ end
 group :test do
   gem 'dotenv'
   gem 'rspec'
+  gem 'webmock'
 end
 
 group :tools do

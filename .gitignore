@@ -24,3 +24,4 @@ mkmf.log
 .com.apple.timemachine.supported
 .idea/*
 .ruby-gemset
+.env
