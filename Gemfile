@@ -7,11 +7,12 @@ group :console do
 end
 
 group :test do
+  gem 'dotenv'
   gem 'rspec'
 end
 
 group :tools do
-  gem 'rubocop'
+  gem 'rubocop', require: false
 
   gem 'guard'
   gem 'guard-rspec'

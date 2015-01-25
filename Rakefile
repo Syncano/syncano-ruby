@@ -28,7 +28,7 @@ begin
   Rake::Task[:default].enhance [:rubocop]
 
   RuboCop::RakeTask.new do |task|
-    task.options << '--display-cop-names'
+    task.options << '--display-cop-names' << '--lint'
   end
 end
 
