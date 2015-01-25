@@ -12,11 +12,11 @@ group :test do
 end
 
 group :tools do
-  gem 'rubocop', require: false
-
   gem 'guard'
   gem 'guard-rspec'
   gem 'guard-rubocop'
+
+  gem 'rubocop', require: false
 
   platform :mri do
     gem 'mutant'
