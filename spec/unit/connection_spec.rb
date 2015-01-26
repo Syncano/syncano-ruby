@@ -8,13 +8,26 @@ describe Syncano::Connection do
   end
 
   describe '#authenticate' do
-    subject do
-      described_class.new email: 'kiszka@koza.com',
-                          password: 'kiszonka'
+    context 'successful' do
+      subject do
+        described_class.new email: 'kiszka@koza.com',
+                            password: 'kiszonka'
+      end
+
+      it 'should get an API key' do
+        expect { subject.authenticate }.to change { subject.authenticated? }
+      end
     end
 
-    it "should get an API key" do
-      expect { subject.authenticate }.to change { subject.authenticated? }
+    context 'failed' do
+      subject do
+        described_class.new email: 'kiszka@koza.com',
+                            password: 'as'
+      end
+
+      it 'should raise an exception' do
+        expect { subject.authenticate }.to raise_error(Syncano::ClientError)
+      end
     end
   end
 end
