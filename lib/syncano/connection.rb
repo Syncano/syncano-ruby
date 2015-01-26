@@ -11,15 +11,13 @@ module Syncano
 
     def initialize(options = {})
       self.api_key = options[:api_key]
-      self.email = options[:email]
-      self.password = options[:password]
     end
 
     def authenticated?
       !api_key.nil?
     end
 
-    def authenticate
+    def authenticate(email, password)
       # FIXME take it easy with SSL for development only, temporary solution
       conn = Faraday.new(url: self.class.api_root, ssl: { verify: false })
       conn.request :url_encoded

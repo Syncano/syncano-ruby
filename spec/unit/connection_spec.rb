@@ -3,13 +3,12 @@ require 'json'
 
 describe Syncano::Connection do
   context 'api_key' do
-    subject { described_class.new api_key: 'fafarafa' }
-
-    it { should be_authenticated }
+    specify { described_class.new(api_key: 'fafarafa').should be_authenticated }
+    specify { described_class.new.should_not be_authenticated }
   end
 
   describe '#authenticate' do
-    subject { described_class.new email: email, password: password }
+    subject { described_class.new }
 
     let(:authenticate_uri) { Syncano::Connection.api_root + "/v1/account/auth/" }
     let(:email) { "kiszka@koza.com" }
@@ -18,7 +17,6 @@ describe Syncano::Connection do
     let(:unauthorized_status) { 401 }
 
     context 'successful' do
-
       before do
         stub_request(:post, authenticate_uri).
           with(body: { "email" => email, "password" => password } ).
@@ -26,7 +24,7 @@ describe Syncano::Connection do
       end
 
       it 'should get an API key' do
-        expect { subject.authenticate }.to change { subject.authenticated? }
+        expect { subject.authenticate(email, password) }.to change { subject.authenticated? }
       end
 
       def successful_body
@@ -47,7 +45,7 @@ describe Syncano::Connection do
       end
 
       it 'should raise an exception' do
-        expect { subject.authenticate }.to raise_error(Syncano::ClientError)
+        expect { subject.authenticate(email, password) }.to raise_error(Syncano::ClientError)
       end
 
       def failed_body
