@@ -2,5 +2,6 @@ machine:
   ruby:
     version: 2.1.5
 dependencies:
-  pre:
-    - gem install bundler --pre
+  override:
+    - gem install bundler -v 1.7
+    - bundle install
