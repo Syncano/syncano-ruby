@@ -3,8 +3,8 @@ require 'json'
 
 describe Syncano::Connection do
   context 'api_key' do
-    specify { described_class.new(api_key: 'fafarafa').should be_authenticated }
-    specify { described_class.new.should_not be_authenticated }
+    specify { expect(described_class.new(api_key: 'fafarafa')).to be_authenticated }
+    specify { expect(described_class.new).to_not be_authenticated }
   end
 
   describe '#authenticate' do

@@ -4,6 +4,15 @@ require 'syncano/api'
 require 'syncano/connection'
 
 module Syncano
+  class << self
+    def connect(options = {})
+      connection = Connection.new(options)
+      connection.authenticate(options) unless connection.authenticated?
+
+      API.new connection
+    end
+  end
+
   class Error < StandardError; end
 
   class ClientError < StandardError
