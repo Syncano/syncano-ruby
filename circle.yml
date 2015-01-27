@@ -1,7 +1,10 @@
 machine:
   ruby:
     version: 2.1.5
+  environment:
+    API_ROOT: https://v4.hydraengine.com
 dependencies:
   override:
     - gem install bundler -v 1.7
     - bundle install
+
