@@ -1,7 +1,11 @@
 require 'faraday'
+require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/core_ext/class/attribute.rb'
 require 'syncano/version'
 require 'syncano/api'
 require 'syncano/connection'
+require 'syncano/schema'
+require 'syncano/resources/base'
 
 module Syncano
   class << self

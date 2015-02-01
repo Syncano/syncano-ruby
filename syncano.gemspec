@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
 
   spec.add_dependency 'faraday', '~> 0.9'
+  spec.add_dependency 'activesupport', '>= 4.0'
 end
