@@ -13,20 +13,22 @@ describe Syncano::Connection do
 
     context "called with unsupported method" do
       specify do
-        expect { subject.request :koza, "/fafarafa" }.
+        expect { subject.request :koza, "fafarafa" }.
           to raise_error(RuntimeError, 'Unsupported method "koza"')
       end
     end
 
     context "called with supported method" do
       before do
-        stub_request(:get, endpoint_uri("/somepath/")).
+        stub_request(:get, endpoint_uri("somepath/")).
           with(headers: { 'Http-X-Api-Key' => api_key }).
           to_return(body: generate_body(some: "response"))
       end
 
+      #test for errors
+
       specify do
-        expect(subject.request(:get, "/somepath/")).to eq("some" =>  "response")
+        expect(subject.request(:get, "somepath/")).to eq("some" =>  "response")
       end
     end
   end
@@ -34,7 +36,7 @@ describe Syncano::Connection do
   describe '#authenticate' do
     subject { described_class.new }
 
-    let(:authenticate_uri) { endpoint_uri("/account/auth/") }
+    let(:authenticate_uri) { endpoint_uri("account/auth/") }
     let(:email) { "kiszka@koza.com" }
     let(:password) { "kiszonka" }
     let(:success_status) { 200 }
@@ -83,6 +85,6 @@ describe Syncano::Connection do
   end
 
   def endpoint_uri(path)
-    Syncano::Connection.api_root + "/v1" + path
+    [Syncano::Connection.api_root,"v1", path].join("/")
   end
 end
