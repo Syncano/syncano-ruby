@@ -11,7 +11,7 @@ module Syncano
   class << self
     def connect(options = {})
       connection = Connection.new(options)
-      connection.authenticate(options) unless connection.authenticated?
+      connection.authenticate! unless connection.authenticated?
 
       API.new connection
     end

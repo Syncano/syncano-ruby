@@ -12,6 +12,8 @@ module Syncano
 
     def initialize(options = {})
       self.api_key = options[:api_key]
+      self.email = options[:email]
+      self.password = options[:password]
 
       # FIXME take it easy with SSL for development only, temporary solution
       self.conn = Faraday.new(self.class.api_root, ssl: { verify: false })
@@ -23,7 +25,7 @@ module Syncano
       !api_key.nil?
     end
 
-    def authenticate(email, password)
+    def authenticate!
       response = conn.post(AUTH_PATH, email: email, password: password)
       body = JSON.parse(response.body)
 
@@ -44,7 +46,7 @@ module Syncano
       when Status.successful
         JSON.parse(response.body)
       when Status.client_error
-        raise ClientError.new(body, response)
+        raise ClientError.new(response.body, response)
       end
     end
 

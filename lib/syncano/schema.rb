@@ -1,6 +1,6 @@
 module Syncano
   class Schema
-    SCHEMA_PATH = '/schema/'
+    SCHEMA_PATH = 'schema/'
 
     attr_reader :schema
 
@@ -21,7 +21,7 @@ module Syncano
     attr_writer :schema
 
     def load_schema
-      raw_schema = connection.request(SCHEMA_PATH)
+      raw_schema = connection.request(:get, SCHEMA_PATH)
       resources = {}
 
       raw_schema.each do |resource_schema|
