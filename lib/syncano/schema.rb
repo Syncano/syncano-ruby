@@ -12,6 +12,8 @@ module Syncano
     def process!
       schema.each do |resource_name, resource_definition|
         generate_resource_class(resource_name, resource_definition)
+        # TODO
+        generate_client_method(resource_name, resource_definition)
       end
     end
 
@@ -76,6 +78,15 @@ module Syncano
       end
 
       ::Syncano::Resources.const_set(name, resource_class)
+    end
+
+    def generate_client_method(resource_name, definition)
+      method_name = resource_name.tableize
+      resource_class = "::Syncano::Resources::#{resource_name}".constantize
+
+      ::Syncano::API.send(:define_method, method_name) do
+        ::Syncano::QueryBuilder.new(connection, resource_class)
+      end
     end
   end
 end

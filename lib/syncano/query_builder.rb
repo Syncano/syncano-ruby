@@ -5,20 +5,20 @@ module Syncano
       self.resource_class = resource_class
     end
 
-    def all(conditions)
-      resource_class(all, conditions)
+    def all
+      resource_class.all(connection)
     end
 
     def find(key = nil, conditions = {})
-      resource_class.find(client, key, conditions)
+      resource_class.find(connection, key, conditions)
     end
 
     def new(attributes = {})
-      resource_class.new(client, attributes)
+      resource_class.new(connection, attributes)
     end
 
-    def create(attributes)
-      resource_class.create(client, attributes)
+    def create(attributes = {})
+      resource_class.create(connection, attributes)
     end
 
     private

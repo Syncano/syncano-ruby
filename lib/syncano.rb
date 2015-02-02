@@ -1,11 +1,13 @@
 require 'faraday'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'
+require 'active_support/inflector'
 require 'syncano/version'
 require 'syncano/api'
 require 'syncano/connection'
 require 'syncano/schema'
 require 'syncano/resources/base'
+require 'syncano/query_builder'
 
 module Syncano
   class << self

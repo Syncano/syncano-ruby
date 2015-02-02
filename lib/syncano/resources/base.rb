@@ -37,28 +37,28 @@ module Syncano
         raise(NoMethodError.new) unless resource_method_implemented?(method_name)
       end
 
-      def resource_method_implemented?(method_name)
+      def self.resource_method_implemented?(method_name)
         resource_definition.present? && send("#{method_name}_implemented?")
       end
 
       def self.index_implemented?
-        resource_definition[:collection][:methods].include?('get')
+        resource_definition[:collection][:http_methods].include?('get')
       end
 
       def self.create_implemented?
-        resource_definition[:collection][:methods].include?('post')
+        resource_definition[:collection][:http_methods].include?('post')
       end
 
       def self.show_implemented?
-        resource_definition[:member][:methods].include?('get')
+        resource_definition[:member][:http_methods].include?('get')
       end
 
       def self.update_implemented?
-        resource_definition[:member][:methods].include?('put')
+        resource_definition[:member][:http_methods].include?('put')
       end
 
       def self.destroy_implemented?
-        resource_definition[:member][:methods].include?('delete')
+        resource_definition[:member][:http_methods].include?('delete')
       end
     end
   end
