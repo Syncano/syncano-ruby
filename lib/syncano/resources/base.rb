@@ -1,6 +1,7 @@
 module Syncano
   module Resources
     class Base
+      include ActiveAttr::Model
 
       def initialize(connection, attributes = {})
         self.connection = connection
@@ -14,6 +15,7 @@ module Syncano
       def self.find(connection, id)
         check_resource_method_existance!(:show)
         connection.request(:get, resource_definition[:collection][:path], id: id)
+
       end
 
       def self.create(connection, attributes = {})

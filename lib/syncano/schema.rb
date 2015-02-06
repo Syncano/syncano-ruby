@@ -12,7 +12,6 @@ module Syncano
     def process!
       schema.each do |resource_name, resource_definition|
         generate_resource_class(resource_name, resource_definition)
-        # TODO
         generate_client_method(resource_name, resource_definition)
       end
     end
@@ -68,8 +67,12 @@ module Syncano
     def generate_resource_class(name, definition)
       resource_class = Class.new(::Syncano::Resources::Base) do
 
-        definition[:attributes].keys.each do |attribute|
-          attr_accessor attribute
+        definition[:attributes].keys.each do |attribute_name|
+          attribute attribute_name
+
+          if definition[:attributes][attribute_name]['required']
+            validates attribute_name, presence: true
+          end
         end
 
         private

@@ -23,4 +23,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'faraday', '~> 0.9'
   spec.add_dependency 'activesupport', '>= 4.0'
+  spec.add_dependency 'active_attr', '~> 0.8'
 end
