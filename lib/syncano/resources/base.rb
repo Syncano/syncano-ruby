@@ -5,17 +5,23 @@ module Syncano
 
       def initialize(connection, attributes = {})
         self.connection = connection
+        attributes = HashWithIndifferentAccess.new(attributes)
+        links = attributes.delete(:links)
+        self.attributes = attributes
       end
 
       def self.all(connection)
         check_resource_method_existance!(:index)
-        connection.request(:get, resource_definition[:collection][:path])
+        response = connection.request(:get, resource_definition[:collection][:path])
+        response['objects'].collect do |resource_attributes|
+          new_from_database(connection, resource_attributes)
+        end
       end
 
       def self.find(connection, id)
         check_resource_method_existance!(:show)
-        connection.request(:get, resource_definition[:collection][:path], id: id)
-
+        response = connection.request(:get, resource_definition[:collection][:path], id: id)
+        new_from_database(connection, response)
       end
 
       def self.create(connection, attributes = {})
@@ -34,6 +40,11 @@ module Syncano
 
       class_attribute :resource_definition
       attr_accessor :connection
+
+      def self.new_from_database(connection, attributes = {})
+        resource = new(connection, attributes)
+        # resource.mark_as_saved!
+      end
 
       def self.check_resource_method_existance!(method_name)
         raise(NoMethodError.new) unless resource_method_implemented?(method_name)
