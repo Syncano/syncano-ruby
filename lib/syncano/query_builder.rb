@@ -1,16 +1,17 @@
 module Syncano
   class QueryBuilder
-    def initialize(connection, resource_class)
+    def initialize(connection, resource_class, scope_parameters = {})
       self.connection = connection
       self.resource_class = resource_class
+      self.scope_parameters = scope_parameters
     end
 
     def all
-      resource_class.all(connection)
+      resource_class.all(connection, scope_parameters)
     end
 
-    def find(key = nil, conditions = {})
-      resource_class.find(connection, key, conditions)
+    def find(key = nil)
+      resource_class.find(connection, key, scope_parameters)
     end
 
     def new(attributes = {})
@@ -23,6 +24,6 @@ module Syncano
 
     private
 
-    attr_accessor :connection, :resource_class
+    attr_accessor :connection, :resource_class, :scope_parameters
   end
 end

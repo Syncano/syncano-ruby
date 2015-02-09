@@ -40,7 +40,7 @@ module Syncano
         resources[class_name][:attributes].merge!(resource_schema['properties'])
         if resource_schema['properties']['links'].present?
           resources[class_name][:attributes].delete('links')
-          resources[class_name][:associations].merge(resource_schema['properties']['links'])
+          resources[class_name][:associations].merge!(resource_schema['properties']['links'])
         end
 
         resource_schema['endpoints'].each do |type, endpoint|
@@ -72,6 +72,16 @@ module Syncano
 
           if definition[:attributes][attribute_name]['required']
             validates attribute_name, presence: true
+          end
+        end
+
+        (definition[:associations]['links'] || []).each do |association_schema|
+          if association_schema['type'] == 'list'
+            define_method(association_schema['name']) do
+              has_many_association(association_schema['name'])
+            end
+          elsif association_schema['type'] == 'details'
+
           end
         end
 

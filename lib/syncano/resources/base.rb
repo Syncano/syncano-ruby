@@ -2,15 +2,16 @@ module Syncano
   module Resources
     class Base
       include ActiveAttr::Model
+      include ActiveAttr::Dirty
 
       def initialize(connection, attributes = {})
         self.connection = connection
         attributes = HashWithIndifferentAccess.new(attributes)
-        links = attributes.delete(:links)
+        attributes.delete(:links)
         self.attributes = attributes
       end
 
-      def self.all(connection)
+      def self.all(connection, scope_parameters = {})
         check_resource_method_existance!(:index)
         response = connection.request(:get, resource_definition[:collection][:path])
         response['objects'].collect do |resource_attributes|
@@ -18,7 +19,7 @@ module Syncano
         end
       end
 
-      def self.find(connection, id)
+      def self.find(connection, id, scope_parameters = {})
         check_resource_method_existance!(:show)
         response = connection.request(:get, resource_definition[:collection][:path], id: id)
         new_from_database(connection, response)
@@ -39,11 +40,10 @@ module Syncano
       private
 
       class_attribute :resource_definition
-      attr_accessor :connection
+      attr_accessor :connection, :links
 
       def self.new_from_database(connection, attributes = {})
         resource = new(connection, attributes)
-        # resource.mark_as_saved!
       end
 
       def self.check_resource_method_existance!(method_name)
@@ -72,6 +72,16 @@ module Syncano
 
       def self.destroy_implemented?
         resource_definition[:member][:http_methods].include?('delete')
+      end
+
+      def has_many_association(name)
+        resource_class = "::Syncano::Resources::#{name.camelize.singularize}".constantize
+        ::Syncano::QueryBuilder.new(connection, resource_class)
+      end
+
+      def belongs_to_association(name)
+        resource_class = "::Syncano::Resources::#{name.camelize}".constantize
+        ::Syncano::QueryBuilder.new(connection, resource_class)
       end
     end
   end
