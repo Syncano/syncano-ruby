@@ -83,8 +83,4 @@ describe Syncano::Connection do
   def generate_body(params)
     JSON.generate params
   end
-
-  def endpoint_uri(path)
-    [Syncano::Connection.api_root,"v1", path].join("/")
-  end
 end

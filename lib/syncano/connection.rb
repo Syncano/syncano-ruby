@@ -25,6 +25,12 @@ module Syncano
       !api_key.nil?
     end
 
+    def authenticate(email, password)
+      self.email = email
+      self.password = password
+      authenticate!
+    end
+
     def authenticate!
       response = conn.post(AUTH_PATH, email: email, password: password)
       body = JSON.parse(response.body)
@@ -39,9 +45,7 @@ module Syncano
 
     def request(method, path, params = {})
       raise %{Unsupported method "#{method}"} unless METHODS.include? method
-      # TODO Temporary switched authentication to url param
-      # conn.headers['HTTP_X_API_KEY'] = api_key
-      params.merge!(api_key: api_key)
+      conn.headers['HTTP_X_API_KEY'] = api_key
       response = conn.send(method, path, params)
 
       case response
