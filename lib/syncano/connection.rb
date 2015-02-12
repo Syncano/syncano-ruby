@@ -45,7 +45,7 @@ module Syncano
 
     def request(method, path, params = {})
       raise %{Unsupported method "#{method}"} unless METHODS.include? method
-      conn.headers['HTTP_X_API_KEY'] = api_key
+      conn.headers['X-API-KEY'] = api_key
       response = conn.send(method, path, params)
 
       case response
