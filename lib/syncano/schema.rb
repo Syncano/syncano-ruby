@@ -45,14 +45,14 @@ module Syncano
 
         resource_schema['endpoints'].each do |type, endpoint|
           endpoint_data = {
-              path: endpoint['path'],
+              path: endpoint['path'].gsub('/v1/', ''),
               http_methods: endpoint['methods'],
               params: endpoint['properties']
           }
 
           if type == 'list'
             resources[class_name][:collection] = endpoint_data
-          elsif type == 'details'
+          elsif type == 'detail'
             resources[class_name][:member] = endpoint_data
           else
             endpoint_data.merge(name: type)

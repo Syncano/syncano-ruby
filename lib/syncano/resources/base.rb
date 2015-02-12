@@ -19,9 +19,9 @@ module Syncano
         end
       end
 
-      def self.find(connection, id, scope_parameters = {})
+      def self.find(connection, pk, scope_parameters = {})
         check_resource_method_existance!(:show)
-        response = connection.request(:get, resource_definition[:collection][:path], id: id)
+        response = connection.request(:get, resource_definition[:member][:path].gsub("{#{primary_key_name}}", pk.to_s))
         new_from_database(connection, response)
       end
 
@@ -72,6 +72,18 @@ module Syncano
 
       def self.destroy_implemented?
         resource_definition[:member][:http_methods].include?('delete')
+      end
+
+      def has_collection_actions?
+        resource_definition[:collection].present?
+      end
+
+      def has_member_actions?
+        resource_definition[:member].present?
+      end
+
+      def self.primary_key_name
+        resource_definition[:member][:path].scan(/\{([^}]+)\}/).last.first
       end
 
       def has_many_association(name)
