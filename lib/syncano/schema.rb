@@ -45,7 +45,7 @@ module Syncano
 
         resource_schema['endpoints'].each do |type, endpoint|
           endpoint_data = {
-              path: endpoint['path'].gsub('/v1/', ''),
+              path: endpoint['path'].gsub("/#{Syncano::Connection::API_VERSION}/", ''),
               http_methods: endpoint['methods'],
               params: endpoint['properties']
           }
