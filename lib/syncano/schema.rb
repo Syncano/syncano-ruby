@@ -27,7 +27,6 @@ module Syncano
 
       raw_schema.each do |resource_schema|
         class_name = resource_schema['name']
-        class_name = 'Data' + class_name if ['Class', 'Object'].include?(class_name)
 
         resources[class_name] = {
             attributes: {},
@@ -38,6 +37,7 @@ module Syncano
         }
 
         resources[class_name][:attributes].merge!(resource_schema['properties'])
+
         if resource_schema['properties']['links'].present?
           resources[class_name][:attributes].delete('links')
           resources[class_name][:associations].merge!(resource_schema['properties']['links'])
