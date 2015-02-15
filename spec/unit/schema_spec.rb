@@ -38,6 +38,9 @@ describe Syncano::Schema do
       expect(Syncano::Resources::Class).to have_attribute(:objects_count)
       expect(Syncano::Resources::Class).to have_attribute(:metadata)
       expect(Syncano::Resources::Class).to have_attribute(:revision)
+
+      class_instance = Syncano::Resources::Class.new(connection)
+      expect(class_instance).to respond_to(:objects)
     end
   end
 

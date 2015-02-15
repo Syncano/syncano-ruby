@@ -7,8 +7,7 @@ module Syncano
         self.connection = connection
         attributes = HashWithIndifferentAccess.new(attributes)
 
-        self.association_paths = attributes.delete(:links)
-        association_paths.keys.each do |key|
+        self.association_paths = attributes[:links] and association_paths.keys.each do |key|
           association_paths[key] = association_paths[key].gsub("/#{Syncano::Connection::API_VERSION}/", '')
         end
 

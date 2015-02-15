@@ -65,7 +65,7 @@ module Syncano
     end
 
     def generate_resource_class(name, definition)
-      resource_class = Class.new(::Syncano::Resources::Base) do
+      resource_class = ::Class.new(::Syncano::Resources::Base) do
 
         definition[:attributes].keys.each do |attribute_name|
           attribute attribute_name
