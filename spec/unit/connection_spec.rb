@@ -9,6 +9,7 @@ describe Syncano::Connection do
 
   describe "#request" do
     let(:api_key) { "87a7da987da98sd7a98" }
+
     subject { described_class.new(api_key: api_key) }
 
     context "called with unsupported method" do
@@ -21,8 +22,8 @@ describe Syncano::Connection do
     context "called with supported method" do
       before do
         stub_request(:get, endpoint_uri("somepath/")).
-          with(headers: { 'Http-X-Api-Key' => api_key }).
-          to_return(body: generate_body(some: "response"))
+            with(:headers => {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+            to_return(body: generate_body(some: "response"))
       end
 
       #test for errors

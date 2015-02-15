@@ -2,8 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'faraday'
-
 group :console do
   gem 'pry'
 end

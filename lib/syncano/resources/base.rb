@@ -2,7 +2,6 @@ module Syncano
   module Resources
     class Base
       include ActiveAttr::Model
-      include ActiveAttr::Dirty
 
       def initialize(connection, attributes = {})
         self.connection = connection

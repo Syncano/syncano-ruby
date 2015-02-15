@@ -15,7 +15,7 @@ describe Syncano do
                     body: generate_body(id: 15, email: email, first_name: '', last_name: '', account_key: api_key))
 
       stub_request(:get, endpoint_uri('schema/')).
-          with(headers: { 'Http-X-Api-Key' => api_key }).
+          with(headers: { 'X-Api-Key' => api_key }).
           to_return(status: 200, body: generate_body([]))
 
       expect_any_instance_of(Syncano::Connection).
