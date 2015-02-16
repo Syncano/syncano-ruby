@@ -65,14 +65,21 @@ module Syncano
     end
 
     def generate_resource_class(name, definition)
+      attributes = []
+
+      definition[:attributes].each do |attribute_name, attribute|
+        attributes << {
+          name: attribute_name,
+          type: self.class.map_syncano_attribute_type(attribute['type']),
+          presence_validation: attribute['required']
+        }
+      end
+
+
       resource_class = ::Class.new(::Syncano::Resources::Base) do
-
-        definition[:attributes].keys.each do |attribute_name|
-          attribute attribute_name
-
-          if definition[:attributes][attribute_name]['required']
-            validates attribute_name, presence: true
-          end
+        attributes.each do |attribute_definition|
+          attribute attribute_definition[:name], type: attribute_definition[:type]
+          validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|
@@ -100,6 +107,21 @@ module Syncano
       ::Syncano::API.send(:define_method, method_name) do
         ::Syncano::QueryBuilder.new(connection, resource_class)
       end
+    end
+
+    def self.map_syncano_attribute_type(type)
+      mapping = HashWithIndifferentAccess.new(
+        string: ::String,
+        email: ::String,
+        choice: ::String,
+        slug: ::String,
+        integer: ::Integer,
+        datetime: ::DateTime,
+        date: ::Date,
+        float: ::Float
+      )
+
+      type.present? ? mapping[type] : Object
     end
   end
 end

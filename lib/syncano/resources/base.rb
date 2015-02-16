@@ -34,18 +34,23 @@ module Syncano
         new_from_database(connection, response)
       end
 
-      def self.create(connection, attributes = {})
+      def self.create(connection, attributes = {}, scope_parameters = {})
         check_resource_method_existance!(:create)
+
+        response = connection.request(:post, collection_path(scope_parameters), attributes)
+        new_from_database(connection, response)
       end
 
       def update_attributes(attributes)
         check_resource_method_existance!(:update)
+
+        connection.request(:put, member_path, attributes)
       end
 
       def destroy
         check_resource_method_existance!(:destroy)
 
-        connection.request(:delete, member_path(pk, scope_parameters))
+        connection.request(:delete, member_path)
       end
 
       private

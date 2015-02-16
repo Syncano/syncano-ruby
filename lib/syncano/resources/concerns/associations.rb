@@ -10,7 +10,6 @@ module Syncano
       end
 
       module ClassMethods
-        private
       end
 
       private

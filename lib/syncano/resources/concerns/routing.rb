@@ -22,7 +22,6 @@ module Syncano
             send("has_#{parameters[:type]}_actions?") and
               resource_definition[parameters[:type]][:http_methods].include?(parameters[:method].to_s)
           end
-
         end
       end
 
@@ -105,6 +104,14 @@ module Syncano
 
       def collection_path
         self.class.collection_path(scope_parameters)
+      end
+
+      def member_path
+        self.class.member_path(primary_key, scope_parameters)
+      end
+
+      def primary_key
+        send(primary_key_name)
       end
     end
   end
