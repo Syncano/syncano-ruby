@@ -37,10 +37,10 @@ module Syncano
           pattern = Regexp.new(pattern)
 
           parameter_values = path.scan(pattern).first
-          scope_parameters = Hash[*parameter_names.zip(parameter_values).flatten]
+          scope_parameters = Hash[*scope_parameters_names.zip(parameter_values).flatten]
         end
 
-        protected
+        private
 
         def collection_path_schema
           resource_definition[:collection][:path].dup
@@ -53,8 +53,6 @@ module Syncano
         def scope_parameters_names
           collection_path_schema.scan(PARAMETER_REGEXP).collect{ |matches| matches.first.to_sym }
         end
-
-        private
 
         def has_collection_actions?
           resource_definition[:collection].present?
@@ -89,7 +87,7 @@ module Syncano
             path.sub!("{#{scope_parameter_name}}", scope_parameters[scope_parameter_name])
           end
 
-          path.sub!("{#{primary_key_name}}", pk)
+          path.sub!("{#{primary_key_name}}", pk.to_s)
 
           path
         end
