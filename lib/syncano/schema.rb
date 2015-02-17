@@ -87,8 +87,10 @@ module Syncano
             define_method(association_schema['name']) do
               has_many_association(association_schema['name'])
             end
-          elsif association_schema['type'] == 'details'
-
+          elsif association_schema['type'] == 'detail' && association_schema['name'] != 'self'
+            define_method(association_schema['name']) do
+              belongs_to_association(association_schema['name'])
+            end
           end
         end
 
@@ -116,9 +118,9 @@ module Syncano
         choice: ::String,
         slug: ::String,
         integer: ::Integer,
-        datetime: ::DateTime,
+        float: ::Float,
         date: ::Date,
-        float: ::Float
+        datetime: ::DateTime
       )
 
       type.present? ? mapping[type] : Object

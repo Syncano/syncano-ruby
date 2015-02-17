@@ -23,15 +23,18 @@ module Syncano
       end
 
       def has_many_association(name)
-        resource_class = self.class.map_name_to_resource_class(name)
+        resource_class = self.class.map_collection_name_to_resource_class(name)
         scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
 
         ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters)
       end
 
       def belongs_to_association(name)
-        resource_class = "::Syncano::Resources::#{name.camelize}".constantize
-        ::Syncano::QueryBuilder.new(connection, resource_class)
+        resource_class = self.class.map_member_name_to_resource_class(name)
+        scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
+        pk = resource_class.extract_primary_key(association_paths[name])
+
+        ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters).find(pk)
       end
     end
   end

@@ -62,8 +62,12 @@ module Syncano
         new(connection, attributes)
       end
 
-      def self.map_name_to_resource_class(name)
-        "::Syncano::Resources::#{name.camelize.singularize}".constantize
+      def self.map_member_name_to_resource_class(name)
+        "::Syncano::Resources::#{name.camelize}".constantize
+      end
+
+      def self.map_collection_name_to_resource_class(name)
+        map_member_name_to_resource_class(name.singularize)
       end
     end
   end

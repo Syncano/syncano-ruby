@@ -27,16 +27,32 @@ module Syncano
 
       module ClassMethods
         def extract_scope_parameters(path)
+          return {} if scope_parameters_names.empty?
+
           pattern = collection_path_schema.gsub('/', '\/')
 
           scope_parameters_names.each do |parameter_name|
-            pattern.gsub!("{#{parameter_name}}", '([^\/]+)')
+            pattern.sub!("{#{parameter_name}}", '([^\/]+)')
           end
 
           pattern = Regexp.new(pattern)
-
           parameter_values = path.scan(pattern).first
-          scope_parameters = Hash[*scope_parameters_names.zip(parameter_values).flatten]
+
+          Hash[*scope_parameters_names.zip(parameter_values).flatten]
+        end
+
+        def extract_primary_key(path)
+          pattern = member_path_schema.gsub('/', '\/')
+
+          scope_parameters_names.each do |parameter_name|
+            pattern.sub!("{#{parameter_name}}", '([^\/]+)')
+          end
+
+          pattern.sub!("{#{primary_key_name}}", '([^\/]+)')
+
+          pattern = Regexp.new(pattern)
+          parameter_values = path.scan(pattern).first
+          parameter_values.last
         end
 
         private
