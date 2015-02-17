@@ -2,18 +2,11 @@ require_relative '../spec_helper'
 
 
 require 'rspec/expectations'
-
-RSpec::Matchers.define :have_attribute do |attribute_name|
-  match do |resource|
-    !resource.attributes[attribute_name].nil?
-  end
-
-  failure_message do |resource|
-    "expected that #{resouce} has an attribute #{attribute_name}"
-  end
-end
+require 'active_attr/matchers/have_attribute_matcher'
 
 describe Syncano::Schema do
+  include ActiveAttr::Matchers
+
   let(:connection) { double("connection") }
 
   subject { described_class.new connection }
