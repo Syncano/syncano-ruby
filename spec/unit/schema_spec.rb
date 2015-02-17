@@ -3,6 +3,7 @@ require_relative '../spec_helper'
 
 require 'rspec/expectations'
 require 'active_attr/matchers/have_attribute_matcher'
+require 'shoulda-matchers'
 
 describe Syncano::Schema do
   include ActiveAttr::Matchers
@@ -33,6 +34,10 @@ describe Syncano::Schema do
       expect(Syncano::Resources::Class).to have_attribute(:revision)
 
       class_instance = Syncano::Resources::Class.new(connection, { links: {} })
+
+      expect(class_instance).to validate_presence_of(:name)
+      expect(class_instance).to validate_length_of(:name).is_at_most(64)
+
       expect(class_instance).to respond_to(:objects)
     end
   end

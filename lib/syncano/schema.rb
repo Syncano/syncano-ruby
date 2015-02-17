@@ -71,7 +71,8 @@ module Syncano
         attributes << {
           name: attribute_name,
           type: self.class.map_syncano_attribute_type(attribute['type']),
-          presence_validation: attribute['required']
+          presence_validation: attribute['required'],
+          length_validation_options: extract_length_validation_options(attribute)
         }
       end
 
@@ -79,7 +80,9 @@ module Syncano
       resource_class = ::Class.new(::Syncano::Resources::Base) do
         attributes.each do |attribute_definition|
           attribute attribute_definition[:name], type: attribute_definition[:type]
+
           validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
+          validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|
@@ -109,6 +112,15 @@ module Syncano
       ::Syncano::API.send(:define_method, method_name) do
         ::Syncano::QueryBuilder.new(connection, resource_class)
       end
+    end
+
+    def extract_length_validation_options(attribute_definition)
+      maximum = begin
+        Integer attribute_definition['max_length']
+      rescue TypeError, ArgumentError
+      end
+
+      { maximum: maximum } unless maximum.nil?
     end
 
     def self.map_syncano_attribute_type(type)

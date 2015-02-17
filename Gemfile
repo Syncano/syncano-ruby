@@ -10,6 +10,7 @@ group :test do
   gem 'dotenv'
   gem 'rspec'
   gem 'webmock'
+  gem 'shoulda-matchers', require: false
 end
 
 group :tools do
