@@ -39,7 +39,7 @@ describe Syncano::Schema do
       expect(Syncano::Resources::Class).to have_attribute(:metadata)
       expect(Syncano::Resources::Class).to have_attribute(:revision)
 
-      class_instance = Syncano::Resources::Class.new(connection)
+      class_instance = Syncano::Resources::Class.new(connection, { links: {} })
       expect(class_instance).to respond_to(:objects)
     end
   end
