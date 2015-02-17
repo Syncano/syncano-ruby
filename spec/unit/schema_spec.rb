@@ -39,6 +39,12 @@ describe Syncano::Schema do
       expect(class_instance).to validate_length_of(:name).is_at_most(64)
 
       expect(class_instance).to respond_to(:objects)
+
+      code_box_instance = Syncano::Resources::CodeBox.new(connection, { links: {} })
+      expect(code_box_instance).to validate_inclusion_of(:runtime_name).
+                                             in_array(%w[nodejs ruby python])
+
+
     end
   end
 

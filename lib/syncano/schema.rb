@@ -72,7 +72,8 @@ module Syncano
           name: attribute_name,
           type: self.class.map_syncano_attribute_type(attribute['type']),
           presence_validation: attribute['required'],
-          length_validation_options: extract_length_validation_options(attribute)
+          length_validation_options: extract_length_validation_options(attribute),
+          inclusion_validation_options: extract_inclusion_validation_options(attribute)
         }
       end
 
@@ -83,6 +84,10 @@ module Syncano
 
           validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
           validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
+
+          if attribute_definition[:inclusion_validation_options]
+            validates attribute_definition[:name], inclusion: attribute_definition[:inclusion_validation_options]
+          end
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|
@@ -121,6 +126,12 @@ module Syncano
       end
 
       { maximum: maximum } unless maximum.nil?
+    end
+
+    def extract_inclusion_validation_options(attribute_definition)
+      return unless choices = attribute_definition['choices']
+
+      { in: choices.map { |choice| choice['value'] } }
     end
 
     def self.map_syncano_attribute_type(type)
