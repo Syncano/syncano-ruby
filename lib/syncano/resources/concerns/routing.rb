@@ -127,7 +127,7 @@ module Syncano
       end
 
       def primary_key
-        send(primary_key_name)
+        self.class.extract_primary_key(association_paths[:self])
       end
 
       def check_resource_method_existance!(method_name)
