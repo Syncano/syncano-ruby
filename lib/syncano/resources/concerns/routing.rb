@@ -129,6 +129,10 @@ module Syncano
       def primary_key
         send(primary_key_name)
       end
+
+      def check_resource_method_existance!(method_name)
+        self.class.send(:check_resource_method_existance!, method_name)
+      end
     end
   end
 end
