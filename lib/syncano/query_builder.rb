@@ -10,16 +10,24 @@ module Syncano
       resource_class.all(connection, scope_parameters)
     end
 
+    def first
+      resource_class.first(connection, scope_parameters)
+    end
+
+    def last
+      resource_class.last(connection, scope_parameters)
+    end
+
     def find(key = nil)
       resource_class.find(connection, key, scope_parameters)
     end
 
     def new(attributes = {})
-      resource_class.new(connection, attributes)
+      resource_class.new(connection, attributes, scope_parameters)
     end
 
     def create(attributes = {})
-      resource_class.create(connection, attributes)
+      resource_class.create(connection, attributes, scope_parameters)
     end
 
     private

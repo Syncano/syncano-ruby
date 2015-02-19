@@ -29,7 +29,7 @@ module Syncano
         def extract_scope_parameters(path)
           return {} if scope_parameters_names.empty?
 
-          pattern = collection_path_schema.gsub('/', '\/')
+          pattern = collection_path_schema.sub('/', '\/')
 
           scope_parameters_names.each do |parameter_name|
             pattern.sub!("{#{parameter_name}}", '([^\/]+)')
@@ -42,6 +42,8 @@ module Syncano
         end
 
         def extract_primary_key(path)
+          return nil if path.blank?
+
           pattern = member_path_schema.gsub('/', '\/')
 
           scope_parameters_names.each do |parameter_name|

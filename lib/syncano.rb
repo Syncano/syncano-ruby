@@ -1,5 +1,6 @@
 require 'faraday'
 require 'active_attr/model'
+require 'active_attr/dirty'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/class/attribute.rb'
 require 'active_support/inflector'

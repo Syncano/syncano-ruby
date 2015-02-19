@@ -12,7 +12,9 @@ module Syncano
     def process!
       schema.each do |resource_name, resource_definition|
         generate_resource_class(resource_name, resource_definition)
-        generate_client_method(resource_name, resource_definition)
+        if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
+          generate_client_method(resource_name, resource_definition)
+        end
       end
     end
 
@@ -76,7 +78,6 @@ module Syncano
           inclusion_validation_options: extract_inclusion_validation_options(attribute)
         }
       end
-
 
       resource_class = ::Class.new(::Syncano::Resources::Base) do
         attributes.each do |attribute_definition|
