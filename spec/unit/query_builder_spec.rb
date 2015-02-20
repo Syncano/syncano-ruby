@@ -9,9 +9,9 @@ describe Syncano::QueryBuilder do
   describe '.initialize' do
     subject { described_class.new(connection, resource_class, scope_parameters) }
 
-    it { subject.instance_eval{ connection }.should eql?(connection) }
-    it { subject.instance_eval{ resource_class }.should eql?(resource_class) }
-    it { subject.instance_eval{ scope_parameters }.should eql?(scope_parameters) }
+    it { expect(subject.instance_eval{ connection }).to eq(connection) }
+    it { expect(subject.instance_eval{ resource_class }).to eq(resource_class) }
+    it { expect(subject.instance_eval{ scope_parameters }).to eq(scope_parameters) }
   end
 
   describe '.all' do
