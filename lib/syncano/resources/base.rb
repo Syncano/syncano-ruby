@@ -1,13 +1,10 @@
-require 'syncano/resources/concerns/routing'
-require 'syncano/resources/concerns/associations'
-
 module Syncano
   module Resources
     class Base
       include ActiveAttr::Model
       include ActiveAttr::Dirty
-      include Syncano::Resources::RoutingConcern
-      include Syncano::Resources::AssociationsConcern
+
+      PARAMETER_REGEXP = /\{([^}]+)\}/
 
       attr_reader :destroyed
 
@@ -109,10 +106,41 @@ module Syncano
         attributes
       end
 
+      def self.extract_scope_parameters(path)
+        return {} if scope_parameters_names.empty?
+
+        pattern = collection_path_schema.sub('/', '\/')
+
+        scope_parameters_names.each do |parameter_name|
+          pattern.sub!("{#{parameter_name}}", '([^\/]+)')
+        end
+
+        pattern = Regexp.new(pattern)
+        parameter_values = path.scan(pattern).first
+
+        Hash[*scope_parameters_names.zip(parameter_values).flatten]
+      end
+
+      def self.extract_primary_key(path)
+        return nil if path.blank?
+
+        pattern = member_path_schema.gsub('/', '\/')
+
+        scope_parameters_names.each do |parameter_name|
+          pattern.sub!("{#{parameter_name}}", '([^\/]+)')
+        end
+
+        pattern.sub!("{#{primary_key_name}}", '([^\/]+)')
+
+        pattern = Regexp.new(pattern)
+        parameter_values = path.scan(pattern).first
+        parameter_values.last
+      end
+
       private
 
       class_attribute :resource_definition, :create_writable_attributes, :update_writable_attributes
-      attr_accessor :connection, :saved_attributes
+      attr_accessor :connection, :saved_attributes, :association_paths, :member_path, :scope_parameters
       attr_writer :destroyed
 
       def reinitialize!(attributes = {})
@@ -126,6 +154,20 @@ module Syncano
         mark_as_saved! unless new_record?
 
         self
+      end
+
+      def initialize_associations(attributes)
+        self.association_paths = HashWithIndifferentAccess.new
+
+        if attributes[:links].present?
+          attributes[:links].keys.each do |key|
+            association_paths[key] = self.class.remove_version_from_path(attributes[:links][key])
+          end
+        end
+      end
+
+      def initialize_routing(attributes)
+        self.member_path = attributes[:links].try(:[], :self)
       end
 
       def self.map_member_name_to_resource_class(name)
@@ -153,6 +195,107 @@ module Syncano
 
       def mark_as_destroyed!
         self.destroyed = true
+      end
+
+      def has_many_association(name)
+        # TODO Implement QueryBuilders without scope parameters and adding objects to the association
+        raise(Syncano::Error.new('record not saved')) if new_record?
+
+        resource_class = self.class.map_collection_name_to_resource_class(name)
+        scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
+
+        ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters)
+      end
+
+      def belongs_to_association(name)
+        resource_class = self.class.map_member_name_to_resource_class(name)
+        scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
+        pk = resource_class.extract_primary_key(association_paths[name])
+
+        ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters).find(pk)
+      end
+
+      def self.collection_path_schema
+        resource_definition[:collection][:path].dup
+      end
+
+      def self.member_path_schema
+        resource_definition[:member][:path].dup
+      end
+
+      def self.scope_parameters_names
+        collection_path_schema.scan(PARAMETER_REGEXP).collect{ |matches| matches.first.to_sym }
+      end
+
+      def self.has_collection_actions?
+        resource_definition[:collection].present?
+      end
+
+      def self.has_member_actions?
+        resource_definition[:member].present?
+      end
+
+      def self.check_resource_method_existance!(method_name)
+        raise(NoMethodError.new) unless send("#{method_name}_implemented?")
+      end
+
+      def self.rimary_key_name
+        resource_definition[:member][:path].scan(PARAMETER_REGEXP).last.first if has_member_actions?
+      end
+
+      def self.collection_path(scope_parameters = {})
+        path = collection_path_schema
+
+        scope_parameters_names.each do |scope_parameter_name|
+          path.sub!("{#{scope_parameter_name}}", scope_parameters[scope_parameter_name])
+        end
+
+        path
+      end
+
+      def self.member_path(pk, scope_parameters = {})
+        path = member_path_schema
+
+        scope_parameters_names.each do |scope_parameter_name|
+          path.sub!("{#{scope_parameter_name}}", scope_parameters[scope_parameter_name])
+        end
+
+        path.sub!("{#{primary_key_name}}", pk.to_s)
+
+        path
+      end
+
+      def collection_path
+        self.class.collection_path(scope_parameters)
+      end
+
+      def member_path
+        self.class.member_path(primary_key, scope_parameters)
+      end
+
+      def primary_key
+        self.class.extract_primary_key(association_paths[:self])
+      end
+
+      def check_resource_method_existance!(method_name)
+        self.class.check_resource_method_existance!(method_name)
+      end
+
+      def self.remove_version_from_path(path)
+        path.gsub("/#{::Syncano::Connection::API_VERSION}/", '')
+      end
+
+      {
+        index: { type: :collection, method: :get },
+        create: { type: :collection, method: :post },
+        show: { type: :member, method: :get },
+        update: { type: :member, method: :put },
+        destroy: { type: :member, method: :delete }
+      }.each do |name, parameters|
+
+        define_singleton_method(name.to_s + '_implemented?') do
+          send("has_#{parameters[:type]}_actions?") and resource_definition[parameters[:type]][:http_methods].include?(parameters[:method].to_s)
+        end
       end
     end
   end
