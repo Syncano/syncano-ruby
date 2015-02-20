@@ -19,15 +19,15 @@ module Syncano
     end
 
     def find(key = nil)
-      resource_class.find(connection, key, scope_parameters)
+      resource_class.find(connection, scope_parameters, key)
     end
 
     def new(attributes = {})
-      resource_class.new(connection, attributes, scope_parameters)
+      resource_class.new(connection, scope_parameters, attributes)
     end
 
     def create(attributes = {})
-      resource_class.create(connection, attributes, scope_parameters)
+      resource_class.create(connection, scope_parameters, attributes)
     end
 
     private

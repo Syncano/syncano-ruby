@@ -33,14 +33,14 @@ describe Syncano::Schema do
       expect(Syncano::Resources::Class).to have_attribute(:metadata)
       expect(Syncano::Resources::Class).to have_attribute(:revision)
 
-      class_instance = Syncano::Resources::Class.new(connection, { links: {} })
+      class_instance = Syncano::Resources::Class.new(connection, {}, { links: {} })
 
       expect(class_instance).to validate_presence_of(:name)
       expect(class_instance).to validate_length_of(:name).is_at_most(64)
 
       expect(class_instance).to respond_to(:objects)
 
-      code_box_instance = Syncano::Resources::CodeBox.new(connection, { links: {} })
+      code_box_instance = Syncano::Resources::CodeBox.new(connection, {}, { links: {} })
       expect(code_box_instance).to validate_inclusion_of(:runtime_name).
                                              in_array(%w[nodejs ruby python])
 

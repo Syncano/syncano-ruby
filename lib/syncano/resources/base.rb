@@ -8,8 +8,10 @@ module Syncano
 
       attr_reader :destroyed
 
-      def initialize(connection, attributes = {}, scope_parameters = {})
+      def initialize(connection, scope_parameters, attributes)
         self.connection = connection
+        self.scope_parameters = scope_parameters
+
         reinitialize!(attributes)
         apply_defaults
       end
@@ -22,7 +24,7 @@ module Syncano
         !new_record? && attributes == saved_attributes
       end
 
-      def self.all(connection, scope_parameters = {})
+      def self.all(connection, scope_parameters)
         check_resource_method_existance!(:index)
 
         response = connection.request(:get, collection_path(scope_parameters))
@@ -31,22 +33,22 @@ module Syncano
         end
       end
 
-      def self.first(connection, scope_parameters = {})
+      def self.first(connection, scope_parameters)
         all(connection, scope_parameters).first
       end
 
-      def self.last(connection, scope_parameters = {})
+      def self.last(connection, scope_parameters)
         all(connection, scope_parameters).last
       end
 
-      def self.find(connection, pk, scope_parameters = {})
+      def self.find(connection, scope_parameters, pk)
         check_resource_method_existance!(:show)
 
         response = connection.request(:get, member_path(pk, scope_parameters))
         new(connection, response)
       end
 
-      def self.create(connection, attributes = {}, scope_parameters = {})
+      def self.create(connection, scope_parameters, attributes)
         check_resource_method_existance!(:create)
 
         new(connection, attributes, scope_parameters).save
