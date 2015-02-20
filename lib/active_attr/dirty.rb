@@ -22,19 +22,5 @@ module ActiveAttr
         end
       end
     end
-
-    # Overwritten constructor
-    # @param [Hash] attributes
-    # @param [Hash] options
-    def initialize(connection = nil, attributes = {})
-      # super(connection, attributes)
-      # (@changed_attributes || {}).clear unless new_record?
-    end
-
-    # Overwritten save method
-    def save
-      @previously_changed = changes
-      @changed_attributes.clear
-    end
   end
 end

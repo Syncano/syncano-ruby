@@ -21,7 +21,7 @@ module Syncano
       end
 
       def saved?
-        !new_record? && attributes == saved_attributes
+        !new_record? && !changed?
       end
 
       def self.all(connection, scope_parameters)
@@ -29,7 +29,7 @@ module Syncano
 
         response = connection.request(:get, collection_path(scope_parameters))
         response['objects'].collect do |resource_attributes|
-          new(connection, resource_attributes)
+          new(connection, scope_parameters, resource_attributes)
         end
       end
 
@@ -142,7 +142,7 @@ module Syncano
       private
 
       class_attribute :resource_definition, :create_writable_attributes, :update_writable_attributes
-      attr_accessor :connection, :saved_attributes, :association_paths, :member_path, :scope_parameters
+      attr_accessor :connection, :association_paths, :member_path, :scope_parameters
       attr_writer :destroyed
 
       def reinitialize!(attributes = {})
@@ -191,7 +191,8 @@ module Syncano
       def mark_as_saved!
         raise(Syncano::Error.new('primary key is blank')) if new_record?
 
-        self.saved_attributes = attributes.dup
+        @previously_changed = changes
+        @changed_attributes.clear
         self
       end
 
