@@ -239,7 +239,7 @@ module Syncano
         raise(NoMethodError.new) unless send("#{method_name}_implemented?")
       end
 
-      def self.rimary_key_name
+      def self.primary_key_name
         resource_definition[:member][:path].scan(PARAMETER_REGEXP).last.first if has_member_actions?
       end
 
