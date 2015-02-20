@@ -121,7 +121,7 @@ module Syncano
       end
 
       def collection_path
-        self.class.collection_path(scope_parameters)
+        self.class.send(:collection_path, scope_parameters)
       end
 
       def member_path

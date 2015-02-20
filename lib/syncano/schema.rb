@@ -73,22 +73,30 @@ module Syncano
         attributes << {
           name: attribute_name,
           type: self.class.map_syncano_attribute_type(attribute['type']),
+          default: self.class.default_value_for_attribute(attribute),
           presence_validation: attribute['required'],
           length_validation_options: extract_length_validation_options(attribute),
-          inclusion_validation_options: extract_inclusion_validation_options(attribute)
+          inclusion_validation_options: extract_inclusion_validation_options(attribute),
+          create_writeable: attribute['read_only'] == false,
+          update_writeable: attribute['read_only'] == false,
         }
       end
 
       resource_class = ::Class.new(::Syncano::Resources::Base) do
-        attributes.each do |attribute_definition|
-          attribute attribute_definition[:name], type: attribute_definition[:type]
+        self.create_writable_attributes = []
+        self.update_writable_attributes = []
 
+        attributes.each do |attribute_definition|
+          attribute attribute_definition[:name], type: attribute_definition[:type], default: attribute_definition[:default], force_default: !attribute_definition[:default].nil?
           validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
           validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
 
           if attribute_definition[:inclusion_validation_options]
             validates attribute_definition[:name], inclusion: attribute_definition[:inclusion_validation_options]
           end
+          
+          self.create_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:create_writeable]
+          self.update_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:update_writeable]
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|
@@ -144,10 +152,19 @@ module Syncano
         integer: ::Integer,
         float: ::Float,
         date: ::Date,
-        datetime: ::DateTime
+        datetime: ::DateTime,
+        field: ::Hash
       )
 
       type.present? ? mapping[type] : Object
+    end
+
+    def self.default_value_for_attribute(attribute)
+      if attribute['type'].present? && attribute['type'].to_sym == :field
+        {}
+      else
+        nil
+      end
     end
   end
 end

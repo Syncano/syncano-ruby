@@ -14,6 +14,7 @@ module Syncano
       def initialize(connection, attributes = {}, scope_parameters = {})
         self.connection = connection
         reinitialize!(attributes)
+        apply_defaults
       end
 
       def new_record?
@@ -64,10 +65,12 @@ module Syncano
 
       def save
         # TODO Call validation here
+        apply_forced_defaults!
+
         if new_record?
-          response = connection.request(:post, self.class.send(:collection_path, scope_parameters), self.attributes)
+          response = connection.request(:post, collection_path, select_create_attributes)
         else
-          response = connection.request(:put, member_path, self.attributes)
+          response = connection.request(:put, member_path, select_update_attributes)
         end
 
         reinitialize!(response)
@@ -86,9 +89,29 @@ module Syncano
         reinitialize!(response)
       end
 
+      def select_create_attributes
+        attributes = self.attributes.select { |name, value| self.class.create_writable_attributes.include?(name.to_sym) }
+        self.class.map_attributes_values(attributes)
+      end
+
+      def select_update_attributes
+        attributes = self.attributes.select{ |name, value| self.class.update_writable_attributes.include?(name.to_sym) }
+        self.class.map_attributes_values(attributes)
+      end
+
+      def self.map_attributes_values(attributes)
+        attributes.each do |name, value|
+          if value.is_a?(Hash)
+            attributes[name] = value.to_json
+          end
+        end
+
+        attributes
+      end
+
       private
 
-      class_attribute :resource_definition
+      class_attribute :resource_definition, :create_writable_attributes, :update_writable_attributes
       attr_accessor :connection, :saved_attributes
       attr_writer :destroyed
 
@@ -111,6 +134,14 @@ module Syncano
 
       def self.map_collection_name_to_resource_class(name)
         map_member_name_to_resource_class(name.singularize)
+      end
+
+      def apply_forced_defaults!
+        self.class.attributes.each do |attr_name, attr_definition|
+          if read_attribute(attr_name).blank? && attr_definition[:force_default]
+            write_attribute(attr_name, attr_definition[:default])
+          end
+        end
       end
 
       def mark_as_saved!
