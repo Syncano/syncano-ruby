@@ -42,12 +42,10 @@ describe Syncano::Schema do
 
       code_box_instance = Syncano::Resources::CodeBox.new(connection, {}, { links: {} })
       expect(code_box_instance).to validate_inclusion_of(:runtime_name).
-                                             in_array(%w[nodejs ruby python])
-
+                                             in_array(%w(nodejs ruby python))
 
     end
   end
-
 
   def schema
    JSON.parse('

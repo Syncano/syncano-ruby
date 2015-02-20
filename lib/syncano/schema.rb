@@ -13,7 +13,7 @@ module Syncano
       schema.each do |resource_name, resource_definition|
         generate_resource_class(resource_name, resource_definition)
         if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          generate_client_method(resource_name, resource_definition)
+          generate_client_method(resource_name)
         end
       end
     end
@@ -119,7 +119,7 @@ module Syncano
       ::Syncano::Resources.const_set(name, resource_class)
     end
 
-    def generate_client_method(resource_name, definition)
+    def generate_client_method(resource_name)
       method_name = resource_name.tableize
       resource_class = "::Syncano::Resources::#{resource_name}".constantize
 

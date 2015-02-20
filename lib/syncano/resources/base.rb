@@ -59,11 +59,11 @@ module Syncano
         raise(Syncano::Error.new('record is not saved')) if new_record?
 
         self.attributes = attributes
-        self.save
+        save
       end
 
       def save
-        # TODO Call validation here
+        # TODO: Call validation here
         apply_forced_defaults!
 
         if new_record?
@@ -89,20 +89,18 @@ module Syncano
       end
 
       def select_create_attributes
-        attributes = self.attributes.select { |name, value| self.class.create_writable_attributes.include?(name.to_sym) }
+        attributes = self.attributes.select { |name, _value| self.class.create_writable_attributes.include?(name.to_sym) }
         self.class.map_attributes_values(attributes)
       end
 
       def select_update_attributes
-        attributes = self.attributes.select{ |name, value| self.class.update_writable_attributes.include?(name.to_sym) }
+        attributes = self.attributes.select{ |name, _value| self.class.update_writable_attributes.include?(name.to_sym) }
         self.class.map_attributes_values(attributes)
       end
 
       def self.map_attributes_values(attributes)
         attributes.each do |name, value|
-          if value.is_a?(Hash)
-            attributes[name] = value.to_json
-          end
+          attributes[name] = value.to_json if value.is_a?(Hash)
         end
 
         attributes

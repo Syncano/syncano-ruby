@@ -15,7 +15,7 @@ module Syncano
       self.email = options[:email]
       self.password = options[:password]
 
-      # FIXME take it easy with SSL for development only, temporary solution
+      # TODO: take it easy with SSL for development only, temporary solution
       self.conn = Faraday.new(self.class.api_root, ssl: { verify: false })
       conn.path_prefix = API_VERSION
       conn.request :url_encoded
@@ -48,7 +48,7 @@ module Syncano
       conn.headers['X-API-KEY'] = api_key
       response = conn.send(method, path, params)
 
-      # TODO Improve handling responses, ie. destroying object will return empty body
+      # TODO: Improve handling responses, ie. destroying object will return empty body
       case response
       when Status.successful
         JSON.parse(response.body) if response.body.present?

@@ -12,18 +12,18 @@ require 'active_attr/typecasting/unknown_typecaster_error'
 
 module ActiveAttr
   module Typecasting
-    remove_const(:TYPECASTER_MAP) if (defined?(TYPECASTER_MAP))
+    remove_const(:TYPECASTER_MAP) if defined?(TYPECASTER_MAP)
 
     TYPECASTER_MAP = {
-        BigDecimal => BigDecimalTypecaster,
-        Boolean    => BooleanTypecaster,
-        Date       => DateTypecaster,
-        DateTime   => DateTimeTypecaster,
-        Float      => FloatTypecaster,
-        Integer    => IntegerTypecaster,
-        Object     => ObjectTypecaster,
-        String     => StringTypecaster,
-        Hash       => HashTypecaster
+      BigDecimal => BigDecimalTypecaster,
+      Boolean    => BooleanTypecaster,
+      Date       => DateTypecaster,
+      DateTime   => DateTimeTypecaster,
+      Float      => FloatTypecaster,
+      Integer    => IntegerTypecaster,
+      Object     => ObjectTypecaster,
+      String     => StringTypecaster,
+      Hash       => HashTypecaster
     }.freeze
   end
 end
