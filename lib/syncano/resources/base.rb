@@ -161,7 +161,7 @@ module Syncano
 
         if attributes[:links].present?
           attributes[:links].keys.each do |key|
-            association_paths[key] = self.class.remove_version_from_path(attributes[:links][key])
+            association_paths[key] = attributes[:links][key]
           end
         end
       end
@@ -279,10 +279,6 @@ module Syncano
 
       def check_resource_method_existance!(method_name)
         self.class.check_resource_method_existance!(method_name)
-      end
-
-      def self.remove_version_from_path(path)
-        path.gsub("/#{::Syncano::Connection::API_VERSION}/", '')
       end
 
       {
