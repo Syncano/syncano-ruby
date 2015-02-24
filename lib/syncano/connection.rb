@@ -48,10 +48,10 @@ module Syncano
       conn.headers['X-API-KEY'] = api_key
       response = conn.send(method, path, params)
 
-      # TODO: Improve handling responses, ie. destroying object will return empty body
       case response
+      when Status.no_content
       when Status.successful
-        JSON.parse(response.body) if response.body.present?
+        JSON.parse(response.body)
       when Status.client_error
         raise ClientError.new(response.body, response)
       end
@@ -67,6 +67,10 @@ module Syncano
 
         def client_error
           ->(response) { (400...500).include? response.status }
+        end
+
+        def no_content
+          ->(response) { response.status == 204 }
         end
       end
     end

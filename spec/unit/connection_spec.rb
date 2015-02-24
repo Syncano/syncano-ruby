@@ -45,6 +45,20 @@ describe Syncano::Connection do
             to raise_error(Syncano::ClientError)
       end
     end
+
+    context 'successful returning empty body' do
+      before do
+        stub_request(:delete, endpoint_uri('instances/kiszonka/')).
+          with(headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+          to_return(body: nil, status: 204)
+      end
+
+      specify do
+        expect { subject.request(:delete, '/v1/instances/kiszonka/', {}) }.
+          to_not raise_error
+      end
+
+    end
   end
 
   describe '#authenticate' do
