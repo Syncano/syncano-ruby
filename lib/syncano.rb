@@ -1,3 +1,5 @@
+$: << Dir.pwd
+
 require 'faraday'
 require 'active_attr/model'
 require 'active_attr/dirty'
