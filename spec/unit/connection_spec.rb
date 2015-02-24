@@ -22,8 +22,8 @@ describe Syncano::Connection do
     context 'called with supported method' do
       before do
         stub_request(:get, endpoint_uri('somepath/')).
-            with(headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
-            to_return(body: generate_body(some: 'response'))
+          with(headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+          to_return(body: generate_body(some: 'response'))
       end
 
       specify do
@@ -34,10 +34,10 @@ describe Syncano::Connection do
     context 'called with supported method returning an error' do
       before do
         stub_request(:post, endpoint_uri('instances/')).
-            with(body: { 'name' => 'koza' },
-                 headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
-           to_return(body: generate_body({name: ['This field is required.']}),
-                     status: 400)
+          with(body: { 'name' => 'koza' },
+               headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+          to_return(body: generate_body({name: ['This field can not be "koza"']}),
+                    status: 400)
       end
 
       specify do
