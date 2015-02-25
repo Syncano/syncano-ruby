@@ -8,11 +8,11 @@ module Syncano
 
       attr_reader :destroyed
 
-      def initialize(connection, scope_parameters, attributes)
+      def initialize(connection, scope_parameters, attributes, from_database = false)
         self.connection = connection
         self.scope_parameters = scope_parameters
 
-        reinitialize!(attributes)
+        initialize!(attributes, from_database)
         apply_defaults
       end
 
@@ -29,7 +29,7 @@ module Syncano
 
         response = connection.request(:get, collection_path(scope_parameters))
         response['objects'].collect do |resource_attributes|
-          new(connection, scope_parameters, resource_attributes)
+          new(connection, scope_parameters, resource_attributes, true)
         end
       end
 
@@ -45,7 +45,7 @@ module Syncano
         check_resource_method_existance!(:show)
 
         response = connection.request(:get, member_path(pk, scope_parameters))
-        new(connection, scope_parameters, response)
+        new(connection, scope_parameters, response, true)
       end
 
       def self.create(connection, scope_parameters, attributes)
@@ -72,7 +72,7 @@ module Syncano
           response = connection.request(:put, member_path, select_update_attributes)
         end
 
-        reinitialize!(response)
+        initialize!(response, true)
       end
 
       def destroy
@@ -85,22 +85,24 @@ module Syncano
         raise(Syncano::Error.new('record is not saved')) if new_record?
 
         response = connection.request(:get, member_path)
-        reinitialize!(response)
+        initialize!(response)
       end
 
       def select_create_attributes
         attributes = self.attributes.select { |name, _value| self.class.create_writable_attributes.include?(name.to_sym) }
+        attributes.merge!(custom_attributes) if respond_to?(:custom_attributes) && custom_attributes.is_a?(Hash)
         self.class.map_attributes_values(attributes)
       end
 
       def select_update_attributes
         attributes = self.attributes.select{ |name, _value| self.class.update_writable_attributes.include?(name.to_sym) }
+        attributes.merge!(custom_attributes) if respond_to?(:custom_attributes) && custom_attributes.is_a?(Hash)
         self.class.map_attributes_values(attributes)
       end
 
       def self.map_attributes_values(attributes)
         attributes.each do |name, value|
-          attributes[name] = value.to_json if value.is_a?(Hash)
+          attributes[name] = value.to_json if value.is_a?(Array) || value.is_a?(Hash)
         end
 
         attributes
@@ -143,7 +145,7 @@ module Syncano
       attr_accessor :connection, :association_paths, :member_path, :scope_parameters
       attr_writer :destroyed
 
-      def reinitialize!(attributes = {})
+      def initialize!(attributes = {}, from_database = false)
         attributes = HashWithIndifferentAccess.new(attributes)
 
         initialize_routing(attributes)
@@ -151,6 +153,11 @@ module Syncano
 
         self.attributes.clear
         self.attributes = attributes.except!(:links)
+
+        if from_database && self.attributes.keys.include?('custom_attributes')
+          self.custom_attributes = attributes.select{ |k, v| !self.attributes.keys.include?(k) }
+        end
+
         mark_as_saved! unless new_record?
 
         self
@@ -181,7 +188,7 @@ module Syncano
       def apply_forced_defaults!
         self.class.attributes.each do |attr_name, attr_definition|
           if read_attribute(attr_name).blank? && attr_definition[:force_default]
-            write_attribute(attr_name, attr_definition[:default])
+            write_attribute(attr_name, attr_definition[:default].is_a?(Proc) ? attr_definition[:default].call : attr_definition[:default])
           end
         end
       end

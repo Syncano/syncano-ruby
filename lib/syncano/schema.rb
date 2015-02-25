@@ -67,10 +67,10 @@ module Syncano
     end
 
     def generate_resource_class(name, definition)
-      attributes = []
+      blablabla = []
 
       definition[:attributes].each do |attribute_name, attribute|
-        attributes << {
+        blablabla << {
           name: attribute_name,
           type: self.class.map_syncano_attribute_type(attribute['type']),
           default: self.class.default_value_for_attribute(attribute),
@@ -86,7 +86,7 @@ module Syncano
         self.create_writable_attributes = []
         self.update_writable_attributes = []
 
-        attributes.each do |attribute_definition|
+        blablabla.each do |attribute_definition|
           attribute attribute_definition[:name], type: attribute_definition[:type], default: attribute_definition[:default], force_default: !attribute_definition[:default].nil?
           validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
           validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
@@ -97,6 +97,10 @@ module Syncano
           
           self.create_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:create_writeable]
           self.update_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:update_writeable]
+        end
+
+        if name == 'Object'
+          attribute :custom_attributes, type: ::Object, default: nil, force_default: true
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|
@@ -153,7 +157,7 @@ module Syncano
         float: ::Float,
         date: ::Date,
         datetime: ::DateTime,
-        field: ::Hash # TODO: field is not really a hash, it could be an Array as well, ex. Class schema
+        field: ::Object
       )
 
       type.present? ? mapping[type] : Object

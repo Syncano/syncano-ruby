@@ -13,6 +13,7 @@ require 'syncano/connection'
 require 'syncano/schema'
 require 'syncano/resources/base'
 require 'syncano/query_builder'
+require 'syncano/model/base'
 
 module Syncano
   class << self
