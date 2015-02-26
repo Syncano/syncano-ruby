@@ -1,4 +1,4 @@
-class Syncano
+module Syncano
   module Model
     # Module with callbacks functionality for Syncano::ActiveRecord
     module Callbacks

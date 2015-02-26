@@ -1,6 +1,6 @@
 require 'syncano/model/scope_builder'
 # require 'syncano/model/associations'
-# require 'syncano/model/callbacks'
+require 'syncano/model/callbacks'
 
 module Syncano
   # Scope for modules and classes integrating ActiveRecord functionality
@@ -10,10 +10,10 @@ module Syncano
       include ActiveAttr::Model
       include ActiveAttr::Dirty
 
-      # include ActiveModel::ForbiddenAttributesProtection
+      include ActiveModel::ForbiddenAttributesProtection
       # include Syncano::Model::Associations
-      # include Syncano::Model::Callbacks
-      #
+      include Syncano::Model::Callbacks
+
       attribute :id, type: Integer
       attribute :created_at, type: DateTime
       attribute :updated_at, type: DateTime
@@ -114,9 +114,17 @@ module Syncano
         # saved
 
         if valid?
+          was_persisted = persisted?
+
+          process_callbacks(:before_save)
+          process_callbacks(was_persisted ? :before_update : :before_create)
+
           syncano_object.custom_attributes = attributes_to_sync
           syncano_object.save
           self.attributes = syncano_object_merged_attributes
+
+          process_callbacks(was_persisted ? :after_update : :after_create)
+          process_callbacks(:after_save)
         end
 
         self
@@ -225,21 +233,21 @@ module Syncano
       # def ==(object)
       #   self.class == object.class && self.id == object.id
       # end
-      #
-      # # Performs validations
-      # # @return [TrueClass, FalseClass]
-      # def valid?
-      #   process_callbacks(:before_validation)
-      #   process_callbacks(:after_validation) if result = super
-      #   result
-      # end
+
+      # Performs validations
+      # @return [TrueClass, FalseClass]
+      def valid?
+        process_callbacks(:before_validation)
+        process_callbacks(:after_validation) if result = super
+        result
+      end
 
       # Deletes object from Syncano
       # @return [TrueClass, FalseClass]
       def destroy
-        # process_callbacks(:before_destroy)
+        process_callbacks(:before_destroy)
         syncano_object.destroy
-        # process_callbacks(:after_destroy) if syncano_object.destroyed?
+        process_callbacks(:after_destroy) if syncano_object.destroyed?
       end
 
       def destroyed?
