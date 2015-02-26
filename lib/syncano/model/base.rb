@@ -23,13 +23,7 @@ module Syncano
       def self.all
         scope_builder.all
       end
-      #
-      # # Counts all objects
-      # # @return [Integer]
-      # def self.count
-      #   scope_builder.count
-      # end
-      #
+
       # # Returns first object or collection of first x objects
       # # @param [Integer] amount
       # # @return [Object, Array]
@@ -58,23 +52,76 @@ module Syncano
       # def self.order(order)
       #   scope_builder.order(order)
       # end
-      #
-      # # Returns one object found by id
-      # # @param [Integer] id
-      # # @return [Object]
-      # def self.find(id)
-      #   scope_builder.find(id)
-      # end
-      #
-      # # Creates new object with specified attributes
-      # # @param [Hash] attributes
-      # # @return [Object]
-      # def self.create(attributes)
-      #   new_object = self.new(attributes)
-      #   new_object.save
-      #   new_object
-      # end
-      #
+
+      # Returns one object found by id
+      # @param [Integer] id
+      # @return [Object]
+      def self.find(id)
+        scope_builder.find(id)
+      end
+
+      # Creates new object with specified attributes
+      # @param [Hash] attributes
+      # @return [Object]
+      def self.create(attributes)
+        new_object = self.new(attributes)
+        new_object.save
+        new_object
+      end
+
+      # Saves object in Syncano
+      # @return [TrueClass, FalseClass]
+      def save
+        # saved = false
+        #
+        # if valid?
+        #   process_callbacks(:before_save)
+        #   process_callbacks(persisted? ? :before_update : :before_create)
+        #
+        #   data_object = persisted? ? self.class.folder.data_objects.find(id) : self.class.folder.data_objects.new
+        #   data_object.attributes = self.class.map_to_syncano_attributes(attributes.except(:id, :created_at, :updated_at))
+        #   data_object.save
+        #
+        #   if data_object.saved?
+        #     self.updated_at = data_object[:updated_at]
+        #
+        #     if persisted?
+        #       process_callbacks(:after_update)
+        #     else
+        #       self.id = data_object.id
+        #       self.created_at = data_object[:created_at]
+        #       process_callbacks(:after_create)
+        #     end
+        #
+        #     self.class.associations.values.select{ |association| association.belongs_to? }.each do |association|
+        #       change = changes[association.foreign_key]
+        #
+        #       if change.present?
+        #         if change.last.nil? || association.associated_model.find(change.last).present?
+        #           data_object.remove_parent(change.first) unless change.first.nil?
+        #           data_object.add_parent(change.last) unless change.last.nil?
+        #         end
+        #       end
+        #     end
+        #
+        #     super
+        #
+        #     process_callbacks(:after_save)
+        #     saved = true
+        #   end
+        # end
+        #
+        # saved
+
+        if valid?
+          syncano_object.custom_attributes = attributes_to_sync
+          syncano_object.save
+          self.attributes = syncano_object_merged_attributes
+        end
+
+        self
+      end
+
       # # Returns scope builder with filtering by ids newer than provided
       # # @param [Integer] id
       # # @return [Syncano::ActiveRecord::ScopeBuilder]
@@ -106,6 +153,14 @@ module Syncano
 
       def self.syncano_class
         syncano_class
+      end
+
+      # Updates object with specified attributes
+      # @param [Hash] attributes
+      # @return [TrueClass, FalseClass]
+      def update_attributes(attributes)
+        self.attributes = attributes
+        self.save
       end
 
       #
@@ -156,8 +211,10 @@ module Syncano
       # @param [Hash] params
       def initialize(params = {})
         if params.is_a?(Syncano::Resources::Object)
-          self.attributes = params.attributes.except(:custom_attributes).merge(params.custom_attributes)
+          self.syncano_object = params
+          self.attributes = syncano_object_merged_attributes
         else
+          self.syncano_object = self.class.syncano_class.objects.new
           self.attributes = params
         end
       end
@@ -169,14 +226,6 @@ module Syncano
       #   self.class == object.class && self.id == object.id
       # end
       #
-      # # Updates object with specified attributes
-      # # @param [Hash] attributes
-      # # @return [TrueClass, FalseClass]
-      # def update_attributes(attributes)
-      #   self.attributes = attributes
-      #   self.save
-      # end
-      #
       # # Performs validations
       # # @return [TrueClass, FalseClass]
       # def valid?
@@ -184,94 +233,39 @@ module Syncano
       #   process_callbacks(:after_validation) if result = super
       #   result
       # end
-      #
-      # # Saves object in Syncano
-      # # @return [TrueClass, FalseClass]
-      # def save
-      #   saved = false
-      #
-      #   if valid?
-      #     process_callbacks(:before_save)
-      #     process_callbacks(persisted? ? :before_update : :before_create)
-      #
-      #     data_object = persisted? ? self.class.folder.data_objects.find(id) : self.class.folder.data_objects.new
-      #     data_object.attributes = self.class.map_to_syncano_attributes(attributes.except(:id, :created_at, :updated_at))
-      #     data_object.save
-      #
-      #     if data_object.saved?
-      #       self.updated_at = data_object[:updated_at]
-      #
-      #       if persisted?
-      #         process_callbacks(:after_update)
-      #       else
-      #         self.id = data_object.id
-      #         self.created_at = data_object[:created_at]
-      #         process_callbacks(:after_create)
-      #       end
-      #
-      #       self.class.associations.values.select{ |association| association.belongs_to? }.each do |association|
-      #         change = changes[association.foreign_key]
-      #
-      #         if change.present?
-      #           if change.last.nil? || association.associated_model.find(change.last).present?
-      #             data_object.remove_parent(change.first) unless change.first.nil?
-      #             data_object.add_parent(change.last) unless change.last.nil?
-      #           end
-      #         end
-      #       end
-      #
-      #       super
-      #
-      #       process_callbacks(:after_save)
-      #       saved = true
-      #     end
-      #   end
-      #
-      #   saved
-      # end
-      #
-      # # Deletes object from Syncano
-      # # @return [TrueClass, FalseClass]
-      # def destroy
-      #   process_callbacks(:before_destroy)
-      #   data_object = self.class.folder.data_objects.find(id)
-      #   data_object.destroy
-      #   process_callbacks(:after_destroy) if data_object.destroyed
-      #   data_object.destroyed
-      # end
-      #
-      # # Checks if object has not been saved in Syncano yet
-      # # @return [TrueClass, FalseClass]
-      # def new_record?
-      #   !persisted?
-      # end
-      #
-      # # Checks if object has been already saved in Syncano
-      # # @return [TrueClass, FalseClass]
-      # def persisted?
-      #   id.present?
-      # end
-      #
-      private
+
+      # Deletes object from Syncano
+      # @return [TrueClass, FalseClass]
+      def destroy
+        # process_callbacks(:before_destroy)
+        syncano_object.destroy
+        # process_callbacks(:after_destroy) if syncano_object.destroyed?
+      end
+
+      def destroyed?
+        syncano_object.destroyed?
+      end
+
+      # Checks if object has not been saved in Syncano yet
+      # @return [TrueClass, FalseClass]
+      def new_record?
+        !persisted?
+      end
+
+      # Checks if object has been already saved in Syncano
+      # @return [TrueClass, FalseClass]
+      def persisted?
+        !syncano_object.new_record?
+      end
+
+      # private
 
       class_attribute :syncano_class
       attr_accessor :syncano_object
       #
       # class_attribute :_filterable_attributes, :_scopes
       #
-      # # Returns Syncano collection for storing Syncano::ActiveRecord objects
-      # # @return [Syncano::Resource::Collection]
-      # def self.collection
-      #   SYNCANO_ACTIVERECORD_COLLECTION
-      # end
-      #
-      # # Returns Syncano collection for storing Syncano::ActiveRecord objects
-      # # @return [Syncano::Resource::Collection]
-      # def self.folder_name
-      #   name.pluralize
-      # end
-      #
-      # # Setter for filterable_attributes attribute
+      # Setter for filterable_attributes attribute
       # def self.filterable_attributes=(hash)
       #   self._filterable_attributes = hash
       # end
@@ -321,6 +315,19 @@ module Syncano
       # def scope_builder(object_class)
       #   Syncano::ActiveRecord::ScopeBuilder.new(object_class)
       # end
+
+      def attributes_to_sync
+        attributes_names = self.class.attributes_to_sync
+        attributes.select{ |name, value| attributes_names.include?(name.to_sym) }
+      end
+
+      def self.attributes_to_sync
+        syncano_class.schema.collect{ |attribute| attribute[:name].to_sym }
+      end
+
+      def syncano_object_merged_attributes
+        syncano_object.attributes.except(:custom_attributes).merge(syncano_object.custom_attributes)
+      end
 
       def self.inherited(child_class)
         # Load schema and generate attributes

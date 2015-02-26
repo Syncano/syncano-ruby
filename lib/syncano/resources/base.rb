@@ -6,8 +6,6 @@ module Syncano
 
       PARAMETER_REGEXP = /\{([^}]+)\}/
 
-      attr_reader :destroyed
-
       def initialize(connection, scope_parameters, attributes, from_database = false)
         self.connection = connection
         self.scope_parameters = scope_parameters
@@ -81,6 +79,10 @@ module Syncano
         mark_as_destroyed!
       end
 
+      def destroyed?
+        !!destroyed
+      end
+
       def reload!
         raise(Syncano::Error.new('record is not saved')) if new_record?
 
@@ -142,8 +144,7 @@ module Syncano
       private
 
       class_attribute :resource_definition, :create_writable_attributes, :update_writable_attributes
-      attr_accessor :connection, :association_paths, :member_path, :scope_parameters
-      attr_writer :destroyed
+      attr_accessor :connection, :association_paths, :member_path, :scope_parameters, :destroyed
 
       def initialize!(attributes = {}, from_database = false)
         attributes = HashWithIndifferentAccess.new(attributes)

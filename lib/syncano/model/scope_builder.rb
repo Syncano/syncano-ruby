@@ -23,7 +23,7 @@ module Syncano
       # @param [Integer] id
       # @return [Object]
       def find(id)
-        data_object = model.syncano_class.find(id)
+        data_object = model.syncano_class.objects.find(id)
         data_object.present? ? model.new(data_object) : nil
       end
 
