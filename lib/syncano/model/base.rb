@@ -45,13 +45,13 @@ module Syncano
       # def self.where(condition, *params)
       #   scope_builder.where(condition, *params)
       # end
-      #
-      # # Returns scope builder with order passed as first argument
-      # # @param [String] order
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def self.order(order)
-      #   scope_builder.order(order)
-      # end
+
+      # Returns scope builder with order passed as first argument
+      # @param [String] order
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def self.order(order)
+        scope_builder.order(order)
+      end
 
       # Returns one object found by id
       # @param [Integer] id

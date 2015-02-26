@@ -14,7 +14,7 @@ module Syncano
       # Returns collection of objects
       # @return [Array]
       def all
-        model.syncano_class.objects.all.collect do |data_object|
+        model.syncano_class.objects.all(parameters).collect do |data_object|
           model.new(data_object)
         end
       end
@@ -77,22 +77,27 @@ module Syncano
       #   parameters[:parent_ids] = parent_id
       #   self
       # end
-      #
-      # # Adds to the current scope builder order clause
-      # # @param [String] order
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def order(order)
-      #   attribute, order_type = order.gsub(/\s+/, ' ').split(' ')
-      #   raise 'Invalid attribute in order clause' unless (model.attributes.keys + ['id', 'created_at']).include?(attribute)
-      #
-      #   attribute = model.map_to_syncano_attribute(attribute)
-      #   order_type = order_type.to_s.downcase == 'desc' ? 'DESC' : 'ASC'
-      #
-      #   self.parameters.merge!({ order_by: attribute, order: order_type })
-      #
-      #   self
-      # end
-      #
+
+      # Adds to the current scope builder order clause
+      # @param [String] order
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def order(order)
+        if order.is_a?(Hash)
+          attribute = order.keys.first
+          order_type = order[attribute]
+        else
+          attribute, order_type = order.gsub(/\s+/, ' ').split(' ')
+        end
+
+        raise 'Invalid attribute in order clause' unless (model.attributes.keys).include?(attribute)
+
+        order_type = order_type.to_s.downcase == 'desc' ? 'DESC' : 'ASC'
+
+        parameters.merge!(order_by: attribute, order: order_type)
+
+        self
+      end
+
       # # Adds to the current scope builder condition for filtering by ids newer than provided
       # # @param [Integer, String] id - id or datetime
       # # @return [Syncano::ActiveRecord::ScopeBuilder]

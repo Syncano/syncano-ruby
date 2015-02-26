@@ -6,8 +6,8 @@ module Syncano
       self.scope_parameters = scope_parameters
     end
 
-    def all
-      resource_class.all(connection, scope_parameters)
+    def all(filter_attributes = {})
+      resource_class.all(connection, scope_parameters, filter_attributes)
     end
 
     def first

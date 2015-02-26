@@ -22,10 +22,10 @@ module Syncano
         !new_record? && !changed?
       end
 
-      def self.all(connection, scope_parameters)
+      def self.all(connection, scope_parameters, filter_attributes = {})
         check_resource_method_existance!(:index)
 
-        response = connection.request(:get, collection_path(scope_parameters))
+        response = connection.request(:get, collection_path(scope_parameters), filter_attributes)
         response['objects'].collect do |resource_attributes|
           new(connection, scope_parameters, resource_attributes, true)
         end
