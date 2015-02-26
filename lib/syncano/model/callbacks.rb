@@ -10,7 +10,6 @@ module Syncano
           [:before, :after].each do |type|
             chain_name = "#{type}_#{action}_callbacks"
             class_attribute chain_name
-            send("#{chain_name}=", [])
           end
         end
       end
@@ -29,6 +28,19 @@ module Syncano
               send("#{type}_#{action}_callbacks") << argument
             end
           end
+        end
+
+        def inherited(subclass)
+          # Initializes chains for all types of callbacks
+          [:validation, :save, :create, :update, :destroy].each do |action|
+            [:before, :after].each do |type|
+              chain_name = "#{type}_#{action}_callbacks"
+              class_attribute chain_name
+              send("#{chain_name}=", [])
+            end
+          end
+
+          super
         end
       end
 
