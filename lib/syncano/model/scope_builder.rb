@@ -110,12 +110,12 @@ module Syncano
       def syncano_class
         model.syncano_class
       end
-      #
-      # # Returns scopes for current model
-      # # @return [HashWithIndifferentAccess]
-      # def scopes
-      #   model.scopes
-      # end
+
+      # Returns scopes for current model
+      # @return [HashWithIndifferentAccess]
+      def scopes
+        model.scopes
+      end
 
       def parameters
         params = {}
@@ -133,26 +133,26 @@ module Syncano
           '<=' => '_lte', '<' => '_lt', 'IS NOT NULL' => '_exists', 'IN' => '_in' }
       end
 
-      # # Applies scope to the current scope builder
-      # # @param [Symbol] name
-      # # @param [Array] args
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def execute_scope(name, *args)
-      #   procedure = scopes[name]
-      #   instance_exec(*args, &procedure)
-      #   self
-      # end
-      #
-      # # Overwritten method_missing for handling calling defined scopes
-      # # @param [String] name
-      # # @param [Array] args
-      # def method_missing(name, *args)
-      #   if scopes[name].nil?
-      #     super
-      #   else
-      #     execute_scope(name, *args)
-      #   end
-      # end
+      # Applies scope to the current scope builder
+      # @param [Symbol] name
+      # @param [Array] args
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def execute_scope(name, *args)
+        procedure = scopes[name]
+        instance_exec(*args, &procedure)
+        self
+      end
+
+      # Overwritten method_missing for handling calling defined scopes
+      # @param [String] name
+      # @param [Array] args
+      def method_missing(name, *args)
+        if scopes[name].nil?
+          super
+        else
+          execute_scope(name, *args)
+        end
+      end
     end
   end
 end

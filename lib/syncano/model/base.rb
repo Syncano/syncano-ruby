@@ -170,13 +170,13 @@ module Syncano
       # def self.filterable_attributes
       #   self._filterable_attributes ||= HashWithIndifferentAccess.new
       # end
-      #
-      # # Returns hash with scopes
-      # # @return [HashWithIndifferentAccess]
-      # def self.scopes
-      #   self._scopes ||= HashWithIndifferentAccess.new
-      # end
-      #
+
+      # Returns hash with scopes
+      # @return [HashWithIndifferentAccess]
+      def self.scopes
+        self._scopes ||= HashWithIndifferentAccess.new
+      end
+
       # # Maps syncano attributes to corresponding model attributes
       # # @param [Hash] attributes
       # # @return [HashWithIndifferentAccess]
@@ -256,19 +256,19 @@ module Syncano
 
       class_attribute :syncano_class
       attr_accessor :syncano_object
-      #
-      # class_attribute :_filterable_attributes, :_scopes
-      #
+
+      class_attribute :_scopes
+
       # Setter for filterable_attributes attribute
       # def self.filterable_attributes=(hash)
       #   self._filterable_attributes = hash
       # end
-      #
-      # # Setter for scopes attribute
-      # def self.scopes=(hash)
-      #   self._scopes = hash
-      # end
-      #
+
+      # Setter for scopes attribute
+      def self.scopes=(hash)
+        self._scopes = hash
+      end
+
       # Returns scope builder for current model
       # @return [Syncano::ActiveRecord::ScopeBuilder]
       def self.scope_builder
@@ -285,25 +285,25 @@ module Syncano
       #   end
       #   super(name, options)
       # end
-      #
-      # # Defines model scope
-      # # @param [Symbol] name
-      # # @param [Proc] procedure
-      # def self.scope(name, procedure)
-      #   scopes[name] = procedure
-      # end
-      #
-      # # Overwritten method_missing for handling calling defined scopes
-      # # @param [String] name
-      # # @param [Array] args
-      # def self.method_missing(name, *args)
-      #   if scopes[name].nil?
-      #     super
-      #   else
-      #     scope_builder.send(name.to_sym, *args)
-      #   end
-      # end
-      #
+
+      # Defines model scope
+      # @param [Symbol] name
+      # @param [Proc] procedure
+      def self.scope(name, procedure)
+        scopes[name] = procedure
+      end
+
+      # Overwritten method_missing for handling calling defined scopes
+      # @param [String] name
+      # @param [Array] args
+      def self.method_missing(name, *args)
+        if scopes[name].nil?
+          super
+        else
+          scope_builder.send(name.to_sym, *args)
+        end
+      end
+
       # # Returns scope builder for specified class
       # # @return [Syncano::ActiveRecord::ScopeBuilder]
       # def scope_builder(object_class)
