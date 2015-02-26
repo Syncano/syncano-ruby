@@ -42,34 +42,42 @@ module Syncano
       #   objects = all.last(amount || 1)
       #   amount.nil? ? objects.first : objects
       # end
-      #
-      # # Adds to the current scope builder condition to the scope builder
-      # # @param [String] condition
-      # # @param [Array] params
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def where(condition, *params)
-      #   raise 'Invalid params count in where clause!' unless condition.count('?') == params.count
-      #
-      #   params.each do |param|
-      #     condition.sub!('?', param.to_s)
-      #   end
-      #
-      #   conditions = condition.gsub(/\s+/, ' ').split(/and/i)
-      #
-      #   conditions.each do |condition|
-      #     attribute, operator, value = condition.split(' ')
-      #
-      #     raise 'Invalid attribute in where clause!' unless model.attributes.keys.include?(attribute)
-      #     raise 'Invalid operator in where clause!' unless self.class.where_mapping.keys.include?(operator)
-      #     raise 'Parameter in where clause is not an integer!' if !(value =~ /\A[-+]?[0-9]+\z/)
-      #
-      #     method_name = "#{model.filterable_attributes[attribute]}__#{self.class.where_mapping[operator]}"
-      #     parameters[method_name] = value
-      #   end
-      #
-      #   self
-      # end
-      #
+
+      # Adds to the current scope builder condition to the scope builder
+      # @param [String] condition
+      # @param [Array] params
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def where(conditions, *params)
+        raise 'Invalid params count in where clause!' unless conditions.count('?') == params.count
+
+        query = HashWithIndifferentAccess.new
+        params = params.dup
+
+        conditions.gsub(/\s+/, ' ').split(/and/i).each do |condition|
+          if condition.ends_with?('?')
+            value = params.shift
+            condition.gsub!('?', '').strip!
+          else
+            value = true
+          end
+
+          attribute, operator = condition.split(' ', 2)
+          operator.upcase!
+
+          raise 'Invalid attribute in where clause!' unless model.attributes.keys.include?(attribute)
+          raise 'Invalid operator in where clause!' unless self.class.where_mapping.keys.include?(operator)
+
+          operator = self.class.where_mapping[operator]
+
+          query[attribute] = HashWithIndifferentAccess.new if query[attribute].nil?
+          query[attribute][operator] = value
+        end
+
+        parameters.merge!(query: query.to_json)
+
+        self
+      end
+
       # # Adds to the current scope builder condition for filtering by parent_id
       # # @param [Integer] parent_id
       # # @return [Syncano::ActiveRecord::ScopeBuilder]
@@ -91,9 +99,8 @@ module Syncano
 
         raise 'Invalid attribute in order clause' unless (model.attributes.keys).include?(attribute)
 
-        order_type = order_type.to_s.downcase == 'desc' ? 'DESC' : 'ASC'
-
-        parameters.merge!(order_by: attribute, order: order_type)
+        order_query = order_type.to_s.downcase == 'desc' ? "-#{attribute}" : attribute
+        parameters.merge!(order_by: order_query)
 
         self
       end
@@ -141,13 +148,14 @@ module Syncano
       # def scopes
       #   model.scopes
       # end
-      #
-      # # Returns mapping for operators
-      # # @return [Hash]
-      # def self.where_mapping
-      #   { '=' => 'eq', '!=' => 'neq', '<>' => 'neq', '>=' => 'gte', '>' => 'gt', '<=' => 'lte', '<' => 'lt' }
-      # end
-      #
+
+      # Returns mapping for operators
+      # @return [Hash]
+      def self.where_mapping
+        { '=' => '_eq', '!=' => '_neq', '<>' => '_neq', '>=' => '_gte', '>' => '_gt',
+          '<=' => '_lte', '<' => '_lt', 'IS NOT NULL' => '_exists', 'IN' => '_in' }
+      end
+
       # # Applies scope to the current scope builder
       # # @param [Symbol] name
       # # @param [Array] args

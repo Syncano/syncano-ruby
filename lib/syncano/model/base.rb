@@ -37,14 +37,14 @@ module Syncano
       # def self.last(amount = nil)
       #   scope_builder.last(amount)
       # end
-      #
-      # # Returns scope builder with condition passed as arguments
-      # # @param [String] condition
-      # # @param [Array] params
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def self.where(condition, *params)
-      #   scope_builder.where(condition, *params)
-      # end
+
+      # Returns scope builder with condition passed as arguments
+      # @param [String] condition
+      # @param [Array] params
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def self.where(condition, *params)
+        scope_builder.where(condition, *params)
+      end
 
       # Returns scope builder with order passed as first argument
       # @param [String] order
