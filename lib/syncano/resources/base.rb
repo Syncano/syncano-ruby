@@ -67,7 +67,7 @@ module Syncano
         if new_record?
           response = connection.request(:post, collection_path, select_create_attributes)
         else
-          response = connection.request(:put, member_path, select_update_attributes)
+          response = connection.request(:patch, member_path, select_update_attributes)
         end
 
         initialize!(response, true)

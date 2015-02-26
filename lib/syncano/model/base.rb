@@ -130,20 +130,6 @@ module Syncano
         self
       end
 
-      # # Returns scope builder with filtering by ids newer than provided
-      # # @param [Integer] id
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def self.since(id)
-      #   scope_builder.since(id)
-      # end
-      #
-      # # Returns scope builder with filtering by ids older than provided
-      # # @param [Integer] id
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def self.before(id)
-      #   scope_builder.before(id)
-      # end
-      #
       # # Returns corresponding Syncano folder
       # # @return [Syncano::Resources::Folder]
       # def self.folder

@@ -8,9 +8,9 @@ module Syncano
         raise 'Model should be a class extending module Syncano::Model::Base' unless model <= Syncano::Model::Base
 
         self.model = model
-        self.parameters = {}
+        self.query = HashWithIndifferentAccess.new
       end
-      #
+
       # Returns collection of objects
       # @return [Array]
       def all
@@ -50,7 +50,6 @@ module Syncano
       def where(conditions, *params)
         raise 'Invalid params count in where clause!' unless conditions.count('?') == params.count
 
-        query = HashWithIndifferentAccess.new
         params = params.dup
 
         conditions.gsub(/\s+/, ' ').split(/and/i).each do |condition|
@@ -73,18 +72,8 @@ module Syncano
           query[attribute][operator] = value
         end
 
-        parameters.merge!(query: query.to_json)
-
         self
       end
-
-      # # Adds to the current scope builder condition for filtering by parent_id
-      # # @param [Integer] parent_id
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def by_parent_id(parent_id)
-      #   parameters[:parent_ids] = parent_id
-      #   self
-      # end
 
       # Adds to the current scope builder order clause
       # @param [String] order
@@ -99,32 +88,11 @@ module Syncano
 
         raise 'Invalid attribute in order clause' unless (model.attributes.keys).include?(attribute)
 
-        order_query = order_type.to_s.downcase == 'desc' ? "-#{attribute}" : attribute
-        parameters.merge!(order_by: order_query)
+        self.order_clause = order_type.to_s.downcase == 'desc' ? "-#{attribute}" : attribute
 
         self
       end
 
-      # # Adds to the current scope builder condition for filtering by ids newer than provided
-      # # @param [Integer, String] id - id or datetime
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def since(id)
-      #   if !(id =~ /\A[-+]?[0-9]+\z/)
-      #     self.parameters[:since] = id
-      #   else
-      #     self.parameters[:since_time] = id.to_time
-      #   end
-      #   self
-      # end
-      #
-      # # Adds to the current scope builder condition for filtering by ids older than provided
-      # # @param [Integer] id
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def before(id)
-      #   self.parameters[:max_id] = id
-      #   self
-      # end
-      #
       # # Adds to the current scope builder limit clause
       # # @param [Integer] amount
       # # @return [Syncano::ActiveRecord::ScopeBuilder]
@@ -135,7 +103,7 @@ module Syncano
       #
       private
 
-      attr_accessor :parameters, :model, :scopes
+      attr_accessor :order_clause, :query, :model, :scopes
 
       # Returns Syncano::Resource class for current model
       # @return [Syncano::Resources::Folder]
@@ -148,6 +116,15 @@ module Syncano
       # def scopes
       #   model.scopes
       # end
+
+      def parameters
+        params = {}
+
+        params[:order_by] = order_clause if order_clause.present?
+        params[:query] = query.to_json if query.present?
+
+        params
+      end
 
       # Returns mapping for operators
       # @return [Hash]
