@@ -153,7 +153,7 @@ module Syncano
         float: ::Float,
         date: ::Date,
         datetime: ::DateTime,
-        field: ::Hash
+        field: ::Hash # TODO: field is not really a hash, it could be an Array as well, ex. Class schema
       )
 
       type.present? ? mapping[type] : Object
