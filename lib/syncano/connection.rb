@@ -52,7 +52,7 @@ module Syncano
       when Status.no_content
       when Status.successful
         JSON.parse(response.body)
-      when Status.client_error
+      when Status.client_error # TODO figure out if we want to raise an excpetion on not found or not
         raise ClientError.new(response.body, response)
       end
     end
