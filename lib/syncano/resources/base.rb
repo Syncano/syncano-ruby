@@ -45,7 +45,7 @@ module Syncano
         check_resource_method_existance!(:show)
 
         response = connection.request(:get, member_path(pk, scope_parameters))
-        new(connection, response)
+        new(connection, scope_parameters, response)
       end
 
       def self.create(connection, scope_parameters, attributes)
