@@ -51,7 +51,7 @@ module Syncano
       def self.create(connection, scope_parameters, attributes)
         check_resource_method_existance!(:create)
 
-        new(connection, attributes, scope_parameters).save
+        new(connection, scope_parameters, attributes).save
       end
 
       def update_attributes(attributes)
