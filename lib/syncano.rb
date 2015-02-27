@@ -33,5 +33,11 @@ module Syncano
       self.body = body
       self.original_response = original_response
     end
+
+    def inspect
+      "<#{self.class.name} #{body} #{original_response}>"
+    end
+
+    alias :to_s :inspect
   end
 end
