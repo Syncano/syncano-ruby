@@ -18,7 +18,7 @@ describe Syncano::QueryBuilder do
     subject { described_class.new(connection, resource_class, scope_parameters) }
 
     it do
-      expect(resource_class).to receive(:all).with(connection, scope_parameters)
+      expect(resource_class).to receive(:all).with(connection, scope_parameters, {})
       subject.all
     end
   end
