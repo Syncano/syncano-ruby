@@ -4,16 +4,6 @@ module Syncano
     module Callbacks
       extend ActiveSupport::Concern
 
-      included do
-        # Defines chains for all types of callbacks
-        [:validation, :save, :create, :update, :destroy].each do |action|
-          [:before, :after].each do |type|
-            chain_name = "#{type}_#{action}_callbacks"
-            class_attribute chain_name
-          end
-        end
-      end
-
       # Class methods for Syncano::ActiveRecord::Callbacks module
       module ClassMethods
         private
@@ -35,8 +25,9 @@ module Syncano
           [:validation, :save, :create, :update, :destroy].each do |action|
             [:before, :after].each do |type|
               chain_name = "#{type}_#{action}_callbacks"
-              class_attribute chain_name
-              send("#{chain_name}=", [])
+
+              subclass.class_attribute chain_name
+              subclass.send("#{chain_name}=", [])
             end
           end
 

@@ -24,6 +24,7 @@ module Syncano
         if params.is_a?(Syncano::Resources::Object)
           self.syncano_object = params
           self.attributes = syncano_object_merged_attributes
+          mark_as_saved!
         else
           self.syncano_object = self.class.syncano_class.objects.new
           self.attributes = params
@@ -75,6 +76,7 @@ module Syncano
       def reload!
         syncano_object.reload!
         self.attributes = syncano_object_merged_attributes
+        mark_as_saved!
         self
       end
 
@@ -99,6 +101,7 @@ module Syncano
           syncano_object.custom_attributes = attributes_to_sync
           syncano_object.save
           self.attributes = syncano_object_merged_attributes
+          mark_as_saved!
 
           process_callbacks(was_persisted ? :after_update : :after_create)
           process_callbacks(:after_save)
@@ -169,12 +172,22 @@ module Syncano
         !syncano_object.new_record?
       end
 
+      def saved?
+        !new_record? && !changed?
+      end
+
       private
 
-      class_attribute :syncano_class
+      class_attribute :syncano_class, :_scopes
       attr_accessor :syncano_object
 
-      class_attribute :_scopes
+      def mark_as_saved!
+        raise(Syncano::Error.new('primary key is blank')) if new_record?
+
+        @previously_changed = changes
+        @changed_attributes.clear
+        self
+      end
 
       # Setter for scopes attribute
       def self.scopes=(hash)
