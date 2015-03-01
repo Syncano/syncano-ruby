@@ -11,9 +11,9 @@ module Syncano
 
     def process!
       schema.each do |resource_name, resource_definition|
-        generate_resource_class(resource_name, resource_definition)
+        self.class.generate_resource_class(resource_name, resource_definition)
         if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          generate_client_method(resource_name)
+          self.class.generate_client_method(resource_name)
         end
       end
     end
@@ -66,23 +66,29 @@ module Syncano
       self.schema = resources
     end
 
-    def generate_resource_class(name, definition)
+    def self.generate_resource_class(name, definition)
+      resource_class = new_resource_class(name, definition)
+
+      ::Syncano::Resources.const_set(name, resource_class)
+    end
+
+    def self.new_resource_class(name, definition)
       attributes_definitions = []
 
       definition[:attributes].each do |attribute_name, attribute|
         attributes_definitions << {
-          name: attribute_name,
-          type: self.class.map_syncano_attribute_type(attribute['type']),
-          default: self.class.default_value_for_attribute(attribute),
-          presence_validation: attribute['required'],
-          length_validation_options: extract_length_validation_options(attribute),
-          inclusion_validation_options: extract_inclusion_validation_options(attribute),
-          create_writeable: attribute['read_only'] == false,
-          update_writeable: attribute['read_only'] == false,
+            name: attribute_name,
+            type: map_syncano_attribute_type(attribute['type']),
+            default: default_value_for_attribute(attribute),
+            presence_validation: attribute['required'],
+            length_validation_options: extract_length_validation_options(attribute),
+            inclusion_validation_options: extract_inclusion_validation_options(attribute),
+            create_writeable: attribute['read_only'] == false,
+            update_writeable: attribute['read_only'] == false,
         }
       end
 
-      resource_class = ::Class.new(::Syncano::Resources::Base) do
+      ::Class.new(::Syncano::Resources::Base) do
         self.create_writable_attributes = []
         self.update_writable_attributes = []
 
@@ -94,7 +100,7 @@ module Syncano
           if attribute_definition[:inclusion_validation_options]
             validates attribute_definition[:name], inclusion: attribute_definition[:inclusion_validation_options]
           end
-          
+
           self.create_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:create_writeable]
           self.update_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:update_writeable]
         end
@@ -119,11 +125,9 @@ module Syncano
 
         self.resource_definition = definition
       end
-
-      ::Syncano::Resources.const_set(name, resource_class)
     end
 
-    def generate_client_method(resource_name)
+    def self.generate_client_method(resource_name)
       method_name = resource_name.tableize
       resource_class = "::Syncano::Resources::#{resource_name}".constantize
 
@@ -132,7 +136,7 @@ module Syncano
       end
     end
 
-    def extract_length_validation_options(attribute_definition)
+    def self.extract_length_validation_options(attribute_definition)
       maximum = begin
         Integer attribute_definition['max_length']
       rescue TypeError, ArgumentError
@@ -141,7 +145,7 @@ module Syncano
       { maximum: maximum } unless maximum.nil?
     end
 
-    def extract_inclusion_validation_options(attribute_definition)
+    def self.extract_inclusion_validation_options(attribute_definition)
       return unless choices = attribute_definition['choices']
 
       { in: choices.map { |choice| choice['value'] } }

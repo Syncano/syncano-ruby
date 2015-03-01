@@ -5,8 +5,7 @@ require 'rspec/expectations'
 
 describe Syncano::Resources::Base do
   subject do
-    Class.new(described_class) do
-      self.resource_definition =
+    Syncano::Schema.send(:new_resource_class, 'subject',
           {:attributes => {'name' => {'read_only' => false,
                                       'primary_key' => true,
                                       'required' => true,
@@ -84,7 +83,7 @@ describe Syncano::Resources::Base do
                                          'delete'],
                        :params => ['name']},
            :custom_methods => []}
-    end
+    )
   end
 
   let(:connection) { double('connection')}
@@ -117,8 +116,63 @@ describe Syncano::Resources::Base do
       expect(connection).to receive(:request).and_return(response)
     end
 
-    it 'should should find a resource' do
+    it 'should find a resource' do
       subject.find(connection, scope_parameters, 'PK')
+    end
+  end
+
+  describe '.all' do
+    it 'should get collection of resources' do
+
+    end
+  end
+
+  describe '.new' do
+    it 'should instantiate new resource' do
+      expect(subject.new(connection, {}, {}, true)).to be_a subject
+    end
+
+    it 'should init attributes' do
+      resource = subject.new(connection, {}, { name: 'test' }, true)
+      expect(resource.name).to eq('test')
+    end
+
+    it 'should clean changes if initialized from database' do
+      resource = subject.new(connection, {}, { links: { self: '/v1/instances/test/' }, name: 'test' }, true)
+      expect(resource.changed?).to eq(false)
+    end
+
+    it 'should keep changes if not initialized from database' do
+      resource = subject.new(connection, {}, { links: { self: '/v1/instances/test/' }, name: 'test' }, false)
+      expect(resource.changed?).to eq(true)
+    end
+
+    it 'should mark resource as not new if initialized with self path' do
+      resource = subject.new(connection, {}, { links: { self: '/v1/instances/test/' } }, true)
+      expect(resource.new_record?).to be(false)
+    end
+
+    it 'should mark resource as new if initialized without self path' do
+      resource = subject.new(connection, {}, { name: 'test' }, true)
+      expect(resource.new_record?).to be(true)
+    end
+  end
+
+  describe '.create' do
+    it 'should create new object in Syncano' do
+
+    end
+  end
+
+  describe '.update_attributes' do
+    it "should create update object's attributes in Syncano" do
+
+    end
+  end
+
+  describe '.destroy' do
+    it 'should delete object from Syncano' do
+
     end
   end
 end

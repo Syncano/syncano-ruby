@@ -11,7 +11,6 @@ module Syncano
         self.scope_parameters = scope_parameters
 
         initialize!(attributes, from_database)
-        apply_defaults
       end
 
       def new_record?
@@ -160,7 +159,9 @@ module Syncano
           self.custom_attributes = attributes.select{ |k, v| !self.attributes.keys.include?(k) }
         end
 
-        mark_as_saved! unless new_record?
+        apply_defaults
+
+        mark_as_saved! if !new_record? && from_database
 
         self
       end
