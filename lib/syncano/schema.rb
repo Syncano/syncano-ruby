@@ -67,10 +67,10 @@ module Syncano
     end
 
     def generate_resource_class(name, definition)
-      blablabla = []
+      attributes_definitions = []
 
       definition[:attributes].each do |attribute_name, attribute|
-        blablabla << {
+        attributes_definitions << {
           name: attribute_name,
           type: self.class.map_syncano_attribute_type(attribute['type']),
           default: self.class.default_value_for_attribute(attribute),
@@ -86,7 +86,7 @@ module Syncano
         self.create_writable_attributes = []
         self.update_writable_attributes = []
 
-        blablabla.each do |attribute_definition|
+        attributes_definitions.each do |attribute_definition|
           attribute attribute_definition[:name], type: attribute_definition[:type], default: attribute_definition[:default], force_default: !attribute_definition[:default].nil?
           validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
           validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
