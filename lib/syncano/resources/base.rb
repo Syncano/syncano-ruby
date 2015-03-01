@@ -41,6 +41,7 @@ module Syncano
 
       def self.find(connection, scope_parameters, pk)
         check_resource_method_existance!(:show)
+        return unless pk.present?
 
         response = connection.request(:get, member_path(pk, scope_parameters))
         new(connection, scope_parameters, response, true)

@@ -27,21 +27,21 @@ module Syncano
         data_object.present? ? model.new(data_object) : nil
       end
 
-      # # Returns first object or collection of first x objects
-      # # @param [Integer] amount
-      # # @return [Object, Array]
-      # def first(amount = nil)
-      #   objects = all.first(amount || 1)
-      #   amount.nil? ? objects.first : objects
-      # end
-      #
-      # # Returns last object or last x objects
-      # # @param [Integer] amount
-      # # @return [Object, Array]
-      # def last(amount)
-      #   objects = all.last(amount || 1)
-      #   amount.nil? ? objects.first : objects
-      # end
+      # Returns first object or collection of first x objects
+      # @param [Integer] amount
+      # @return [Object, Array]
+      def first(amount = nil)
+        objects = all.first(amount || 1)
+        amount.nil? ? objects.first : objects
+      end
+
+      # Returns last object or last x objects
+      # @param [Integer] amount
+      # @return [Object, Array]
+      def last(amount)
+        objects = all.last(amount || 1)
+        amount.nil? ? objects.first : objects
+      end
 
       # Adds to the current scope builder condition to the scope builder
       # @param [String] condition

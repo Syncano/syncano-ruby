@@ -1,18 +1,18 @@
-require 'syncano/active_record/association/base'
+require 'syncano/model/associations/base'
 
-class Syncano
+module Syncano
   module Model
     module Association
       # Class for belongs to association
-      class BelongsTo < Syncano::ActiveRecord::Association::Base
+      class BelongsTo < Syncano::Model::Association::Base
         attr_reader :associated_model, :foreign_key, :source_model
 
         # Constructor for belongs_to association
         # @param [Class] source_model
         # @param [Symbol] name
-        def initialize(source_model, name)
+        def initialize(source_model, name, options = {})
           super
-          self.foreign_key = associated_model.name.foreign_key
+          self.foreign_key = options[:foreign_key] || associated_model.name.foreign_key
         end
 
         # Checks if association is belongs_to type

@@ -1,5 +1,5 @@
 require 'syncano/model/scope_builder'
-# require 'syncano/model/associations'
+require 'syncano/model/associations'
 require 'syncano/model/callbacks'
 
 module Syncano
@@ -11,12 +11,24 @@ module Syncano
       include ActiveAttr::Dirty
 
       include ActiveModel::ForbiddenAttributesProtection
-      # include Syncano::Model::Associations
+      include Syncano::Model::Associations
       include Syncano::Model::Callbacks
 
       attribute :id, type: Integer
       attribute :created_at, type: DateTime
       attribute :updated_at, type: DateTime
+
+      # Constructor for model
+      # @param [Hash] params
+      def initialize(params = {})
+        if params.is_a?(Syncano::Resources::Object)
+          self.syncano_object = params
+          self.attributes = syncano_object_merged_attributes
+        else
+          self.syncano_object = self.class.syncano_class.objects.new
+          self.attributes = params
+        end
+      end
 
       # Gets collection with all objects
       # @return [Array]
@@ -24,19 +36,19 @@ module Syncano
         scope_builder.all
       end
 
-      # # Returns first object or collection of first x objects
-      # # @param [Integer] amount
-      # # @return [Object, Array]
-      # def self.first(amount = nil)
-      #   scope_builder.first(amount)
-      # end
-      #
-      # # Returns last object or collection of last x objects
-      # # @param [Integer] amount
-      # # @return [Object, Array]
-      # def self.last(amount = nil)
-      #   scope_builder.last(amount)
-      # end
+      # Returns first object or collection of first x objects
+      # @param [Integer] amount
+      # @return [Object, Array]
+      def self.first(amount = nil)
+        scope_builder.first(amount)
+      end
+
+      # Returns last object or collection of last x objects
+      # @param [Integer] amount
+      # @return [Object, Array]
+      def self.last(amount = nil)
+        scope_builder.last(amount)
+      end
 
       # Returns scope builder with condition passed as arguments
       # @param [String] condition
@@ -60,6 +72,12 @@ module Syncano
         scope_builder.find(id)
       end
 
+      def reload!
+        syncano_object.reload!
+        self.attributes = syncano_object_merged_attributes
+        self
+      end
+
       # Creates new object with specified attributes
       # @param [Hash] attributes
       # @return [Object]
@@ -72,47 +90,6 @@ module Syncano
       # Saves object in Syncano
       # @return [TrueClass, FalseClass]
       def save
-        # saved = false
-        #
-        # if valid?
-        #   process_callbacks(:before_save)
-        #   process_callbacks(persisted? ? :before_update : :before_create)
-        #
-        #   data_object = persisted? ? self.class.folder.data_objects.find(id) : self.class.folder.data_objects.new
-        #   data_object.attributes = self.class.map_to_syncano_attributes(attributes.except(:id, :created_at, :updated_at))
-        #   data_object.save
-        #
-        #   if data_object.saved?
-        #     self.updated_at = data_object[:updated_at]
-        #
-        #     if persisted?
-        #       process_callbacks(:after_update)
-        #     else
-        #       self.id = data_object.id
-        #       self.created_at = data_object[:created_at]
-        #       process_callbacks(:after_create)
-        #     end
-        #
-        #     self.class.associations.values.select{ |association| association.belongs_to? }.each do |association|
-        #       change = changes[association.foreign_key]
-        #
-        #       if change.present?
-        #         if change.last.nil? || association.associated_model.find(change.last).present?
-        #           data_object.remove_parent(change.first) unless change.first.nil?
-        #           data_object.add_parent(change.last) unless change.last.nil?
-        #         end
-        #       end
-        #     end
-        #
-        #     super
-        #
-        #     process_callbacks(:after_save)
-        #     saved = true
-        #   end
-        # end
-        #
-        # saved
-
         if valid?
           was_persisted = persisted?
 
@@ -126,24 +103,7 @@ module Syncano
           process_callbacks(was_persisted ? :after_update : :after_create)
           process_callbacks(:after_save)
         end
-
-        self
       end
-
-      # # Returns corresponding Syncano folder
-      # # @return [Syncano::Resources::Folder]
-      # def self.folder
-      #   begin
-      #     folder = collection.folders.find_by_name(folder_name)
-      #   rescue Syncano::ApiError => e
-      #     if e.message.starts_with?('DoesNotExist')
-      #       folder = collection.folders.create(name: folder_name)
-      #     else
-      #       raise e
-      #     end
-      #   end
-      #   folder
-      # end
 
       def self.syncano_class
         syncano_class
@@ -157,19 +117,12 @@ module Syncano
         self.save
       end
 
-      #
-      # # Returns scope builder with limit parameter set to parameter
-      # # @param [Integer] amount
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def self.limit(amount)
-      #   scope_builder.limit(amount)
-      # end
-      #
-      # # Returns hash with filterable attributes
-      # # @return [HashWithIndifferentAccess]
-      # def self.filterable_attributes
-      #   self._filterable_attributes ||= HashWithIndifferentAccess.new
-      # end
+      # Returns scope builder with limit parameter set to parameter
+      # @param [Integer] amount
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def self.limit(amount)
+        scope_builder.limit(amount)
+      end
 
       # Returns hash with scopes
       # @return [HashWithIndifferentAccess]
@@ -177,48 +130,12 @@ module Syncano
         self._scopes ||= HashWithIndifferentAccess.new
       end
 
-      # # Maps syncano attributes to corresponding model attributes
-      # # @param [Hash] attributes
-      # # @return [HashWithIndifferentAccess]
-      # def self.map_from_syncano_attributes(attributes = {})
-      #   mappings = HashWithIndifferentAccess.new(filterable_attributes.invert)
-      #   HashWithIndifferentAccess[attributes.map {|k, v| [mappings[k] || k, v] }]
-      # end
-      #
-      # # Maps model attributes to corresponding syncano attributes
-      # # @param [Hash] attributes
-      # # @return [HashWithIndifferentAccess]
-      # def self.map_to_syncano_attributes(attributes = {})
-      #   mappings = filterable_attributes
-      #   HashWithIndifferentAccess[attributes.map {|k, v| [mappings[k] || k, v] }]
-      # end
-      #
-      # # Maps one model attribute to corresponding syncano attribute
-      # # @param [Symbol, String] attribute
-      # # @return [String]
-      # def self.map_to_syncano_attribute(attribute)
-      #   mappings = filterable_attributes
-      #   mappings[attribute] || attribute
-      # end
-
-      # Constructor for model
-      # @param [Hash] params
-      def initialize(params = {})
-        if params.is_a?(Syncano::Resources::Object)
-          self.syncano_object = params
-          self.attributes = syncano_object_merged_attributes
-        else
-          self.syncano_object = self.class.syncano_class.objects.new
-          self.attributes = params
-        end
+      # Overwritten equality operator
+      # @param [Object] object
+      # @return [TrueClass, FalseClass]
+      def ==(object)
+        self.class == object.class && id == object.id
       end
-
-      # # Overwritten equality operator
-      # # @param [Object] object
-      # # @return [TrueClass, FalseClass]
-      # def ==(object)
-      #   self.class == object.class && self.id == object.id
-      # end
 
       # Performs validations
       # @return [TrueClass, FalseClass]
@@ -252,17 +169,12 @@ module Syncano
         !syncano_object.new_record?
       end
 
-      # private
+      private
 
       class_attribute :syncano_class
       attr_accessor :syncano_object
 
       class_attribute :_scopes
-
-      # Setter for filterable_attributes attribute
-      # def self.filterable_attributes=(hash)
-      #   self._filterable_attributes = hash
-      # end
 
       # Setter for scopes attribute
       def self.scopes=(hash)
@@ -274,17 +186,6 @@ module Syncano
       def self.scope_builder
         Syncano::Model::ScopeBuilder.new(self)
       end
-      #
-      # # Defines model attribute
-      # # @param [Symbol] name
-      # # @param [Hash] options
-      # def self.attribute(name, options = {})
-      #   if options[:filterable].present?
-      #     self.filterable_attributes = HashWithIndifferentAccess.new if filterable_attributes.nil?
-      #     filterable_attributes[name] = options.delete(:filterable)
-      #   end
-      #   super(name, options)
-      # end
 
       # Defines model scope
       # @param [Symbol] name
@@ -304,11 +205,11 @@ module Syncano
         end
       end
 
-      # # Returns scope builder for specified class
-      # # @return [Syncano::ActiveRecord::ScopeBuilder]
-      # def scope_builder(object_class)
-      #   Syncano::ActiveRecord::ScopeBuilder.new(object_class)
-      # end
+      # Returns scope builder for specified class
+      # @return [Syncano::ActiveRecord::ScopeBuilder]
+      def scope_builder(object_class)
+        Syncano::Model::ScopeBuilder.new(object_class)
+      end
 
       def attributes_to_sync
         attributes_names = self.class.attributes_to_sync
@@ -332,7 +233,7 @@ module Syncano
           attribute attribute_schema['name'], type: String
         end
 
-        self.syncano_class = syncano_class
+        child_class.syncano_class = syncano_class
 
         super
       end

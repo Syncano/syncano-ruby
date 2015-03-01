@@ -1,10 +1,10 @@
-require 'syncano/active_record/association/base'
+require 'syncano/model/associations/base'
 
-class Syncano
+module Syncano
   module Model
     module Association
       # Class for has one association
-      class HasOne < Syncano::ActiveRecord::Association::Base
+      class HasOne < Syncano::Model::Association::Base
         attr_reader :associated_model, :foreign_key, :source_model
 
         # Checks if association is has_one type

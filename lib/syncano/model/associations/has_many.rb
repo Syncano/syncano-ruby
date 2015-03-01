@@ -1,10 +1,10 @@
-require 'syncano/active_record/association/base'
+require 'syncano/model/associations/base'
 
-class Syncano
+module Syncano
   module Model
     module Association
       # Class for has many association
-      class HasMany < Syncano::ActiveRecord::Association::Base
+      class HasMany < Syncano::Model::Association::Base
         attr_reader :associated_model, :foreign_key, :source_model
 
         # Checks if association is has_many type
@@ -24,20 +24,26 @@ class Syncano
 
         # Builds new associated object
         # @return [Object]
-        def build
-          associated_model.new(foreign_key => source.id)
+        def build(attributes = {})
+          new(attributes)
+        end
+
+        def new(attributes = {})
+          associated_model.new(attributes.merge(foreign_key => source.id))
         end
 
         # Creates new associated object
         # @return [Object]
-        def create
-          associated_model.create(foreign_key => source.id)
+        def create(attributes = {})
+          associated_model.create(attributes.merge(foreign_key => source.id))
         end
 
         # Adds object to the related collection by setting foreign key
         # @param [Object] object
         # @return [Object]
         def <<(object)
+          "Object should be an instance of #{associated_model} class" unless object.is_a?(associated_model)
+
           object.send("#{foreign_key}=", source.id)
           object.save unless object.new_record?
           object
@@ -55,7 +61,7 @@ class Syncano
         # @param [String] name
         # @param [Array] args
         def method_missing(name, *args)
-          scope_builder = Syncano::ActiveRecord::ScopeBuilder.new(associated_model).by_parent_id(source.id)
+          scope_builder = Syncano::Model::ScopeBuilder.new(associated_model).where("#{foreign_key} = ?", source.id)
 
           if scope_builder.respond_to?(name) || !source.scopes[name].nil?
             scope_builder.send(name, *args)

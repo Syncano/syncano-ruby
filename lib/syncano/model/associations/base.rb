@@ -1,6 +1,6 @@
-require 'syncano/active_record/scope_builder'
+require 'syncano/model/scope_builder'
 
-class Syncano
+module Syncano
   module Model
     # Module with associations functionality for Syncano::ActiveRecord
     module Association
@@ -9,10 +9,10 @@ class Syncano
         # Constructor for association
         # @param [Class] source_model
         # @param [Symbol] name
-        def initialize(source_model, name)
+        def initialize(source_model, name, options = {})
           self.source_model = source_model
           self.associated_model = name.to_s.classify.constantize
-          self.foreign_key = source_model.name.foreign_key
+          self.foreign_key = options[:foreign_key] || source_model.name.foreign_key
         end
 
         # Checks if association is belongs_to type
