@@ -106,6 +106,8 @@ module Syncano
           process_callbacks(was_persisted ? :after_update : :after_create)
           process_callbacks(:after_save)
         end
+
+        saved?
       end
 
       def self.syncano_class
