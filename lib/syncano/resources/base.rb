@@ -25,9 +25,8 @@ module Syncano
         check_resource_method_existance!(:index)
 
         response = connection.request(:get, collection_path(scope_parameters), filter_attributes)
-        response['objects'].collect do |resource_attributes|
-          new(connection, scope_parameters, resource_attributes, true)
-        end
+        scope = Syncano::Scope.new(connection, scope_parameters)
+        Syncano::Resources::Collection.from_database(response, scope, self)
       end
 
       def self.first(connection, scope_parameters)

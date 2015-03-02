@@ -122,8 +122,14 @@ describe Syncano::Resources::Base do
   end
 
   describe '.all' do
-    it 'should get collection of resources' do
+    let(:response) { { 'objects' => [{}] } }
 
+    before do
+      expect(connection).to receive(:request).and_return(response)
+    end
+
+    it 'should get collection of resources' do
+      expect(subject.all(connection, {})).to be_a(Syncano::Resources::Collection)
     end
   end
 
