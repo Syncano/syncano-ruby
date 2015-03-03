@@ -7,6 +7,10 @@ module Syncano
         new response['objects'], scope, element_class, true
       end
 
+      def each(&block)
+        collection.each &block
+      end
+
       private
 
       attr_accessor :collection
@@ -16,10 +20,6 @@ module Syncano
           element_class.new scope.connection, scope.scope_parameters, attributes, true
 
         end
-      end
-
-      def each(&block)
-        collection.each &block
       end
     end
   end
