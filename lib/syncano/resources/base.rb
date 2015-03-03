@@ -6,11 +6,86 @@ module Syncano
 
       PARAMETER_REGEXP = /\{([^}]+)\}/
 
+      class << self
+        def all(connection, scope_parameters, filter_attributes = {})
+          check_resource_method_existance!(:index)
+
+          response = connection.request(:get, collection_path(scope_parameters), filter_attributes)
+          scope = Syncano::Scope.new(connection, scope_parameters)
+          Syncano::Resources::Collection.from_database(response, scope, self)
+        end
+
+        def first(connection, scope_parameters)
+          all(connection, scope_parameters).first
+        end
+
+        def last(connection, scope_parameters)
+          all(connection, scope_parameters).last
+        end
+
+        def find(connection, scope_parameters, pk)
+          check_resource_method_existance!(:show)
+          return unless pk.present?
+
+          response = connection.request(:get, member_path(pk, scope_parameters))
+          new(connection, scope_parameters, response, true)
+        end
+
+        def create(connection, scope_parameters, attributes)
+          check_resource_method_existance!(:create)
+
+          new(connection, scope_parameters, attributes).save
+        end
+
+        def map_attributes_values(attributes)
+          attributes.each do |name, value|
+            attributes[name] = value.to_json if value.is_a?(Array) || value.is_a?(Hash)
+          end
+
+          attributes
+        end
+
+        def extract_scope_parameters(path)
+          return {} if scope_parameters_names.empty?
+
+          pattern = collection_path_schema.sub('/', '\/')
+
+          scope_parameters_names.each do |parameter_name|
+            pattern.sub!("{#{parameter_name}}", '([^\/]+)')
+          end
+
+          pattern = Regexp.new(pattern)
+          parameter_values = path.scan(pattern).first
+
+          Hash[*scope_parameters_names.zip(parameter_values).flatten]
+        end
+
+        def extract_primary_key(path)
+          return nil if path.blank?
+
+          pattern = member_path_schema.gsub('/', '\/')
+
+          scope_parameters_names.each do |parameter_name|
+            pattern.sub!("{#{parameter_name}}", '([^\/]+)')
+          end
+
+          pattern.sub!("{#{primary_key_name}}", '([^\/]+)')
+
+          pattern = Regexp.new(pattern)
+          parameter_values = path.scan(pattern).first
+          parameter_values.last
+        end
+      end
+
       def initialize(connection, scope_parameters, attributes, from_database = false)
         self.connection = connection
         self.scope_parameters = scope_parameters
 
         initialize!(attributes, from_database)
+      end
+
+      def primary_key
+        self.class.extract_primary_key(association_paths[:self])
       end
 
       def new_record?
@@ -19,36 +94,6 @@ module Syncano
 
       def saved?
         !new_record? && !changed?
-      end
-
-      def self.all(connection, scope_parameters, filter_attributes = {})
-        check_resource_method_existance!(:index)
-
-        response = connection.request(:get, collection_path(scope_parameters), filter_attributes)
-        scope = Syncano::Scope.new(connection, scope_parameters)
-        Syncano::Resources::Collection.from_database(response, scope, self)
-      end
-
-      def self.first(connection, scope_parameters)
-        all(connection, scope_parameters).first
-      end
-
-      def self.last(connection, scope_parameters)
-        all(connection, scope_parameters).last
-      end
-
-      def self.find(connection, scope_parameters, pk)
-        check_resource_method_existance!(:show)
-        return unless pk.present?
-
-        response = connection.request(:get, member_path(pk, scope_parameters))
-        new(connection, scope_parameters, response, true)
-      end
-
-      def self.create(connection, scope_parameters, attributes)
-        check_resource_method_existance!(:create)
-
-        new(connection, scope_parameters, attributes).save
       end
 
       def update_attributes(attributes)
@@ -99,45 +144,6 @@ module Syncano
         attributes = self.attributes.select{ |name, _value| self.class.update_writable_attributes.include?(name.to_sym) }
         attributes.merge!(custom_attributes) if respond_to?(:custom_attributes) && custom_attributes.is_a?(Hash)
         self.class.map_attributes_values(attributes)
-      end
-
-      def self.map_attributes_values(attributes)
-        attributes.each do |name, value|
-          attributes[name] = value.to_json if value.is_a?(Array) || value.is_a?(Hash)
-        end
-
-        attributes
-      end
-
-      def self.extract_scope_parameters(path)
-        return {} if scope_parameters_names.empty?
-
-        pattern = collection_path_schema.sub('/', '\/')
-
-        scope_parameters_names.each do |parameter_name|
-          pattern.sub!("{#{parameter_name}}", '([^\/]+)')
-        end
-
-        pattern = Regexp.new(pattern)
-        parameter_values = path.scan(pattern).first
-
-        Hash[*scope_parameters_names.zip(parameter_values).flatten]
-      end
-
-      def self.extract_primary_key(path)
-        return nil if path.blank?
-
-        pattern = member_path_schema.gsub('/', '\/')
-
-        scope_parameters_names.each do |parameter_name|
-          pattern.sub!("{#{parameter_name}}", '([^\/]+)')
-        end
-
-        pattern.sub!("{#{primary_key_name}}", '([^\/]+)')
-
-        pattern = Regexp.new(pattern)
-        parameter_values = path.scan(pattern).first
-        parameter_values.last
       end
 
       private
@@ -281,10 +287,6 @@ module Syncano
 
       def member_path
         self.class.member_path(primary_key, scope_parameters)
-      end
-
-      def primary_key
-        self.class.extract_primary_key(association_paths[:self])
       end
 
       def check_resource_method_existance!(method_name)
