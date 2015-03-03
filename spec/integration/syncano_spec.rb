@@ -4,10 +4,11 @@ WebMock.allow_net_connect!
 
 describe Syncano do
   before(:all) do
-    @api = Syncano.connect(api_key: ENV['INTEGRATION_TEST_API_KEY'])
+    api_key = ENV['INTEGRATION_TEST_API_KEY']
+    @api = Syncano.connect(api_key: api_key)
     @api.instances.all.each &:destroy
 
-    @instance = @api.instances.create(name: 'butchers')
+    @instance = @api.instances.create(name: "a#{api_key}")
   end
 
   it 'should raise an error on not found instance' do
