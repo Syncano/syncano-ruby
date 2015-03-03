@@ -30,6 +30,10 @@ module Syncano
       resource_class.create(connection, scope_parameters, attributes)
     end
 
+    def space(at, options = {})
+      Syncano::Resources::Space.new(at, self, options)
+    end
+
     private
 
     attr_accessor :connection, :resource_class, :scope_parameters

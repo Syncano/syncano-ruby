@@ -14,6 +14,7 @@ require 'syncano/schema'
 require 'syncano/scope'
 require 'syncano/resources/base'
 require 'syncano/resources/collection'
+require 'syncano/resources/space'
 require 'syncano/query_builder'
 require 'syncano/model/base'
 
