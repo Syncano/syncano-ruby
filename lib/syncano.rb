@@ -30,6 +30,8 @@ module Syncano
 
   class Error < StandardError; end
 
+  class RuntimeError < StandardError; end
+
   class ClientError < StandardError
     attr_accessor :body, :original_response
 

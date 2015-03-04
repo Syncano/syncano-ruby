@@ -60,6 +60,16 @@ describe Syncano::QueryBuilder do
   end
 
   describe '.space' do
-    specify { expect(subject.space(double)).to be_a(Syncano::Resources::Space) }
+    let(:options) { double }
+    let(:resource) { double }
+    let(:space) { double }
+
+    before do
+      expect(Syncano::Resources::Space).to receive(:new).with(resource, subject, options).and_return(space)
+    end
+
+    it 'should return a Space object with passed options' do
+      expect(subject.space(resource, options)).to eq(space)
+    end
   end
 end
