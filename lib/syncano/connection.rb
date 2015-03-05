@@ -36,10 +36,10 @@ module Syncano
       body = parse_response(response)
 
       case response
-      when Status.successful
-        self.api_key = body['account_key']
-      when Status.client_error
-        raise ClientError.new(body, response)
+        when Status.successful
+          self.api_key = body['account_key']
+        when Status.client_error
+          raise ClientError.new(body, response)
       end
     end
 
@@ -49,11 +49,11 @@ module Syncano
       response = conn.send(method, path, params)
 
       case response
-      when Status.no_content
-      when Status.successful
-        JSON.parse(response.body)
-      when Status.client_error # TODO figure out if we want to raise an excpetion on not found or not
-        raise ClientError.new(response.body, response)
+        when Status.no_content
+        when Status.successful
+          parse_response response
+        when Status.client_error # TODO figure out if we want to raise an excpetion on not found or not
+          raise ClientError.new(response.body, response)
       end
     end
 
