@@ -33,7 +33,7 @@ module Syncano
 
     def authenticate!
       response = conn.post(AUTH_PATH, email: email, password: password)
-      body = JSON.parse(response.body)
+      body = parse_response(response)
 
       case response
       when Status.successful
@@ -58,6 +58,10 @@ module Syncano
     end
 
     private
+
+    def parse_response(response)
+      JSON.parse(response.body)
+    end
 
     class Status
       class << self
