@@ -171,7 +171,7 @@ describe Syncano::Resources::Base do
   end
 
   describe '.update_attributes' do
-    it "should create update object's attributes in Syncano" do
+    it 'should create update object\'s attributes in Syncano' do
 
     end
   end
