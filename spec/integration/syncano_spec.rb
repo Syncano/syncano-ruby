@@ -53,6 +53,7 @@ describe Syncano do
 
   describe 'working with objects' do
     before do
+      @instance.classes.all.each &:destroy
       @class = @instance.classes.create name: 'account',
                                         schema: [{name: 'currency', type: 'string'},
                                                  {name: 'ballance', type: 'integer'}]
@@ -61,15 +62,17 @@ describe Syncano do
     subject { @class.objects }
 
 
-    specify do
+    specify 'basic operations' do
       expect { subject.create currenct: 'USD', amount: 1337 }.to create_resource
 
-      expect { subject.first.destroy }.to change { resources_count }.to(0)
+      expect { subject.first.destroy }.to destroy_resource
 
+    end
+
+    specify 'paging' do
       104.times { subject.create }
 
       total = 0
-
       all = subject.all
 
       loop do
@@ -82,6 +85,17 @@ describe Syncano do
         end
       end
 
+      expect(total).to eq(104)
+    end
+  end
+
+  describe 'working with codeboxes' do
+    subject { @instance.codeboxes }
+
+
+    specify 'basic operations' do
+      expect { subject.create name: 'df', source: '`whoami`', runtime_name: 'ruby' }.to create_resource
+      expect { subject.first.destroy }.to destroy_resource
     end
   end
 
@@ -91,5 +105,9 @@ describe Syncano do
 
   def create_resource
     change { resources_count }.by(1)
+  end
+
+  def destroy_resource
+    change { resources_count }.to(0)
   end
 end

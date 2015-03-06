@@ -18,6 +18,8 @@ describe Syncano::Schema do
 
   describe 'process!' do
     it 'defintes classes according to the schema' do
+      Syncano::Resources.remove_const :Class if defined? Syncano::Resources::Class
+
       expect { Syncano::Resources::Class }.to raise_error(NameError)
 
       subject.process!
