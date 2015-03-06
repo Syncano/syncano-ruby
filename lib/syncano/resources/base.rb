@@ -190,6 +190,7 @@ module Syncano
       end
 
       def self.map_collection_name_to_resource_class(name)
+        name = 'code_boxes' if name = 'codeboxes'
         map_member_name_to_resource_class(name.singularize)
       end
 
