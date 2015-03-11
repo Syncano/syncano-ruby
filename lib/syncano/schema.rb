@@ -38,11 +38,13 @@ module Syncano
             custom_methods: []
         }
 
-        resources[class_name][:attributes].merge!(resource_schema['properties'])
+        fields = resource_schema['endpoints']['list'].try(:[], 'fields') || {}
 
-        if resource_schema['properties']['links'].present?
+        resources[class_name][:attributes].merge! fields
+
+        if fields['links']
           resources[class_name][:attributes].delete('links')
-          resources[class_name][:associations].merge!(resource_schema['properties']['links'])
+          resources[class_name][:associations].merge!(fields['links'])
         end
 
         resource_schema['endpoints'].each do |type, endpoint|
