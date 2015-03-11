@@ -232,12 +232,32 @@ module Syncano
         ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters).find(pk)
       end
 
+      def custom_method(method_name, config)
+        connection.request self.class.custom_method_http_method(method_name),
+                           self.class.custom_method_path(method_name, primary_key, scope_parameters),
+                           config
+      end
+
+      def self.custom_method_http_method(method_name)
+        custom_method_definition(method_name)[:http_methods].first.to_sym
+      end
+
       def self.collection_path_schema
         resource_definition[:collection][:path].dup
       end
 
       def self.member_path_schema
         resource_definition[:member][:path].dup
+      end
+
+      def self.custom_method_path_schema(method_name)
+        custom_method_definition(method_name)[:path].dup
+      end
+
+      def self.custom_method_definition(method_name)
+        resource_definition[:custom_methods].find do |method_definition|
+          method_definition[:name] == method_name
+        end or raise "No such method #{method_name}"
       end
 
       def self.scope_parameters_names
@@ -258,6 +278,18 @@ module Syncano
 
       def self.primary_key_name
         resource_definition[:member][:path].scan(PARAMETER_REGEXP).last.first if has_member_actions?
+      end
+
+      def self.custom_method_path(name, pk, scope_parameters)
+        path = custom_method_path_schema(name)
+
+        scope_parameters_names.each do |scope_parameter_name|
+          path.sub!("{#{scope_parameter_name}}", scope_parameters[scope_parameter_name])
+        end
+
+        path.sub!("{#{primary_key_name}}", pk.to_s)
+
+        path
       end
 
       def self.collection_path(scope_parameters = {})

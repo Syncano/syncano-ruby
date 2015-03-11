@@ -59,7 +59,7 @@ module Syncano
           elsif type == 'detail'
             resources[class_name][:member] = endpoint_data
           else
-            endpoint_data.merge(name: type)
+            endpoint_data.merge!(name: type)
             resources[class_name][:custom_methods] << endpoint_data
           end
         end
@@ -119,6 +119,10 @@ module Syncano
           elsif association_schema['type'] == 'detail' && association_schema['name'] != 'self'
             define_method(association_schema['name']) do
               belongs_to_association(association_schema['name'])
+            end
+          elsif association_schema['type'] == 'run'
+            define_method(association_schema['name']) do |config = nil|
+              custom_method association_schema['name'], config
             end
           end
         end

@@ -94,8 +94,15 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      expect { subject.create name: 'df', source: '`whoami`', runtime_name: 'ruby' }.to create_resource
-      expect { subject.first.destroy }.to destroy_resource
+      expect { subject.create name: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
+
+      codebox = subject.first
+      codebox.run
+      codebox.source = 'puts 123'
+      codebox.save
+      codebox.run
+
+      expect { codebox.destroy }.to destroy_resource
     end
   end
 
