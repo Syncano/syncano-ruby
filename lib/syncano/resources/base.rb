@@ -190,7 +190,19 @@ module Syncano
       end
 
       def self.map_collection_name_to_resource_class(name)
-        name = 'code_boxes' if name == 'codeboxes'
+
+        name = case name
+                 when 'codeboxes'
+                   'code_boxes'
+                 when 'traces'
+                   case self.name
+                     when 'Syncano::Resources::CodeBox'
+                       'code_box_traces'
+                   end
+                 else
+                   name
+               end
+
         map_member_name_to_resource_class(name.singularize)
       end
 

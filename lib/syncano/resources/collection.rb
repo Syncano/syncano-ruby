@@ -3,7 +3,7 @@ module Syncano
     class Collection
       include Enumerable
 
-      delegate :last, to: :collection
+      delegate :last, :[], to: :collection
 
       def self.from_database(response, scope, element_class)
         new response, scope, element_class, true

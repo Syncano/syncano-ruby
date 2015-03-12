@@ -89,7 +89,7 @@ describe Syncano do
     end
   end
 
-  describe 'working with codeboxes' do
+  describe 'working with codeboxes and traces' do
     subject { @instance.codeboxes }
 
 
@@ -101,6 +101,18 @@ describe Syncano do
       codebox.source = 'puts 123'
       codebox.save
       codebox.run
+
+      traces = codebox.traces.all
+
+      expect(traces.count).to eq(2)
+
+      first = traces[1]
+      expect(first.status).to eq('success')
+      expect(first.result).to eq('1337')
+
+      second = traces[0]
+      expect(second.status).to eq('success')
+      expect(second.result).to eq('123')
 
       expect { codebox.destroy }.to destroy_resource
     end
