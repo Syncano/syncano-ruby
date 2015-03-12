@@ -102,6 +102,7 @@ describe Syncano do
       codebox.save
       codebox.run
 
+      sleep 1
       traces = codebox.traces.all
 
       expect(traces.count).to eq(2)
@@ -113,6 +114,9 @@ describe Syncano do
       second = traces[0]
       expect(second.status).to eq('success')
       expect(second.result).to eq('123')
+
+      # expect { @instance.schedules.create name: 'test', interval_sec: 1, codebox: 'df' }.
+      #     to change { @instance.schedules.all.count }.by(1)
 
       expect { codebox.destroy }.to destroy_resource
     end
