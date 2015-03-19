@@ -71,7 +71,7 @@ module Syncano
     def self.generate_resource_class(name, definition)
       delete_colliding_links definition
 
-      resource_class = new_resource_class(name, definition)
+      resource_class = new_resource_class(definition)
 
       ::Syncano::Resources.const_set(name, resource_class)
     end
@@ -82,7 +82,7 @@ module Syncano
       end
     end
 
-    def self.new_resource_class(name, definition)
+    def self.new_resource_class(definition)
       attributes_definitions = []
 
       definition[:attributes].each do |attribute_name, attribute|
