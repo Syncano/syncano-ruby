@@ -184,6 +184,8 @@ module Syncano
     def self.default_value_for_attribute(attribute)
       if attribute['type'].present? && attribute['type'].to_sym == :field
         {}
+      elsif attribute['type'].present? && attribute['type'].to_sym == :choice
+        attribute['choices'].first['value']
       else
         nil
       end

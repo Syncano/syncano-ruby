@@ -11,7 +11,12 @@ describe Syncano do
   before(:each) do
     @api.instances.all.each &:destroy
     @instance = @api.instances.create(name: "a#{@api_key}")
+    @instance.classes.all.each &:destroy
+    @instance.groups.all.each &:destroy
+    @instance.users.all.each &:delete
   end
+
+  let(:group) { @instance.groups.create name: 'wheel' }
 
   describe 'working with instances' do
     subject { @api.instances }
@@ -30,7 +35,7 @@ describe Syncano do
     subject { @instance.classes }
 
     specify do
-      expect { subject.create name: 'sausage', schema: [{name: 'name', type: 'string' }] }.to create_resource
+      expect { subject.create name: 'sausage', schema: [{name: 'name', type: 'string' }], group: group.primary_key }.to create_resource
 
       new_klass = subject.first
 
@@ -53,8 +58,9 @@ describe Syncano do
 
   describe 'working with objects' do
     before do
-      @instance.classes.all.each &:destroy
+      @owner = @instance.users.create username: 'admin', password: 'dupa.8'
       @class = @instance.classes.create name: 'account',
+                                        group: group.primary_key,
                                         schema: [{name: 'currency', type: 'string'},
                                                  {name: 'ballance', type: 'integer'}]
     end
@@ -63,14 +69,14 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      expect { subject.create currenct: 'USD', amount: 1337 }.to create_resource
+      expect { subject.create currenct: 'USD', amount: 1337, group: group.primary_key, owner: @owner.primary_key }.to create_resource
 
       expect { subject.first.destroy }.to destroy_resource
 
     end
 
     specify 'paging' do
-      104.times { subject.create }
+      104.times { subject.create group: group.primary_key, owner: @owner.primary_key }
 
       total = 0
       all = subject.all
@@ -108,6 +114,7 @@ describe Syncano do
       expect(traces.count).to eq(2)
 
       first = traces[1]
+      
       expect(first.status).to eq('success')
       expect(first.result).to eq('1337')
 
