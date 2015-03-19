@@ -69,9 +69,17 @@ module Syncano
     end
 
     def self.generate_resource_class(name, definition)
+      delete_colliding_links definition
+
       resource_class = new_resource_class(name, definition)
 
       ::Syncano::Resources.const_set(name, resource_class)
+    end
+
+    def self.delete_colliding_links(definition)
+      definition[:attributes].each do |k, v|
+        definition[:associations]['links'].delete_if { |link| link['name'] == k } if definition[:associations]['links']
+      end
     end
 
     def self.new_resource_class(name, definition)

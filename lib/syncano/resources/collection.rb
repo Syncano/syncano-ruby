@@ -29,7 +29,6 @@ module Syncano
         @prev, @next = response['prev'].present?, response['next'].present?
         self.collection = response['objects'].map do |attributes|
           element_class.new scope.connection, scope.scope_parameters, attributes, from_database
-
         end
       end
     end

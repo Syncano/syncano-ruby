@@ -14,6 +14,8 @@ describe Syncano::Schema do
 
   before do
     expect(connection).to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
+
+
   end
 
   describe 'process!' do
@@ -48,6 +50,14 @@ describe Syncano::Schema do
       expect(code_box_instance).to validate_inclusion_of(:runtime_name).
                                              in_array(%w(nodejs ruby python))
 
+    end
+
+    it 'defines foreign keys attributes when attributes names collide with links' do
+      subject.process!
+
+      schedule_instance = Syncano::Resources::Schedule.new connection, {}, links: {}
+
+      expect(schedule_instance).to respond_to(:codebox)
     end
   end
 

@@ -115,8 +115,8 @@ describe Syncano do
       expect(second.status).to eq('success')
       expect(second.result).to eq('123')
 
-      # expect { @instance.schedules.create name: 'test', interval_sec: 1, codebox: 'df' }.
-      #     to change { @instance.schedules.all.count }.by(1)
+      expect { @instance.schedules.create name: 'test', interval_sec: 30, codebox: codebox.primary_key }.
+          to change { @instance.schedules.all.count }.by(1)
 
       expect { codebox.destroy }.to destroy_resource
     end

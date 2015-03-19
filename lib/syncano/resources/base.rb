@@ -186,11 +186,11 @@ module Syncano
       end
 
       def self.map_member_name_to_resource_class(name)
+        name = 'code_box' if name == 'codebox'
         "::Syncano::Resources::#{name.camelize}".constantize
       end
 
       def self.map_collection_name_to_resource_class(name)
-
         name = case name
                  when 'codeboxes'
                    'code_boxes'
