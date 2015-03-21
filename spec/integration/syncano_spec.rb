@@ -75,7 +75,7 @@ describe Syncano do
 
     end
 
-    specify 'paging' do
+    specify 'paging', slow: true do
       104.times { subject.create group: group.primary_key, owner: @owner.primary_key }
 
       total = 0
@@ -95,7 +95,7 @@ describe Syncano do
     end
   end
 
-  describe 'working with codeboxes and traces' do
+  describe 'working with codeboxes traces' do
     subject { @instance.codeboxes }
 
 
@@ -108,13 +108,13 @@ describe Syncano do
       codebox.save
       codebox.run
 
-      sleep 1
+      without_profiling { sleep 1 }
       traces = codebox.traces.all
 
       expect(traces.count).to eq(2)
 
       first = traces[1]
-      
+
       expect(first.status).to eq('success')
       expect(first.result).to eq('1337')
 
@@ -129,6 +129,20 @@ describe Syncano do
     end
   end
 
+  describe 'working with webhooks' do
+    subject { @instance.webhooks }
+
+    let!(:codebox) { @instance.codeboxes.create name: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
+
+    specify do
+      expect { subject.create slug: 'web-wurst', codebox: codebox.primary_key }.to create_resource
+
+      expect(subject.first.run['result']).to eq('currywurst')
+
+      expect { subject.first.destroy }.to destroy_resource
+    end
+  end
+
   def resources_count
     subject.all.count
   end
@@ -139,5 +153,18 @@ describe Syncano do
 
   def destroy_resource
     change { resources_count }.to(0)
+  end
+
+  def without_profiling
+    if defined? RubyProf
+      begin
+        RubyProf.pause if RubyProf.running?
+        yield
+      ensure
+        RubyProf.resume if RubyProf.running?
+      end
+    else
+      yield
+    end
   end
 end

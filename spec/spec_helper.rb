@@ -4,6 +4,7 @@ Bundler.setup
 require 'dotenv'
 Dotenv.load
 
+require 'rspec-prof' if ENV['SPEC_PROFILE']
 require 'syncano'
 require 'webmock/rspec'
 

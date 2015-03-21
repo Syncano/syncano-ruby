@@ -11,6 +11,7 @@ group :test do
   gem 'rspec'
   gem 'webmock'
   gem 'shoulda-matchers', require: false
+  gem 'rspec-prof', git: 'https://github.com/sinisterchipmunk/rspec-prof.git'
 end
 
 group :tools do
