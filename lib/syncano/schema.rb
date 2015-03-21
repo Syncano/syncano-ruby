@@ -1,3 +1,6 @@
+require_relative './schema/attribute_definition'
+require_relative './schema/resource_definition'
+
 module Syncano
   class Schema
     SCHEMA_PATH = 'schema/'
@@ -68,10 +71,11 @@ module Syncano
       self.schema = resources
     end
 
-    def self.generate_resource_class(name, definition)
-      delete_colliding_links definition
+    def self.generate_resource_class(name, definition_hash)
+      delete_colliding_links definition_hash
 
-      resource_class = new_resource_class(definition)
+      resource_definition = ::Syncano::Schema::ResourceDefinition.new(definition_hash)
+      resource_class = new_resource_class(resource_definition)
 
       ::Syncano::Resources.const_set(name, resource_class)
     end

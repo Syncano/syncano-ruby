@@ -15,15 +15,17 @@ describe Syncano::Schema do
   before do
     expect(connection).to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
 
-
+    Syncano::Resources.instance_eval do
+      constants.each do |const|
+        if ![:Base, :Collection, :Space].include?(const) && const_defined?(const)
+          remove_const const
+        end
+      end
+    end
   end
 
   describe 'process!' do
     it 'defintes classes according to the schema' do
-      Syncano::Resources.instance_eval do
-        remove_const :Class if defined? Syncano::Resources::Class
-      end
-
       expect { Syncano::Resources::Class }.to raise_error(NameError)
 
       subject.process!
