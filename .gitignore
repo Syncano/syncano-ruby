@@ -25,3 +25,4 @@ mkmf.log
 .idea/*
 .ruby-gemset
 .env
+profiles
