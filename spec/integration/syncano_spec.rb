@@ -11,7 +11,7 @@ describe Syncano do
   before(:each) do
     @api.instances.all.each &:destroy
     @instance = @api.instances.create(name: "a#{@api_key}")
-    @instance.classes.all.each &:destroy
+    @instance.classes.all.select { |c| c.name != 'user_profile'}.each &:destroy
     @instance.groups.all.each &:destroy
     @instance.users.all.each &:delete
   end
@@ -27,7 +27,6 @@ describe Syncano do
 
     specify do
       subject.create name: 'fafarafa'
-      # expect
     end
   end
 
@@ -37,7 +36,7 @@ describe Syncano do
     specify do
       expect { subject.create name: 'sausage', schema: [{name: 'name', type: 'string' }], group: group.primary_key }.to create_resource
 
-      new_klass = subject.first
+      new_klass = subject.last
 
       expect(new_klass.name).to eq('sausage')
       expect(new_klass.schema).to eq([{'name' => 'name', 'type' => 'string'}])
@@ -46,11 +45,11 @@ describe Syncano do
       new_klass.schema = [{name: 'nombre', type: 'string'}]
 
       saved_class =  new_klass.save
-      expect(resources_count).to eq(1)
+      expect(resources_count).to eq(2)
       expect(saved_class.schema).to eq([{'name' => 'nombre', 'type' => 'string'}])
       expect(saved_class.description).to eq('salchichón')
 
-      from_database = subject.first
+      from_database = subject.last
       expect(from_database.schema).to eq([{'name' => 'nombre', 'type' => 'string'}])
       expect(from_database.description).to eq('salchichón')
     end
@@ -62,7 +61,7 @@ describe Syncano do
       @class = @instance.classes.create name: 'account',
                                         group: group.primary_key,
                                         schema: [{name: 'currency', type: 'string'},
-                                                 {name: 'ballance', type: 'integer'}]
+                                                 {name: 'ballance', type: 'integer', filter_index: true, order_index: true}]
     end
 
     subject { @class.objects }
@@ -72,7 +71,6 @@ describe Syncano do
       expect { subject.create currenct: 'USD', amount: 1337, group: group.primary_key, owner: @owner.primary_key }.to create_resource
 
       expect { subject.first.destroy }.to destroy_resource
-
     end
 
     specify 'paging', slow: true do

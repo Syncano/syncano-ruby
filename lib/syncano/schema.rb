@@ -93,7 +93,7 @@ module Syncano
         attributes_definitions << {
             name: attribute_name,
             type: map_syncano_attribute_type(attribute['type']),
-            default: default_value_for_attribute(attribute),
+            default: attribute_name != 'channel' ? default_value_for_attribute(attribute) : nil,
             presence_validation: attribute['required'],
             length_validation_options: extract_length_validation_options(attribute),
             inclusion_validation_options: extract_inclusion_validation_options(attribute),
