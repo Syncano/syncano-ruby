@@ -68,9 +68,21 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      expect { subject.create currenct: 'USD', amount: 1337, group: group.primary_key, owner: @owner.primary_key }.to create_resource
+      expect { subject.create currency: 'USD', ballance: 1337, group: group.primary_key, owner: @owner.primary_key }.to create_resource
 
-      expect { subject.first.destroy }.to destroy_resource
+      object = subject.first
+
+      expect(object.ballance).to eq(1337)
+      expect(object.currency).to eq('USD')
+
+      object.currency = 'GBP'
+      object.ballance = 54
+      object.save
+
+      expect(object.ballance).to eq(54)
+      expect(object.currency).to eq('GBP')
+
+      expect { object.destroy }.to destroy_resource
     end
 
     specify 'paging', slow: true do
@@ -106,7 +118,7 @@ describe Syncano do
       codebox.save
       codebox.run
 
-      without_profiling { sleep 1 }
+      without_profiling { sleep 5 }
       traces = codebox.traces.all
 
       expect(traces.count).to eq(2)

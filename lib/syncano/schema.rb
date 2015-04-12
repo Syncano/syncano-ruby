@@ -75,7 +75,7 @@ module Syncano
       delete_colliding_links definition_hash
 
       resource_definition = ::Syncano::Schema::ResourceDefinition.new(definition_hash)
-      resource_class = new_resource_class(resource_definition)
+      resource_class = new_resource_class(resource_definition, name)
 
       ::Syncano::Resources.const_set(name, resource_class)
     end
@@ -86,7 +86,7 @@ module Syncano
       end
     end
 
-    def self.new_resource_class(definition)
+    def self.new_resource_class(definition, name)
       attributes_definitions = []
 
       definition[:attributes].each do |attribute_name, attribute|
@@ -119,8 +119,26 @@ module Syncano
           self.update_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:update_writeable]
         end
 
-        if name == 'Object'
+        if name == 'Object' #TODO: extract to a separate module + spec
           attribute :custom_attributes, type: ::Object, default: nil, force_default: true
+
+          def attributes=(new_attributes)
+            super
+
+            self.custom_attributes = new_attributes.select { |k, v| !self.class.attributes.keys.include?(k) }
+          end
+
+          def method_missing(method_name, *args, &block)
+            if method_name.to_s =~ /=$/
+              custom_attributes[method_name.to_s.gsub(/=$/, '')] = args.first
+            else
+              if custom_attributes.has_key? method_name.to_s
+                custom_attributes[method_name]
+              else
+                super
+              end
+            end
+          end
         end
 
         (definition[:associations]['links'] || []).each do |association_schema|

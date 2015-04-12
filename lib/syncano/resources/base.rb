@@ -160,7 +160,7 @@ module Syncano
         self.attributes.clear
         self.attributes = attributes.except!(:links)
 
-        if from_database && self.attributes.keys.include?('custom_attributes')
+        if from_database && self.class.attributes.keys.include?('custom_attributes')
           self.custom_attributes = attributes.select{ |k, v| !self.attributes.keys.include?(k) }
         end
 
