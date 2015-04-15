@@ -60,7 +60,7 @@ describe Syncano do
       @owner = @instance.users.create username: 'admin', password: 'dupa.8'
       @class = @instance.classes.create name: 'account',
                                         group: group.primary_key,
-                                        schema: [{name: 'currency', type: 'string'},
+                                        schema: [{name: 'currency', type: 'string', filter_index: true},
                                                  {name: 'ballance', type: 'integer', filter_index: true, order_index: true}]
     end
 
@@ -83,6 +83,20 @@ describe Syncano do
       expect(object.currency).to eq('GBP')
 
       expect { object.destroy }.to destroy_resource
+    end
+
+    specify 'filtering and ordering' do
+      usd = subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
+      pln = subject.create(currency: 'PLN', ballance: 1600, group: group.primary_key, owner: @owner.primary_key)
+      eur = subject.create(currency: 'EUR', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
+      gbp = subject.create(currency: 'GPB', ballance: 270, group: group.primary_key, owner: @owner.primary_key)
+      chf = subject.create(currency: 'CHF', ballance: 390, group: group.primary_key, owner: @owner.primary_key)
+      uah = subject.create(currency: 'UAH', ballance: 9100, group: group.primary_key, owner: @owner.primary_key)
+      rub = subject.create(currency: 'RUB', group: group.primary_key, owner: @owner.primary_key)
+
+      expect(subject.all(query: { ballance: { _exists: true }}).to_a).to_not include(rub)
+      expect(subject.all(query: { currency: { _in: %w[UAH USD PLN] } }).to_a).to match_array([pln, usd, uah])
+      expect(subject.all(query: { ballance: { _lt: 400, _gte: 270 }}, order_by: '-ballance').to_a).to eq([chf, gbp])
     end
 
     specify 'paging', slow: true do

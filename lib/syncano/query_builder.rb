@@ -7,6 +7,7 @@ module Syncano
     end
 
     def all(filter_attributes = {})
+      filter_attributes[:query] = filter_attributes[:query].to_json if filter_attributes[:query].try(:any?)
       resource_class.all(connection, scope_parameters, filter_attributes)
     end
 
