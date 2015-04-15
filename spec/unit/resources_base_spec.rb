@@ -82,7 +82,8 @@ describe Syncano::Resources::Base do
                                          'patch',
                                          'delete'],
                        :params => ['name']},
-           :custom_methods => []}
+           :custom_methods => []},
+          'some_name'
     )
   end
 
