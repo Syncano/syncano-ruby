@@ -8,6 +8,7 @@ describe Syncano::Connection do
   end
 
   describe '#request' do
+    let(:headers) { { 'X-Api-Key'=>'87a7da987da98sd7a98', 'User-Agent' => "Syncano Ruby Gem #{Syncano::VERSION}" } }
     let(:api_key) { '87a7da987da98sd7a98' }
 
     subject { described_class.new(api_key: api_key) }
@@ -22,7 +23,7 @@ describe Syncano::Connection do
     context 'called with supported method' do
       before do
         stub_request(:get, endpoint_uri('somepath/')).
-          with(headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+          with(headers: headers).
           to_return(body: generate_body(some: 'response'))
       end
 
@@ -35,7 +36,7 @@ describe Syncano::Connection do
       before do
         stub_request(:post, endpoint_uri('instances/')).
           with(body: { 'name' => 'koza' },
-               headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+               headers: headers).
           to_return(body: generate_body({name: ['This field can not be "koza"']}),
                     status: 400)
       end
@@ -49,7 +50,7 @@ describe Syncano::Connection do
     context 'successful returning empty body' do
       before do
         stub_request(:delete, endpoint_uri('instances/kiszonka/')).
-          with(headers: {'X-Api-Key'=>'87a7da987da98sd7a98'}).
+          with(headers: headers).
           to_return(body: nil, status: 204)
       end
 
