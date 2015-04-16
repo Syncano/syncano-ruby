@@ -53,8 +53,12 @@ module Syncano
         when Status.no_content
         when Status.successful
           parse_response response
-        when Status.client_error # TODO figure out if we want to raise an excpetion on not found or not
+        when Status.client_error # TODO figure out if we want to raise an exception on not found or not
           raise ClientError.new(response.body, response)
+        when Status.server_error
+          raise ServerError.new(response.body, response)
+        else
+          raise UnsupportedStatusError.new(response)
       end
     end
 
@@ -76,6 +80,10 @@ module Syncano
 
         def no_content
           ->(response) { response.status == 204 }
+        end
+
+        def server_error
+          ->(response) { response.status >= 500 }
         end
       end
     end

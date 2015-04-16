@@ -32,7 +32,7 @@ describe Syncano::Connection do
       end
     end
 
-    context 'called with supported method returning an error' do
+    context 'called with supported method returning a a client error' do
       before do
         stub_request(:post, endpoint_uri('instances/')).
           with(body: { 'name' => 'koza' },
@@ -44,6 +44,28 @@ describe Syncano::Connection do
       specify do
         expect { subject.request(:post, '/v1/instances/', { name: "koza" }) }.
             to raise_error(Syncano::ClientError)
+      end
+    end
+
+    context 'returning a server error' do
+      before do
+        stub_request(:get, endpoint_uri('error_prone/')).
+          to_return(body: 'An error occured', status: 500)
+      end
+
+      specify do
+        expect { subject.request(:get, endpoint_uri('error_prone/'), nil) }.
+          to raise_error(Syncano::ServerError)
+      end
+    end
+
+    context 'returning unsupported status code' do
+      before do
+        stub_request(:get, endpoint_uri('weird/')).to_return(body: 'O HAI!', status: 101)
+      end
+
+      specify do
+        expect { subject.request(:get, endpoint_uri('weird/')) }.to raise_error(Syncano::UnsupportedStatusError)
       end
     end
 

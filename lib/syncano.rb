@@ -32,7 +32,7 @@ module Syncano
 
   class RuntimeError < StandardError; end
 
-  class ClientError < StandardError
+  class HTTPError < StandardError
     attr_accessor :body, :original_response
 
     def initialize(body, original_response)
@@ -42,6 +42,23 @@ module Syncano
 
     def inspect
       "<#{self.class.name} #{body} #{original_response}>"
+    end
+
+    alias :to_s :inspect
+  end
+
+  class ClientError < HTTPError; end
+  class ServerError < HTTPError; end
+
+  class UnsupportedStatusError < StandardError
+    attr_accessor :original_response
+
+    def initialize(original_response)
+      self.original_response = original_response
+    end
+
+    def inspect
+      "The server returned unsupported status code #{original_response.status}"
     end
 
     alias :to_s :inspect
