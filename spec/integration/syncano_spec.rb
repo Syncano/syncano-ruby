@@ -10,7 +10,7 @@ describe Syncano do
 
   before(:each) do
     @api.instances.all.each &:destroy
-    @instance = @api.instances.create(name: "a#{@api_key}")
+    @instance = @api.instances.create(name: "a#{SecureRandom.hex(24)}")
     @instance.classes.all.select { |c| c.name != 'user_profile'}.each &:destroy
     @instance.groups.all.each &:destroy
     @instance.users.all.each &:delete
