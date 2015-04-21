@@ -1,9 +1,19 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'rake/testtask'
+require 'cane/rake_task'
+
 
 RSpec::Core::RakeTask.new(:spec)
 task default: [:ci]
+
+desc 'Run cane to check quality metrics'
+Cane::RakeTask.new(:quality) do |cane|
+  cane.abc_max = 10
+  cane.add_threshold 'coverage/covered_percent', :>=, 99
+  cane.no_style = true
+  cane.format = 'html'
+end
 
 desc 'Run specs in isolation'
 task :"spec:isolation" do
@@ -13,7 +23,7 @@ task :"spec:isolation" do
 end
 
 desc 'Run CI tasks'
-task ci: [:spec, :lint, :"spec:isolation"]
+task ci: [:spec, :lint, :"spec:isolation", :quality]
 
 Rake::TestTask.new(:lint) do |test|
   test.description = 'Run adapter lint tests against memory adapter'
