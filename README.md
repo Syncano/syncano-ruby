@@ -5,7 +5,7 @@
 
 From source:
 
-```
+```bash
 $ git clone https://github.com/Syncano/syncano-ruby.git
 $ cd syncano-ruby
 $ git checkout release/4.0
@@ -19,20 +19,19 @@ After installation, you have to set a path for api root for syncano.
 
 If you want to use staging, export:
 
-```
+```bash
 $ export API_ROOT=https://v4.hydraengine.com
 ```
 
 If you're less adventurous, use our production api servers:
 
-```
+```bash
 $ export=API_ROOT=https://api.syncano.io
-
 ```
 
 Ok, now we can start coding!
 
-```
+```ruby
 # import syncano
 require 'syncano'
 
