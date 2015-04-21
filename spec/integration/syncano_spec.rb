@@ -99,6 +99,19 @@ describe Syncano do
       expect(subject.all(query: { ballance: { _lt: 400, _gte: 270 }}, order_by: '-ballance').to_a).to eq([chf, gbp])
     end
 
+    specify 'fetching only specific fields' do
+      usd = subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
+
+      account = subject.all(fields: 'currency').first
+      expect { account.currency }.to_not raise_error
+      expect { account.ballance }.to raise_error(NoMethodError)
+
+
+      account = subject.all(excluded_fields: 'currency').first
+      expect { account.currency }.to raise_error(NoMethodError)
+      expect { account.ballance }.to_not raise_error
+    end
+
     specify 'paging', slow: true do
       104.times { subject.create group: group.primary_key, owner: @owner.primary_key }
 
