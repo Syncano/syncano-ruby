@@ -3,14 +3,10 @@
 
 ## Installation
 
-From source:
+Using gems:
 
 ```
-$ git clone https://github.com/Syncano/syncano-ruby.git
-$ cd syncano-ruby
-$ git checkout release/4.0
-$ gem install bundler -v 1.7
-$ bundle install
+$ gem install syncano --pre
 ```
 
 ## First steps
