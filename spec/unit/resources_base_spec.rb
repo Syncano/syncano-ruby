@@ -5,7 +5,7 @@ require 'rspec/expectations'
 
 describe Syncano::Resources::Base do
   subject do
-    Syncano::Schema.send(:new_resource_class,
+    Syncano::Resources.new_resource_class(
           {:attributes => {'name' => {'read_only' => false,
                                       'primary_key' => true,
                                       'required' => true,
