@@ -1,5 +1,51 @@
 # Syncano 4.0 ruby gem
 
+
+## Installation
+
+From source:
+
+```
+$ git clone https://github.com/Syncano/syncano-ruby.git
+$ cd syncano-ruby
+$ git checkout release/4.0
+$ gem install bundler -v 1.7
+$ bundle install
+```
+
+## First steps
+
+After installation, you have to set a path for api root for syncano.
+
+If you want to use staging, export:
+
+```
+$ export API_ROOT=https://v4.hydraengine.com
+```
+
+If you're less adventurous, use our production api servers:
+
+```
+$ export=API_ROOT=https://api.syncano.io
+
+```
+
+Ok, now we can start coding!
+
+```
+# import syncano
+require 'syncano'
+
+# set your api key
+api_key='your-api-key'
+
+# connect to syncano
+connection = Syncano.connect(api_key: api_key)
+
+# use syncano to do cool stuff - here printing names of all your instances
+connection.instances.all.each { |instance| puts instance }
+```
+
 ## Contributing
 
 1. Fork it
