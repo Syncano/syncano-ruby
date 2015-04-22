@@ -106,9 +106,9 @@ module Syncano
 
       def save
         # TODO: Call validation here
-        apply_forced_defaults!
 
         if new_record?
+          apply_forced_defaults!
           response = connection.request(:post, collection_path, select_create_attributes)
         else
           response = connection.request(:patch, member_path, select_update_attributes)
