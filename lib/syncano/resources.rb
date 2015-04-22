@@ -11,8 +11,8 @@ module Syncano
         definition[:attributes].each do |attribute_name, attribute|
           attributes_definitions << {
               name: attribute_name,
-              type: map_syncano_attribute_type(attribute['type']),
-              default: attribute_name != 'channel' ? default_value_for_attribute(attribute) : nil,
+              type: map_syncano_attribute_type(attribute['type'], attribute_name),
+              default: attribute_name == 'channel' ? nil : default_value_for_attribute(attribute),
               presence_validation: attribute['required'],
               length_validation_options: extract_length_validation_options(attribute),
               inclusion_validation_options: extract_inclusion_validation_options(attribute),
@@ -97,7 +97,9 @@ module Syncano
         { in: choices.map { |choice| choice['value'] } }
       end
 
-      def map_syncano_attribute_type(type)
+      def map_syncano_attribute_type(type, name)
+        return ::Integer if %w[owner group].include? name
+
         mapping = HashWithIndifferentAccess.new(
           string: ::String,
           email: ::String,
