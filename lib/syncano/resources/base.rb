@@ -7,20 +7,20 @@ module Syncano
       PARAMETER_REGEXP = /\{([^}]+)\}/
 
       class << self
-        def all(connection, scope_parameters, filter_attributes = {})
+        def all(connection, scope_parameters, query_params = {})
           check_resource_method_existance!(:index)
 
-          response = connection.request(:get, collection_path(scope_parameters), filter_attributes)
+          response = connection.request(:get, collection_path(scope_parameters), query_params)
           scope = Syncano::Scope.new(connection, scope_parameters)
           Syncano::Resources::Collection.from_database(response, scope, self)
         end
 
-        def first(connection, scope_parameters)
-          all(connection, scope_parameters).first
+        def first(connection, scope_parameters, query_params = {})
+          all(connection, scope_parameters, query_params).first
         end
 
-        def last(connection, scope_parameters)
-          all(connection, scope_parameters).last
+        def last(connection, scope_parameters, query_params = {})
+          all(connection, scope_parameters, query_params).last
         end
 
         def find(connection, scope_parameters, pk)

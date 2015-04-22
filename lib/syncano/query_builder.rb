@@ -6,17 +6,17 @@ module Syncano
       self.scope_parameters = scope_parameters
     end
 
-    def all(filter_attributes = {})
-      filter_attributes[:query] = filter_attributes[:query].to_json if filter_attributes[:query].try(:any?)
-      resource_class.all(connection, scope_parameters, filter_attributes)
+    def all(query_params = {})
+      query_params[:query] = query_params[:query].to_json if query_params[:query].try(:any?)
+      resource_class.all(connection, scope_parameters, query_params)
     end
 
-    def first
-      resource_class.first(connection, scope_parameters)
+    def first(query_params = {})
+      resource_class.first(connection, scope_parameters, query_params)
     end
 
-    def last
-      resource_class.last(connection, scope_parameters)
+    def last(query_params = {})
+      resource_class.last(connection, scope_parameters, query_params)
     end
 
     def find(key = nil)
