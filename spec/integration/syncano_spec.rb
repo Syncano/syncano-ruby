@@ -101,7 +101,7 @@ describe Syncano do
       yuan = subject.first
 
       expect(yuan.currency).to eq('RMB')
-      expect(yuan.ballance).to eq(10000)
+      expect(yuan.ballance).to eq(100000)
     end
 
     specify 'filtering and ordering' do

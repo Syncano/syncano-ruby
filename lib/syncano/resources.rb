@@ -42,10 +42,26 @@ module Syncano
 
 
           if name == 'Object' #TODO: extract to a separate module + spec
+            def initialize!(_attributes, _from_database)
+              to_return = super
+
+              custom_attributes.clean_up!
+
+              to_return
+            end
+
             def attributes=(new_attributes)
               super
 
               self.custom_attributes = new_attributes.select { |k, v| !self.class.attributes.keys.include?(k) }
+            end
+
+            def attributes
+              super.merge custom_attributes
+            end
+
+            def changed
+              super + custom_attributes.changes.keys
             end
 
             def custom_attributes
