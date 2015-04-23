@@ -58,11 +58,13 @@ module Syncano
             end
 
             def method_missing(method_name, *args, &block)
-              if method_name.to_s =~ /=$/
-                custom_attributes[method_name.to_s.gsub(/=$/, '')] = args.first
+              method_name = method_name.to_s
+
+              if method_name =~ /=$/
+                custom_attributes[method_name.gsub(/=$/, '')] = args.first
               else
-                if custom_attributes.has_key? method_name.to_s
-                  custom_attributes[method_name.to_s]
+                if custom_attributes.has_key? method_name
+                  custom_attributes[method_name]
                 else
                   super
                 end
