@@ -136,13 +136,13 @@ module Syncano
 
       def select_create_attributes
         attributes = self.attributes.select { |name, _value| self.class.create_writable_attributes.include?(name.to_sym) }
-        attributes.merge!(custom_attributes) if respond_to?(:custom_attributes) && custom_attributes.is_a?(Hash)
+        attributes = custom_attributes.merge(attributes) if respond_to?(:custom_attributes)
         self.class.map_attributes_values(attributes)
       end
 
       def select_update_attributes
         attributes = self.attributes.select{ |name, _value| self.class.update_writable_attributes.include?(name.to_sym) }
-        attributes.merge!(custom_attributes) if respond_to?(:custom_attributes) && custom_attributes.is_a?(Hash)
+        attributes = custom_attributes.merge(attributes) if respond_to?(:custom_attributes)
         self.class.map_attributes_values(attributes)
       end
 

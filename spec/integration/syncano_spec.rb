@@ -85,6 +85,25 @@ describe Syncano do
       expect { object.destroy }.to destroy_resource
     end
 
+
+    specify 'PATH and POST' do
+      subject.create currency: 'CNY', ballance: 98123, group: group.primary_key, owner: @owner.primary_key
+
+      yuan = subject.first
+      new_yuan = subject.first
+
+      yuan.ballance = 100000
+      yuan.save
+
+      new_yuan.currency = 'RMB'
+      new_yuan.save
+
+      yuan = subject.first
+
+      expect(yuan.currency).to eq('RMB')
+      expect(yuan.ballance).to eq(10000)
+    end
+
     specify 'filtering and ordering' do
       usd = subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
       pln = subject.create(currency: 'PLN', ballance: 1600, group: group.primary_key, owner: @owner.primary_key)
@@ -107,7 +126,7 @@ describe Syncano do
       expect { account.ballance }.to raise_error(NoMethodError)
 
 
-      account = subject.all(excluded_fields: 'currency').first
+      account = subject.first(excluded_fields: 'currency')
       expect { account.currency }.to raise_error(NoMethodError)
       expect { account.ballance }.to_not raise_error
     end

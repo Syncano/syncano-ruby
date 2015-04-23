@@ -1,3 +1,5 @@
+require 'dirty_hashy'
+
 module Syncano
   module Resources
     class << self
@@ -38,13 +40,21 @@ module Syncano
             self.update_writable_attributes << attribute_definition[:name].to_sym if attribute_definition[:update_writeable]
           end
 
-          if name == 'Object' #TODO: extract to a separate module + spec
-            attribute :custom_attributes, type: ::Object, default: nil, force_default: true
 
+          if name == 'Object' #TODO: extract to a separate module + spec
             def attributes=(new_attributes)
               super
 
               self.custom_attributes = new_attributes.select { |k, v| !self.class.attributes.keys.include?(k) }
+            end
+
+            def custom_attributes
+              @custom_attributes ||= DirtyHashy.new
+            end
+
+            def custom_attributes=(value)
+              @custom_attributes = value.is_a?(DirtyHashy) ?
+                value : DirtyHashy.new(value)
             end
 
             def method_missing(method_name, *args, &block)
@@ -52,7 +62,7 @@ module Syncano
                 custom_attributes[method_name.to_s.gsub(/=$/, '')] = args.first
               else
                 if custom_attributes.has_key? method_name.to_s
-                  custom_attributes[method_name]
+                  custom_attributes[method_name.to_s]
                 else
                   super
                 end
