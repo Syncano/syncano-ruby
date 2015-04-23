@@ -23,14 +23,14 @@ describe Syncano::QueryBuilder do
 
   describe '.first' do
     specify do
-      expect(resource_class).to receive(:first).with(connection, scope_parameters)
+      expect(resource_class).to receive(:first).with(connection, scope_parameters, {})
       subject.first
     end
   end
 
   describe '.last' do
     specify do
-      expect(resource_class).to receive(:last).with(connection, scope_parameters)
+      expect(resource_class).to receive(:last).with(connection, scope_parameters, {})
       subject.last
     end
   end
