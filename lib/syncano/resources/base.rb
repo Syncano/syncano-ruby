@@ -111,7 +111,7 @@ module Syncano
           apply_forced_defaults!
           response = connection.request(:post, collection_path, select_create_attributes)
         else
-          response = connection.request(:patch, member_path, select_changed_attributes)
+          response = connection.request(:patch, member_path, select_update_attributes)
         end
 
         initialize!(response, true)
