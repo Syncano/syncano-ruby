@@ -111,7 +111,7 @@ module Syncano
           apply_forced_defaults!
           response = connection.request(:post, collection_path, select_create_attributes)
         else
-          response = connection.request(:patch, member_path, select_update_attributes)
+          response = connection.request(:patch, member_path, select_changed_attributes)
         end
 
         initialize!(response, true)
@@ -147,11 +147,14 @@ module Syncano
       end
 
       def select_changed_attributes
-        attributes.select { |k, _v| changed.include? k }
+        updatable_attributes
       end
 
       def updatable_attributes
-        self.attributes.select { |name, _value| self.class.update_writable_attributes.include?(name.to_sym) }
+        attributes = self.attributes.select do |name, _value|
+          self.class.update_writable_attributes.include?(name.to_sym)
+        end
+        self.class.map_attributes_values attributes
       end
 
       private

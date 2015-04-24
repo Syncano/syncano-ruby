@@ -119,7 +119,7 @@ describe Syncano do
     end
 
     specify 'fetching only specific fields' do
-      usd = subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
+      subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
 
       account = subject.all(fields: 'currency').first
       expect { account.currency }.to_not raise_error

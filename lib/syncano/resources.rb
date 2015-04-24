@@ -50,6 +50,13 @@ module Syncano
               to_return
             end
 
+            def select_changed_attributes
+              custom_attributes.changes.inject(super) do |changed, (key, (_was, is))|
+                changed[key] = is
+                changed
+              end
+            end
+
             def attributes=(new_attributes)
               super
 
@@ -74,13 +81,11 @@ module Syncano
             end
 
             def method_missing(method_name, *args, &block)
-              method_name = method_name.to_s
-
-              if method_name =~ /=$/
-                custom_attributes[method_name.gsub(/=$/, '')] = args.first
+              if method_name.to_s =~ /=$/
+                custom_attributes[method_name.to_s.gsub(/=$/, '')] = args.first
               else
-                if custom_attributes.has_key? method_name
-                  custom_attributes[method_name]
+                if custom_attributes.has_key? method_name.to_s
+                  custom_attributes[method_name.to_s]
                 else
                   super
                 end
