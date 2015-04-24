@@ -87,7 +87,7 @@ describe Syncano do
 
 
     specify 'PATH and POST' do
-      subject.create currency: 'CNY', ballance: 98123, group: group.primary_key, owner: @owner.primary_key
+      initial_yuan = subject.create currency: 'CNY', ballance: 98123, group: group.primary_key, owner: @owner.primary_key
 
       yuan = subject.first
       new_yuan = subject.first
@@ -102,6 +102,12 @@ describe Syncano do
 
       expect(yuan.currency).to eq('RMB')
       expect(yuan.ballance).to eq(100000)
+
+      initial_yuan.save(overwrite: true)
+      yuan.reload!
+
+      expect(yuan.currency).to eq('CNY')
+      expect(yuan.ballance).to eq(98123)
     end
 
     specify 'filtering and ordering' do

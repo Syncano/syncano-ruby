@@ -28,9 +28,17 @@ module Syncano
           self.update_writable_attributes = []
 
           attributes_definitions.each do |attribute_definition|
-            attribute attribute_definition[:name], type: attribute_definition[:type], default: attribute_definition[:default], force_default: !attribute_definition[:default].nil?
-            validates attribute_definition[:name], presence: true if attribute_definition[:presence_validation]
-            validates attribute_definition[:name], length: attribute_definition[:length_validation_options]
+            attribute attribute_definition[:name],
+                      type: attribute_definition[:type],
+                      default: attribute_definition[:default],
+                      force_default: !attribute_definition[:default].nil?
+            if attribute_definition[:presence_validation]
+              validates attribute_definition[:name],
+                        presence: true
+            end
+
+            validates attribute_definition[:name],
+                      length: attribute_definition[:length_validation_options]
 
             if attribute_definition[:inclusion_validation_options]
               validates attribute_definition[:name], inclusion: attribute_definition[:inclusion_validation_options]
@@ -42,7 +50,19 @@ module Syncano
 
 
           if name == 'Object' #TODO: extract to a separate module + spec
-            def initialize!(_attributes, _from_database)
+            def save(options = {})
+              options.assert_valid_keys :overwrite
+              overwrite = options[:overwrite] == true
+
+              if new_record? || !overwrite
+                super()
+              else
+                response = connection.request(:post, member_path, attributes)
+                initialize! response, true
+              end
+            end
+
+            def initialize!(_attributes = {}, _from_database = false)
               to_return = super
 
               custom_attributes.clean_up!
@@ -144,7 +164,7 @@ module Syncano
           datetime: ::DateTime,
           field: ::Object)
 
-        type.present? ? mapping[type] : Object
+        type.present? ? mapping[type] : ::Object
       end
 
       def default_value_for_attribute(attribute)
