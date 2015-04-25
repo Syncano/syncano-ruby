@@ -22,7 +22,8 @@ require 'syncano/model/base'
 module Syncano
   class << self
     def connect(options = {})
-      connection = Connection.new(options)
+      connection = Connection.new(
+          options.reverse_merge(api_key: ENV['SYNCANO_API_KEY']))
       connection.authenticate! unless connection.authenticated?
 
       API.new connection
