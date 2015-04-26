@@ -15,6 +15,7 @@ module Syncano
     def process!
       schema.each do |resource_name, resource_definition|
         self.class.generate_resource_class(resource_name, resource_definition)
+
         if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
           self.class.generate_client_method(resource_name)
         end

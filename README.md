@@ -28,18 +28,41 @@ $ export=API_ROOT=https://api.syncano.io
 Ok, now we can start coding!
 
 ```ruby
-# import syncano
 require 'syncano'
 
-# set your api key
-api_key='your-api-key'
+syncano = Syncano.connect(api_key: 'your-api-key')
 
-# connect to syncano
-connection = Syncano.connect(api_key: api_key)
-
-# use syncano to do cool stuff - here printing names of all your instances
-connection.instances.all.each { |instance| puts instance }
+syncano.instances.all.each { |instance| puts instance }
 ```
+
+You can either pass your API key to the connect method as above or set
+`ENV['SYNCANO_API_KEY']` and call just `Syncano.connect`.
+
+## API basics
+
+Syncano API is a nested API - all the endpointes are scoped by an instances, ex.
+codeboxes path is `/instance/your_instance_name/codeboxes/`. Syncano instances
+is more less a schema is in relation databases. **Your instance name must be
+unique across all existing Syncano instnaces, not only limitted to your account.**
+
+#groups 
+
+
+# Working with instances
+
+In order to do anything with Syncano, you have to create an instances. Choose a
+globally unique name and call:
+
+```ruby
+instances = syncano.instances.create name: 'my_instances_name'       
+```
+
+# Working with classes and objects
+
+In order to save objects in Syncano, first you need to create a class. A class
+defines objects' attributes in class' schema. 
+
+
 
 ## Contributing
 
