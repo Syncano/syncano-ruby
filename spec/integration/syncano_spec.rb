@@ -16,8 +16,6 @@ describe Syncano do
     @instance.users.all.each &:delete
   end
 
-  let(:group) { @instance.groups.create name: 'wheel' }
-
   describe 'working with instances' do
     subject { @api.instances }
 
@@ -34,7 +32,7 @@ describe Syncano do
     subject { @instance.classes }
 
     specify do
-      expect { subject.create name: 'sausage', schema: [{name: 'name', type: 'string' }], group: group.primary_key }.to create_resource
+      expect { subject.create name: 'sausage', schema: [{name: 'name', type: 'string' }] }.to create_resource
 
       new_klass = subject.last
 
@@ -57,9 +55,7 @@ describe Syncano do
 
   describe 'working with objects' do
     before do
-      @owner = @instance.users.create username: 'admin', password: 'dupa.8'
       @class = @instance.classes.create name: 'account',
-                                        group: group.primary_key,
                                         schema: [{name: 'currency', type: 'string', filter_index: true},
                                                  {name: 'ballance', type: 'integer', filter_index: true, order_index: true}]
     end
@@ -68,7 +64,7 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      expect { subject.create currency: 'USD', ballance: 1337, group: group.primary_key, owner: @owner.primary_key }.to create_resource
+      expect { subject.create currency: 'USD', ballance: 1337 }.to create_resource
 
       object = subject.first
 
@@ -87,7 +83,7 @@ describe Syncano do
 
 
     specify 'PATH and POST' do
-      initial_yuan = subject.create currency: 'CNY', ballance: 98123, group: group.primary_key, owner: @owner.primary_key
+      initial_yuan = subject.create currency: 'CNY', ballance: 98123
 
       yuan = subject.first
       new_yuan = subject.first
@@ -111,13 +107,13 @@ describe Syncano do
     end
 
     specify 'filtering and ordering' do
-      usd = subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
-      pln = subject.create(currency: 'PLN', ballance: 1600, group: group.primary_key, owner: @owner.primary_key)
-      eur = subject.create(currency: 'EUR', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
-      gbp = subject.create(currency: 'GPB', ballance: 270, group: group.primary_key, owner: @owner.primary_key)
-      chf = subject.create(currency: 'CHF', ballance: 390, group: group.primary_key, owner: @owner.primary_key)
-      uah = subject.create(currency: 'UAH', ballance: 9100, group: group.primary_key, owner: @owner.primary_key)
-      rub = subject.create(currency: 'RUB', group: group.primary_key, owner: @owner.primary_key)
+      usd = subject.create(currency: 'USD', ballance: 400)
+      pln = subject.create(currency: 'PLN', ballance: 1600)
+      eur = subject.create(currency: 'EUR', ballance: 400)
+      gbp = subject.create(currency: 'GPB', ballance: 270)
+      chf = subject.create(currency: 'CHF', ballance: 390)
+      uah = subject.create(currency: 'UAH', ballance: 9100)
+      rub = subject.create(currency: 'RUB')
 
       expect(subject.all(query: { ballance: { _exists: true }}).to_a).to_not include(rub)
       expect(subject.all(query: { currency: { _in: %w[UAH USD PLN] } }).to_a).to match_array([pln, usd, uah])
@@ -125,7 +121,7 @@ describe Syncano do
     end
 
     specify 'fetching only specific fields' do
-      subject.create(currency: 'USD', ballance: 400, group: group.primary_key, owner: @owner.primary_key)
+      subject.create(currency: 'USD', ballance: 400)
 
       account = subject.all(fields: 'currency').first
       expect { account.currency }.to_not raise_error
@@ -138,7 +134,7 @@ describe Syncano do
     end
 
     specify 'paging', slow: true do
-      104.times { subject.create group: group.primary_key, owner: @owner.primary_key }
+      104.times { subject.create }
 
       total = 0
       all = subject.all
