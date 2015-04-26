@@ -26,7 +26,7 @@ describe Syncano do
     end
 
     specify do
-      subject.create name: 'fafarafa'
+      subject.create name: 'fafarafaa'
     end
   end
 

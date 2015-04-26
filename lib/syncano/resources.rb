@@ -3,11 +3,11 @@ require 'dirty_hashy'
 module Syncano
   module Resources
     class << self
-      def define_resource(name, resource_definition)
-        const_set name, new_resource_class(resource_definition, name)
+      def define_resource_class(resource_definition)
+        const_set resource_definition.name, new_resource_class(resource_definition)
       end
 
-      def new_resource_class(definition, name)
+      def new_resource_class(definition)
         attributes_definitions = []
 
         definition[:attributes].each do |attribute_name, attribute|
@@ -49,7 +49,7 @@ module Syncano
           end
 
 
-          if name == 'Object' #TODO: extract to a separate module + spec
+          if definition.name == 'Object' #TODO: extract to a separate module + spec
             def save(options = {})
               options.assert_valid_keys :overwrite
               overwrite = options[:overwrite] == true

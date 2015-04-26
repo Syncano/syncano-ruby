@@ -13,11 +13,12 @@ module Syncano
     end
 
     def process!
-      schema.each do |resource_name, resource_definition|
-        self.class.generate_resource_class(resource_name, resource_definition)
+      schema.each do |name, raw_resource_definition|
+        resource_definition = Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
+        resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
 
         if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          self.class.generate_client_method(resource_name)
+          self.class.generate_client_method(name, resource_class)
         end
       end
     end
@@ -73,26 +74,11 @@ module Syncano
     end
 
     class << self
-      def generate_client_method(resource_name)
+      def generate_client_method(resource_name, resource_class)
         method_name = resource_name.tableize
-        resource_class = "::Syncano::Resources::#{resource_name}".constantize
 
         ::Syncano::API.send(:define_method, method_name) do
           ::Syncano::QueryBuilder.new(connection, resource_class)
-        end
-      end
-
-      def generate_resource_class(name, definition_hash)
-        delete_colliding_links definition_hash
-
-        resource_definition = ::Syncano::Schema::ResourceDefinition.new(definition_hash)
-
-        ::Syncano::Resources.define_resource name, resource_definition
-      end
-
-      def delete_colliding_links(definition)
-        definition[:attributes].each do |k, v|
-          definition[:associations]['links'].delete_if { |link| link['name'] == k } if definition[:associations]['links']
         end
       end
     end
