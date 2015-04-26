@@ -134,8 +134,26 @@ module Syncano
         initialize!(response)
       end
 
+      def attribute_definitions
+        self.class.resource_definition.attributes
+      end
+
+      def attribute_definitions_map
+        Hash[ attribute_definitions.map { |attr| [attr.name, attr] } ]
+      end
+
       def select_create_attributes
-        attributes = self.attributes.select { |name, _value| self.class.create_writable_attributes.include?(name.to_sym) }
+        attributes = self.attributes.select { |name, _|
+          begin
+            attribute_definitions_map[name].writable?
+          rescue NoMethodError
+            if custom_attributes.has_key?(name)
+              true
+            else
+              raise
+            end
+          end
+        }
         attributes = custom_attributes.merge(attributes) if respond_to?(:custom_attributes)
         self.class.map_attributes_values(attributes)
       end

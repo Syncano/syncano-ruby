@@ -12,7 +12,7 @@ module Syncano
         self.name = name
 
         self.attributes = raw_defitnition[:attributes].map do |name, raw_attribute_definition|
-          AttributeDefinition.new name, raw_attribute_definition
+          Syncano::Schema::AttributeDefinition.new name, raw_attribute_definition
         end
       end
 
