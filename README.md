@@ -45,10 +45,8 @@ codeboxes path is `/instance/your_instance_name/codeboxes/`. Syncano instances
 is more less a schema is in relation databases. **Your instance name must be
 unique across all existing Syncano instnaces, not only limitted to your account.**
 
-#groups 
 
-
-# Working with instances
+# Instances
 
 In order to do anything with Syncano, you have to create an instances. Choose a
 globally unique name and call:
@@ -60,7 +58,7 @@ instance.first
 #=> #<Syncano::Resources::Instance created_at: Sun, 26 Apr 2015 18:09:46 +0000, description: "", metadata: {}, name: "my_instance_name", owner: nil, role: "full", updated_at: Sun, 26 Apr 2015 18:09:46 +0000>
 ```
 
-# Working with classes and objects
+# Classes and objects
 
 In order to save objects in Syncano, first you need to create a class. A class
 defines objects' attributes in the class' schema. The attribute definition has two
@@ -115,7 +113,7 @@ Now it matches the query and appears in the result.
 
 # Webhooks
 
-# Schedule
+# Schedules
 
 ## Contributing
 
