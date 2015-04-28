@@ -10,19 +10,6 @@ module Syncano
       def new_resource_class(definition)
         attributes_definitions = definition.attributes
 
-        # definition[:attributes].each do |attribute_name, attribute|
-        #   attributes_definitions << {
-        #       name: attribute_name,
-        #       type: map_syncano_attribute_type(attribute['type'], attribute_name),
-        #       default: attribute_name == 'channel' ? nil : default_value_for_attribute(attribute),
-        #       presence_validation: attribute['required'],
-        #       length_validation_options: extract_length_validation_options(attribute),
-        #       inclusion_validation_options: extract_inclusion_validation_options(attribute),
-        #       create_writeable: attribute['read_only'] == false,
-        #       update_writeable: attribute['read_only'] == false,
-        #   }
-        # end
-
         ::Class.new(::Syncano::Resources::Base) do
           self.create_writable_attributes = []
           self.update_writable_attributes = []

@@ -14,7 +14,8 @@ module Syncano
                         'field' => ::Object }
 
       def initialize(name, raw_definition)
-        self.name = name
+        # TODO implement #original_name to send request with correct parameters
+        self.name = name == 'class' ? 'associated_class' : name
         self.raw_definition = raw_definition
 
         set_type
