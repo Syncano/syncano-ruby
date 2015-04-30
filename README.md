@@ -111,9 +111,55 @@ Now it matches the query and appears in the result.
 
 # Codeboxes
 
-# Webhooks
+Codeboxes are small pieces of code that run on Syncano servers. You can run them
+manually using the API, you can create a schedule to run them periodically, you 
+can create a Webhook (and optionally make it public) to run them from the web, 
+you can create a trigger to run one after a class' object is created, updated or 
+deleted. There are three runtimes available: Ruby, Python and Node. This gem is 
+available in Ruby runtime (just needs to be required). Let's create a simple 
+codebox and run it. 
 
-# Schedules
+```ruby
+clock = instance.codeboxes.create(name: 'clock', source: 'puts Time.now', runtime_name: 'ruby')
+#=> #<Syncano::Resources::CodeBox config: {}, created_at: Thu, 30 Apr 2015 05:50:09 +0000, description: "", id: 1, name: "clock", runtime_name: "ruby", source: "puts Time.now", updated_at: Thu, 30 Apr 2015 05:50:09 +0000>
+clock.run 
+#=> {"status"=>"pending", "links"=>{"self"=>"gv1/instances/a523b7e842dea927d8c306ec0a9a7a4ac30191c2cd034b11d/codeboxes/1/traces/1/"}, "executed_at"=>nil, "result"=>"", "duration"=>nil, "id"=>1}
+```
+
+When you schedule a codebox run, it returns the trace. Immediately after the 
+call it's status is pending, so you need to check the trace. 
+
+```ruby
+clock.traces.first
+=> #<Syncano::Resources::CodeBoxTrace duration: 526, executed_at: Thu, 30 Apr 2015 05:25:14 +0000, id: 1, result: "2015-04-30 05:25:14 +0000", status: "success">
+```
+
+The run method is asynchronous and returns immediately. You should use this to
+run codeboxes when you don't care about results at this very moment. If you 
+want to run the codebox and get results in one call, you should use webhooks.
+
+# Webhooks 
+
+You can use webhooks to run codeboxes synchronously. Webhooks can be either 
+public or private. You have to provide your API key when calling private ones, 
+public are public, you can call them with curl, connect with third party
+services,  etc. Ruby:
+
+
+```ruby
+webhook = @instance.webhooks.create slug: 'clock-webhook', codebox: clock.primary_key, public: true
+#=> #<Syncano::Resources::Webhook codebox: 1, public: true, public_link: "a20b0ae122b53b2f2c445f6a7a202b274c3631ad", slug: "clock-webhook">
+
+webhook.run['result']
+#=> "2015-04-30 05:51:45 +0000"
+```
+
+and curl
+
+```bash
+$ curl "https://api.syncano.rocks/v1/instances//af248d3e8b92e6e7aaa42dfc41de80c66c90d620cbe3fcd19/webhooks/p/a20b0ae122b53b2f2c445f6a7a202b274c3631ad/"
+{"status": "success", "duration": 270, "result": "2015-04-30 06:11:08 +0000", "executed_at": "2015-04-30T06:11:08.607389Z"}
+```
 
 ## Contributing
 
