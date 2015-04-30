@@ -16,7 +16,7 @@ After installation, you have to set a path for api root for syncano.
 If you want to use staging, export:
 
 ```bash
-$ export API_ROOT=https://v4.hydraengine.com
+$ export API_ROOT=https://api.syncano.rocks
 ```
 
 If you're less adventurous, use our production api servers:
