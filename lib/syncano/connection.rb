@@ -16,7 +16,8 @@ module Syncano
       self.password = options[:password]
 
       # TODO: take it easy with SSL for development only, temporary solution
-      self.conn = Faraday.new(self.class.api_root, ssl: { verify: false })
+      self.conn = Faraday.new(self.class.api_root,
+        ssl: { ca_file: File.join(File.dirname(__FILE__), '../certs/ca-bundle.crt') })
       conn.path_prefix = API_VERSION
       conn.request :url_encoded
     end
