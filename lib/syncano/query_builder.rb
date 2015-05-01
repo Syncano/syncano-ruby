@@ -31,6 +31,10 @@ module Syncano
       resource_class.create(connection, scope_parameters, attributes)
     end
 
+    def destroy(primary_key)
+      resource_class.destroy connection, scope_parameters, primary_key
+    end
+
     def space(at, options = {})
       Syncano::Resources::Space.new(at, self, options)
     end

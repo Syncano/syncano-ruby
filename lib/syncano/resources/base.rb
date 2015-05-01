@@ -37,6 +37,12 @@ module Syncano
           new(connection, scope_parameters, attributes).save
         end
 
+        def destroy(connection, scope_parameters, pk)
+          check_resource_method_existance! :destroy
+
+          connection.request :delete, member_path(pk, scope_parameters)
+        end
+
         def map_attributes_values(attributes)
           attributes.each do |name, value|
             attributes[name] = value.to_json if value.is_a?(Array) || value.is_a?(Hash)

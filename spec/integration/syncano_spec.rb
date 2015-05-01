@@ -78,7 +78,10 @@ describe Syncano do
       expect(object.ballance).to eq(54)
       expect(object.currency).to eq('GBP')
 
-      expect { object.destroy }.to destroy_resource
+      expect { subject.destroy(object.primary_key) }.to destroy_resource
+      expect {
+        subject.destroy(object.primary_key)
+      }.to raise_error(Syncano::ClientError, /not found/i)
     end
 
 
