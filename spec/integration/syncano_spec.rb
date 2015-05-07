@@ -10,7 +10,7 @@ describe Syncano do
 
   before(:each) do
     @api.instances.all.each &:destroy
-    @instance = @api.instances.create(name: "a#{SecureRandom.hex(24)}")
+    @instance = @api.instances.create(name: random_name)
     @instance.classes.all.select { |c| c.name != 'user_profile'}.each &:destroy
     @instance.groups.all.each &:destroy
     @instance.users.all.each &:delete
@@ -204,6 +204,79 @@ describe Syncano do
     end
   end
 
+  describe 'working with API keys' do
+    subject { @instance.api_keys }
+
+    specify do
+      api_key = nil
+
+      expect {
+        api_key = subject.create allow_user_create: true
+      }.to create_resource
+
+      expect { api_key.destroy }.to destroy_resource
+    end
+  end
+
+  describe 'managing users' do
+    subject { @instance.users }
+
+    specify do
+      user = nil
+
+      expect {
+        user = subject.create(username: 'koza', password: 'kiszkakoza')
+      }.to create_resource
+
+      user.update_attributes username: 'kiszka'
+      expect(subject.find(user.primary_key).username).to eq('kiszka')
+
+      expect { user.destroy }.to destroy_resource
+    end
+  end
+
+  describe 'managing groups' do
+    subject { @instance.groups }
+
+    specify do
+      creator = @instance.users.create username: 'content', password: 'creator'
+
+      content_creators = nil
+
+      expect {
+        content_creators = subject.create name: 'content creators'
+      }.to create_resource
+
+      expect {
+        content_creators.users.create user: creator.primary_key
+      }.to change { content_creators.users.all.count }.from(0).to(1)
+
+      expect { content_creators.destroy }.to destroy_resource
+    end
+  end
+
+  describe 'using syncano on behalf of the user' do
+    let(:user_api_key) { @instance.api_keys.create.api_key }
+    let(:user) {
+      @instance.users.create username: 'kiszonka', password: 'passwd'
+    }
+    let(:user_key) { user.user_key }
+    let(:user_connection) {
+      Syncano.connect api_key: user_api_key, user_key: user_key
+    }
+
+
+    specify do
+      instance = user_connection.instances.first
+      books =  instance.classes.create name: 'book',
+                                       schema: [{ name: 'title', type: 'string' }],
+                                       user_key: user_key
+      books.create name: 'Oliver Twist', user_key: user_key
+
+      expect(books.all(user_key: user_key).to_a).to_not be_empty
+    end
+  end
+
   def resources_count
     subject.all.count
   end
@@ -214,6 +287,10 @@ describe Syncano do
 
   def destroy_resource
     change { resources_count }.to(0)
+  end
+
+  def random_name
+    "a#{SecureRandom.hex(24)}"
   end
 
   def without_profiling
