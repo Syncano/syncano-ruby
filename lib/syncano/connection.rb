@@ -14,6 +14,7 @@ module Syncano
       self.api_key = options[:api_key]
       self.email = options[:email]
       self.password = options[:password]
+      self.user_key = options[:user_key]
 
       # TODO: take it easy with SSL for development only, temporary solution
       self.conn = Faraday.new(self.class.api_root,
@@ -26,13 +27,7 @@ module Syncano
       !api_key.nil?
     end
 
-    def authenticate(email, password)
-      self.email = email
-      self.password = password
-      authenticate!
-    end
-
-    def authenticate!
+    def authenticate
       response = conn.post(AUTH_PATH, email: email, password: password)
       body = parse_response(response)
 
@@ -47,6 +42,7 @@ module Syncano
     def request(method, path, params = {})
       raise %{Unsupported method "#{method}"} unless METHODS.include? method
       conn.headers['X-API-KEY'] = api_key
+      conn.headers['X-USER-KEY'] = user_key if user_key
       conn.headers['User-Agent'] = "Syncano Ruby Gem #{Syncano::VERSION}"
       response = conn.send(method, path, params)
 
@@ -94,5 +90,6 @@ module Syncano
     attr_accessor :email
     attr_accessor :password
     attr_accessor :conn
+    attr_accessor :user_key
   end
 end

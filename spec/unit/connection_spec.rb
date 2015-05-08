@@ -10,8 +10,29 @@ describe Syncano::Connection do
   describe '#request' do
     let(:headers) { { 'X-Api-Key'=>'87a7da987da98sd7a98', 'User-Agent' => "Syncano Ruby Gem #{Syncano::VERSION}" } }
     let(:api_key) { '87a7da987da98sd7a98' }
+    let(:connection_params) { { api_key: api_key } }
 
-    subject { described_class.new(api_key: api_key) }
+    subject { described_class.new(connection_params) }
+
+    context 'with user key' do
+      def connection_params
+        super.merge user_key: 'Us3rK3y'
+      end
+
+      def headers
+        super.merge 'X-USER-KEY' => 'Us3rK3y'
+      end
+
+      before do
+        stub_request(:get, endpoint_uri('user/method/')).
+          with(headers: headers).
+          to_return(body: generate_body(user: 'Us3r'))
+      end
+
+      specify do
+        expect(subject.request(:get, 'user/method/')).to eq('user' => 'Us3r')
+      end
+    end
 
     context 'called with unsupported method' do
       specify do
@@ -85,7 +106,7 @@ describe Syncano::Connection do
   end
 
   describe '#authenticate' do
-    subject { described_class.new }
+    subject { described_class.new email: email, password: password }
 
     let(:authenticate_uri) { endpoint_uri('account/auth/') }
     let(:email) { 'kiszka@koza.com' }
@@ -101,7 +122,7 @@ describe Syncano::Connection do
       end
 
       it 'should get an API key' do
-        expect { subject.authenticate(email, password) }.to change { subject.authenticated? }
+        expect { subject.authenticate }.to change { subject.authenticated? }
       end
 
       def successful_body
@@ -122,7 +143,7 @@ describe Syncano::Connection do
       end
 
       it 'should raise an exception' do
-        expect { subject.authenticate(email, password) }.to raise_error(Syncano::ClientError)
+        expect { subject.authenticate }.to raise_error(Syncano::ClientError)
       end
 
       def failed_body
