@@ -221,11 +221,13 @@ module Syncano
       end
 
       def self.map_member_name_to_resource_class(name)
+        # TODO get resource class basing on paths from schema
         name = 'code_box' if name == 'codebox'
         "::Syncano::Resources::#{name.camelize}".constantize
       end
 
       def self.map_collection_name_to_resource_class(name)
+        # TODO get resource class basing on paths from schema
         name = if name == 'codeboxes'
                  'code_boxes'
                elsif name == 'traces' && self.name == 'Syncano::Resources::CodeBox'
@@ -375,7 +377,7 @@ module Syncano
         index: { type: :collection, method: :get },
         create: { type: :collection, method: :post },
         show: { type: :member, method: :get },
-        update: { type: :member, method: :put },
+        update: { type: :member, method: :patch },
         destroy: { type: :member, method: :delete }
       }.each do |name, parameters|
 

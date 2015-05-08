@@ -28,6 +28,7 @@ module Syncano
     attr_accessor :connection
     attr_writer :schema
 
+    # TODO don't load schema twice
     def load_schema
       raw_schema = connection.request(:get, SCHEMA_PATH)
       resources = {}

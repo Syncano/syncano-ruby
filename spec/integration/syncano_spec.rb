@@ -260,20 +260,44 @@ describe Syncano do
     let(:user) {
       @instance.users.create username: 'kiszonka', password: 'passwd'
     }
-    let(:user_key) { user.user_key }
-    let(:user_connection) {
-      Syncano.connect api_key: user_api_key, user_key: user_key
+    let(:another_user) {
+      @instance.users.create username: 'another', password: 'user'
     }
+    let(:user_instance) {
+      Syncano.connect(api_key: user_api_key, user_key: user.user_key).
+        instances.first
+    }
+    let(:another_user_instance) {
+      Syncano.connect(api_key: user_api_key, user_key: another_user.user_key).
+        instances.first
+    }
+    let(:group) { @instance.groups.create name: 'content creators' }
+
+    before do
+      group.users.create user: user.primary_key
+      group.users.create user: another_user.primary_key
+
+      @instance.classes.create name: 'book',
+                               schema: [{ name: 'title', type: 'string' }],
+                               group: group.primary_key,
+                               group_permissions: 'create_objects'
+    end
 
 
     specify do
-      instance = user_connection.instances.first
-      books =  instance.classes.create name: 'book',
-                                       schema: [{ name: 'title', type: 'string' }],
-                                       user_key: user_key
-      books.create name: 'Oliver Twist', user_key: user_key
+      owner_books = user_instance.classes.find('book').objects
+      book = owner_books.create(name: 'Oliver Twist', owner_permissions: 'write')
 
-      expect(books.all(user_key: user_key).to_a).to_not be_empty
+      expect(owner_books.all.to_a).to_not be_empty
+
+      group_member_books = another_user_instance.classes.find('book').objects
+      expect(group_member_books.all.to_a).to be_empty
+
+      book.group_permissions = 'read'
+      book.group = group.primary_key # TODO fix group overwrite 
+      book.save
+
+      expect(group_member_books.all.to_a).to_not be_empty
     end
   end
 
