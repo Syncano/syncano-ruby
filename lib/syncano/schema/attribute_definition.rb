@@ -22,10 +22,6 @@ module Syncano
         set_default
       end
 
-      def force_default?
-        !default.nil?
-      end
-
       def writable?
         raw_definition['read_only'] == false
       end

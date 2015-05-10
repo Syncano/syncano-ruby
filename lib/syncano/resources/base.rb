@@ -114,7 +114,6 @@ module Syncano
         # TODO: Call validation here
 
         if new_record?
-          apply_forced_defaults!
           response = connection.request(:post, collection_path, select_create_attributes)
         else
           response = connection.request(:patch, member_path, select_changed_attributes)
@@ -239,14 +238,6 @@ module Syncano
                end
 
         map_member_name_to_resource_class(name.singularize)
-      end
-
-      def apply_forced_defaults!
-        self.class.attributes.each do |attr_name, attr_definition|
-          if read_attribute(attr_name).blank? && attr_definition[:force_default]
-            write_attribute(attr_name, attr_definition[:default].is_a?(Proc) ? attr_definition[:default].call : attr_definition[:default])
-          end
-        end
       end
 
       def mark_as_saved!

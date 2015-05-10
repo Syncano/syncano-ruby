@@ -294,7 +294,7 @@ describe Syncano do
       expect(group_member_books.all.to_a).to be_empty
 
       book.group_permissions = 'read'
-      book.group = group.primary_key # TODO fix group overwrite 
+      book.group = group.primary_key # TODO fix group overwrite
       book.save
 
       expect(group_member_books.all.to_a).to_not be_empty

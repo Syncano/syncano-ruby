@@ -17,8 +17,7 @@ module Syncano
           attributes_definitions.each do |attribute_definition|
             attribute attribute_definition.name,
                       type: attribute_definition.type,
-                      default: attribute_definition.default,
-                      force_default: attribute_definition.force_default?
+                      default: attribute_definition.default
 
             if attribute_definition.required?
               validates attribute_definition.name, presence: true
