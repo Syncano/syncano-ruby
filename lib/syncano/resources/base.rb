@@ -225,19 +225,15 @@ module Syncano
         "::Syncano::Resources::#{name.camelize}".constantize
       end
 
-      def self.map_collection_name_to_resource_class(name)
-        # TODO get resource class basing on paths from schema
-        name = if name == 'codeboxes'
-                 'code_boxes'
-               elsif name == 'traces' && self.name == 'Syncano::Resources::CodeBox'
-                 'code_box_traces'
-               elsif name == 'users' && self.name == 'Syncano::Resources::Group'
-                 'group_membership'
-               else
-                 name
-               end
+      def map_collection_name_to_resource_class(name)
+        path = association_paths[name]
 
-        map_member_name_to_resource_class(name.singularize)
+        resource_name, _ = API.schema.schema.find do |_, definition|
+          pattern = definition[:collection].try(:[], :path) or next
+          path =~ Regexp.new("\\A#{pattern.dup.gsub(/{\w+(_\w+)}/, '([^\/]+)')}\\z")
+        end
+
+        self.class.map_member_name_to_resource_class(resource_name.singularize)
       end
 
       def mark_as_saved!
@@ -256,7 +252,7 @@ module Syncano
         # TODO Implement QueryBuilders without scope parameters and adding objects to the association
         raise(Syncano::Error.new('record not saved')) if new_record?
 
-        resource_class = self.class.map_collection_name_to_resource_class(name)
+        resource_class = map_collection_name_to_resource_class(name)
         scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
 
         ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters)
