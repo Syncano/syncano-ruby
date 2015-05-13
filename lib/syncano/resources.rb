@@ -4,7 +4,16 @@ module Syncano
   module Resources
     class << self
       def define_resource_class(resource_definition)
-        const_set resource_definition.name, new_resource_class(resource_definition)
+        resource_class = new_resource_class(resource_definition)
+
+        const_set resource_definition.name, resource_class
+        if resource_definition[:collection]
+          paths_map.collection[resource_definition[:collection][:path]] = resource_class
+        end
+      end
+
+      def paths_map
+        Syncano::PathToResource.instance
       end
 
       def new_resource_class(definition)

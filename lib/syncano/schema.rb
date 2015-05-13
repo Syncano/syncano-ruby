@@ -1,18 +1,25 @@
 require_relative './schema/attribute_definition'
 require_relative './schema/resource_definition'
+require 'singleton'
 
 module Syncano
   class Schema
+    include Singleton
+
     SCHEMA_PATH = 'schema/'
 
     attr_reader :schema
 
-    def initialize(connection)
+    private
+
+    def initialize(connection = Syncano::Connection.new)
       self.connection = connection
       load_schema
+      process
     end
 
-    def process!
+
+    def process
       schema.each do |name, raw_resource_definition|
         resource_definition = Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
         resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
@@ -28,7 +35,6 @@ module Syncano
     attr_accessor :connection
     attr_writer :schema
 
-    # TODO don't load schema twice
     def load_schema
       raw_schema = connection.request(:get, SCHEMA_PATH)
       resources = {}

@@ -8,12 +8,9 @@ require 'shoulda-matchers'
 describe Syncano::Schema do
   include ActiveAttr::Matchers
 
-  let(:connection) { double("connection") }
-
-  subject { described_class.new connection }
-
   before do
-    expect(connection).to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
+    allow_any_instance_of(Syncano::Connection).
+      to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
 
     Syncano::Resources.instance_eval do
       constants.each do |const|
@@ -24,11 +21,13 @@ describe Syncano::Schema do
     end
   end
 
-  describe 'process!' do
-    it 'defintes classes according to the schema' do
+  describe 'instantation' do
+    let(:connection) { double 'connection' }
+
+    it 'defines classes according to the schema' do
       expect { Syncano::Resources::Class }.to raise_error(NameError)
 
-      subject.process!
+      Class.new(Syncano::Schema).instance
 
       expect { Syncano::Resources::Class }.to_not raise_error
 
@@ -55,7 +54,7 @@ describe Syncano::Schema do
     end
 
     it 'defines foreign keys attributes when attributes names collide with links' do
-      subject.process!
+      Class.new(Syncano::Schema).instance
 
       schedule_instance = Syncano::Resources::Schedule.new connection, {}, links: {}
 

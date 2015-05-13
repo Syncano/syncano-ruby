@@ -41,7 +41,7 @@ module Syncano
 
     def request(method, path, params = {})
       raise %{Unsupported method "#{method}"} unless METHODS.include? method
-      conn.headers['X-API-KEY'] = api_key
+      conn.headers['X-API-KEY'] = api_key if api_key
       conn.headers['X-USER-KEY'] = user_key if user_key
       conn.headers['User-Agent'] = "Syncano Ruby Gem #{Syncano::VERSION}"
       response = conn.send(method, path, params)

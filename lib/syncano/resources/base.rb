@@ -226,14 +226,7 @@ module Syncano
       end
 
       def map_collection_name_to_resource_class(name)
-        path = association_paths[name]
-
-        resource_name, _ = API.schema.schema.find do |_, definition|
-          pattern = definition[:collection].try(:[], :path) or next
-          path =~ Regexp.new("\\A#{pattern.dup.gsub(/{\w+(_\w+)}/, '([^\/]+)')}\\z")
-        end
-
-        self.class.map_member_name_to_resource_class(resource_name.singularize)
+        Syncano::PathToResource.instance.collection[path = association_paths[name]]
       end
 
       def mark_as_saved!

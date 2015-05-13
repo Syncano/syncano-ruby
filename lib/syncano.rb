@@ -18,6 +18,7 @@ require 'syncano/resources/collection'
 require 'syncano/resources/space'
 require 'syncano/query_builder'
 require 'syncano/model/base'
+require 'syncano/path_to_resource'
 
 module Syncano
   class << self
