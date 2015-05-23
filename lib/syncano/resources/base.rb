@@ -95,7 +95,7 @@ module Syncano
       end
 
       def new_record?
-        primary_key.blank?
+        new_record
       end
 
       def saved?
@@ -116,7 +116,7 @@ module Syncano
         if new_record?
           response = connection.request(:post, collection_path, select_create_attributes)
         else
-          response = connection.request(:patch, member_path, select_changed_attributes)
+          response = connection.request(:patch, self_path, select_changed_attributes)
         end
 
         initialize!(response, true)
@@ -124,7 +124,7 @@ module Syncano
 
       def destroy
         check_resource_method_existance!(:destroy)
-        connection.request(:delete, member_path)
+        connection.request(:delete, self_path)
         mark_as_destroyed!
       end
 
@@ -135,7 +135,7 @@ module Syncano
       def reload!
         raise(Syncano::Error.new('record is not saved')) if new_record?
 
-        response = connection.request(:get, member_path)
+        response = connection.request(:get, self_path)
         initialize!(response)
       end
 
@@ -182,13 +182,18 @@ module Syncano
 
       private
 
-      class_attribute :resource_definition, :create_writable_attributes, :update_writable_attributes
-      attr_accessor :connection, :association_paths, :member_path, :scope_parameters, :destroyed
+      class_attribute :resource_definition, :create_writable_attributes,
+                      :update_writable_attributes
+      attr_accessor :connection, :association_paths, :member_path,
+                    :scope_parameters, :destroyed, :self_path, :new_record
 
       def initialize!(attributes = {}, from_database = false)
         attributes = HashWithIndifferentAccess.new(attributes)
 
-        initialize_routing(attributes)
+        self.member_path = attributes[:links].try(:[], :self)
+        self.self_path = attributes[:links].try(:[], :self)
+        self.new_record = !from_database # TODO use from_database of self_path.nil?
+
         initialize_associations(attributes)
 
         self.attributes.clear
@@ -215,18 +220,8 @@ module Syncano
         end
       end
 
-      def initialize_routing(attributes)
-        self.member_path = attributes[:links].try(:[], :self)
-      end
-
-      def self.map_member_name_to_resource_class(name)
-        # TODO get resource class basing on paths from schema
-        name = 'code_box' if name == 'codebox'
-        "::Syncano::Resources::#{name.camelize}".constantize
-      end
-
       def map_collection_name_to_resource_class(name)
-        Syncano::PathToResource.instance.collection[path = association_paths[name]]
+        ::Syncano::Resources::Paths.instance.collections.match(association_paths[name])
       end
 
       def mark_as_saved!
@@ -249,14 +244,6 @@ module Syncano
         scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
 
         ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters)
-      end
-
-      def belongs_to_association(name)
-        resource_class = self.class.map_member_name_to_resource_class(name)
-        scope_parameters = resource_class.extract_scope_parameters(association_paths[name])
-        pk = resource_class.extract_primary_key(association_paths[name])
-
-        ::Syncano::QueryBuilder.new(connection, resource_class, scope_parameters).find(pk)
       end
 
       def custom_method(method_name, config)
@@ -343,10 +330,6 @@ module Syncano
 
       def collection_path
         self.class.collection_path(scope_parameters)
-      end
-
-      def member_path
-        self.class.member_path(primary_key, scope_parameters)
       end
 
       def check_resource_method_existance!(method_name)

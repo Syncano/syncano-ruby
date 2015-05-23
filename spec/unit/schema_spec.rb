@@ -12,9 +12,9 @@ describe Syncano::Schema do
     allow_any_instance_of(Syncano::Connection).
       to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
 
-    Syncano::Resources.instance_eval do
+    ::Syncano::Resources.instance_eval do
       constants.each do |const|
-        if ![:Base, :Collection, :Space].include?(const) && const_defined?(const)
+        if ![:Base, :Collection, :Space, :Paths].include?(const) && const_defined?(const)
           remove_const const
         end
       end

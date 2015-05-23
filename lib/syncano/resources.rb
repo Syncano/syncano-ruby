@@ -7,13 +7,20 @@ module Syncano
         resource_class = new_resource_class(resource_definition)
 
         const_set resource_definition.name, resource_class
+
         if resource_definition[:collection]
-          paths_map.collection[resource_definition[:collection][:path]] = resource_class
+          resources_paths.collections.define resource_definition[:collection][:path], resource_class
         end
+
+        if resource_definition[:member]
+          resources_paths.members.define resource_definition[:member][:path], resource_class
+        end
+
+        resource_class
       end
 
-      def paths_map
-        Syncano::PathToResource.instance
+      def resources_paths
+        ::Syncano::Resources::Paths.instance
       end
 
       def new_resource_class(definition)
@@ -111,10 +118,6 @@ module Syncano
             if association_schema['type'] == 'list'
               define_method(association_schema['name']) do
                 has_many_association(association_schema['name'])
-              end
-            elsif association_schema['type'] == 'detail' && association_schema['name'] != 'self'
-              define_method(association_schema['name']) do
-                belongs_to_association(association_schema['name'])
               end
             elsif association_schema['type'] == 'run'
               define_method(association_schema['name']) do |config = nil|

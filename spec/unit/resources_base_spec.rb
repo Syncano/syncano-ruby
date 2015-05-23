@@ -74,7 +74,7 @@ describe Syncano::Resources::Base do
                                          { 'type' => 'list',
                                           'name' => 'webhooks' }] },
            :collection => { :path => '/v1/instances/',
-                           :http_methods => ['post',
+                            :http_methods => ['post',
                                              'get'],
                            :params => [] },
            :member => { :path => '/v1/instances/{ name }/',
@@ -140,7 +140,7 @@ describe Syncano::Resources::Base do
     end
 
     it 'should init attributes' do
-      resource = subject.new(connection, {}, { name: 'test' }, true)
+      resource = subject.new(connection, {}, { name: 'test' })
       expect(resource.name).to eq('test')
     end
 
@@ -153,15 +153,21 @@ describe Syncano::Resources::Base do
       resource = subject.new(connection, {}, { links: { self: '/v1/instances/test/' }, name: 'test' }, false)
       expect(resource.changed?).to eq(true)
     end
+  end
 
-    it 'should mark resource as not new if initialized with self path' do
-      resource = subject.new(connection, {}, { links: { self: '/v1/instances/test/' } }, true)
-      expect(resource.new_record?).to be(false)
+  describe '#new_record?' do
+    let(:resource) { subject.new connection, {}, {name: 'asd' }, from_db }
+
+    context 'is true' do
+      let(:from_db) { false }
+
+      specify { expect(resource.new_record?).to eq(true) }
     end
 
-    it 'should mark resource as new if initialized without self path' do
-      resource = subject.new(connection, {}, { name: 'test' }, true)
-      expect(resource.new_record?).to be(true)
+    context 'is false' do
+      let(:from_db) { true }
+
+      specify { expect(resource.new_record?).to eq(false) }
     end
   end
 

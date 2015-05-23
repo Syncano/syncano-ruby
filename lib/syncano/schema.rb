@@ -12,7 +12,7 @@ module Syncano
 
     private
 
-    def initialize(connection = Syncano::Connection.new)
+    def initialize(connection = ::Syncano::Connection.new)
       self.connection = connection
       load_schema
       process
@@ -21,7 +21,7 @@ module Syncano
 
     def process
       schema.each do |name, raw_resource_definition|
-        resource_definition = Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
+        resource_definition = ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
         resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
 
         if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?

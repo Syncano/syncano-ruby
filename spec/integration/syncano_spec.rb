@@ -20,7 +20,7 @@ describe Syncano do
     subject { @api.instances }
 
     it 'should raise an error on not found instance' do
-      expect { subject.find('kaszanka') }.to raise_error(Syncano::ClientError)
+      expect { subject.find('kaszanka') }.to raise_error(Syncano::NotFound)
     end
 
     specify do
