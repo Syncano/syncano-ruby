@@ -45,28 +45,42 @@ describe Syncano::Connection do
       before do
         stub_request(:get, endpoint_uri('somepath/')).
           with(headers: headers).
-          to_return(body: generate_body(some: 'response'))
+          to_return(response)
       end
 
-      specify do
-        expect(subject.request(:get, 'somepath/')).to eq('some' => 'response')
+      def issue_request
+        subject.request(:get, 'somepath/')
+      end
+
+      context 'returning success' do
+        let(:response) { { body: generate_body(some: 'response') } }
+
+        specify do
+          expect(issue_request).to eq('some' => 'response')
+        end
+      end
+
+      context 'returning not found' do
+        let(:response) { { body: nil, status: 404 } }
+
+        specify do
+          expect { issue_request }.to raise_error(Syncano::NotFound)
+        end
+      end
+
+      context 'returning a client error' do
+        let(:response) {
+          { body: generate_body({name: ['This field can not be "koza"']}),
+            status: 400 }
+        }
+
+        specify do
+          expect { issue_request }.to raise_error(Syncano::ClientError)
+        end
       end
     end
 
-    context 'called with supported method returning a a client error' do
-      before do
-        stub_request(:post, endpoint_uri('instances/')).
-          with(body: { 'name' => 'koza' },
-               headers: headers).
-          to_return(body: generate_body({name: ['This field can not be "koza"']}),
-                    status: 400)
-      end
-
-      specify do
-        expect { subject.request(:post, '/v1/instances/', { name: "koza" }) }.
-            to raise_error(Syncano::ClientError)
-      end
-    end
+    context 'called with suppoerted methodr'
 
     context 'returning a server error' do
       before do

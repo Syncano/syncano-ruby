@@ -15,10 +15,10 @@ require 'syncano/scope'
 require 'syncano/resources'
 require 'syncano/resources/base'
 require 'syncano/resources/collection'
+require 'syncano/resources/paths'
 require 'syncano/resources/space'
 require 'syncano/query_builder'
 require 'syncano/model/base'
-require 'syncano/path_to_resource'
 
 module Syncano
   class << self
@@ -36,6 +36,25 @@ module Syncano
   class RuntimeError < StandardError; end
 
   class HTTPError < StandardError
+    alias :to_s :inspect
+  end
+
+  class NotFound < HTTPError
+    attr_accessor :path, :method, :params
+
+    def initialize(path, method, params)
+      self.path = path
+      self.method = method
+      self.params = params
+    end
+
+    def inspect
+      %{#{self.class.name} path: "#{path}" method: "#{method}" params: #{params}}
+    end
+  end
+
+  class HTTPErrorWithBody < HTTPError
+
     attr_accessor :body, :original_response
 
     def initialize(body, original_response)
@@ -46,12 +65,10 @@ module Syncano
     def inspect
       "<#{self.class.name} #{body} #{original_response}>"
     end
-
-    alias :to_s :inspect
   end
 
-  class ClientError < HTTPError; end
-  class ServerError < HTTPError; end
+  class ClientError < HTTPErrorWithBody; end
+  class ServerError < HTTPErrorWithBody; end
 
   class UnsupportedStatusError < StandardError
     attr_accessor :original_response
