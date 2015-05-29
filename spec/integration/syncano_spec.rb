@@ -79,9 +79,6 @@ describe Syncano do
       expect(object.currency).to eq('GBP')
 
       expect { subject.destroy(object.primary_key) }.to destroy_resource
-      expect {
-        subject.destroy(object.primary_key)
-      }.to raise_error(Syncano::ClientError, /not found/i)
     end
 
 
@@ -161,6 +158,7 @@ describe Syncano do
 
 
     specify 'basic operations' do
+      skip 'waiting for API change'
       expect { subject.create name: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
 
       codebox = subject.first
@@ -196,6 +194,7 @@ describe Syncano do
     let!(:codebox) { @instance.codeboxes.create name: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
 
     specify do
+      skip 'waiting for API change'
       expect { subject.create slug: 'web-wurst', codebox: codebox.primary_key }.to create_resource
 
       expect(subject.first.run['result']).to eq('currywurst')
