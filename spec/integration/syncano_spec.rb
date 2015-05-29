@@ -285,7 +285,7 @@ describe Syncano do
 
     specify do
       owner_books = user_instance.classes.find('book').objects
-      book = owner_books.create(name: 'Oliver Twist', owner_permissions: 'write')
+      book = owner_books.create(title: 'Oliver Twist', owner_permissions: 'write')
 
       expect(owner_books.all.to_a).to_not be_empty
 
@@ -293,7 +293,7 @@ describe Syncano do
       expect(group_member_books.all.to_a).to be_empty
 
       book.group_permissions = 'read'
-      book.group = group.primary_key # TODO fix group overwrite
+      book.group = group.primary_key
       book.save
 
       expect(group_member_books.all.to_a).to_not be_empty
