@@ -1,12 +1,14 @@
 $: << Dir.pwd
 
-require 'faraday'
-require 'active_attr/model'
-require 'active_attr/dirty'
-require 'active_attr/typecasting_override'
-require 'active_support/core_ext/hash/indifferent_access'
+require 'active_attr'
+require 'active_model'
+require 'active_support/concern'
 require 'active_support/core_ext/class/attribute.rb'
+require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/inflector'
+require 'faraday'
+
+require 'syncano/query_builder'
 require 'syncano/version'
 require 'syncano/api'
 require 'syncano/connection'
@@ -18,7 +20,6 @@ require 'syncano/resources/collection'
 require 'syncano/resources/paths'
 require 'syncano/resources/space'
 require 'syncano/query_builder'
-require 'syncano/model/base'
 
 module Syncano
   class << self

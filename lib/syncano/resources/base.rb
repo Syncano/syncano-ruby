@@ -2,7 +2,7 @@ module Syncano
   module Resources
     class Base
       include ActiveAttr::Model
-      include ActiveAttr::Dirty
+      include ActiveModel::Dirty
 
       PARAMETER_REGEXP = /\{([^}]+)\}/
 
