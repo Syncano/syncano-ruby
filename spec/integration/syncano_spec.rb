@@ -254,6 +254,18 @@ describe Syncano do
     end
   end
 
+  describe 'managing channels' do
+    subject do
+      @instance.channels
+    end
+
+
+    specify do
+      skip 'waiting for schema fix'
+      expect { subject.create name: 'chat' }.to create_resource
+    end
+  end
+
   describe 'using syncano on behalf of the user' do
     let(:user_api_key) { @instance.api_keys.create.api_key }
     let(:user) {
