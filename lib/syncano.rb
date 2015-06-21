@@ -41,17 +41,17 @@ module Syncano
   end
 
   class NotFound < HTTPError
-    attr_accessor :path, :method, :params
+    # attr_accessor :path, :method_name, :params
 
     def initialize(path, method, params)
-      self.path = path
-      self.method = method
-      self.params = params
+      # self.path = path
+      # self.method_name = method_name
+      # self.params = params
     end
 
-    def inspect
-      %{#{self.class.name} path: "#{path}" method: "#{method}" params: #{params}}
-    end
+    # def inspect
+    #   %{#{self.class.name} path: "#{path}" method: "#{method_name}" params: #{params}}
+    # end
   end
 
   class HTTPErrorWithBody < HTTPError

@@ -4,38 +4,31 @@ require 'singleton'
 
 module Syncano
   class Schema
-    include Singleton
-
     SCHEMA_PATH = 'schema/'
 
     attr_reader :schema
 
-    private
-
     def initialize(connection = ::Syncano::Connection.new)
       self.connection = connection
-      load_schema
-      process
     end
 
+    # def process
+    #   # TODO pass a class to define resources within
+    #
+    #   schema.each do |name, raw_resource_definition|
+    #     resource_definition = ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
+    #     resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
+    #
+    #     if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
+    #       self.class.generate_client_method(name, resource_class)
+    #     end
+    #   end
+    # end
 
-    def process
-      schema.each do |name, raw_resource_definition|
-        resource_definition = ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
-        resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
-
-        if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          self.class.generate_client_method(name, resource_class)
-        end
-      end
-    end
-
-    private
 
     attr_accessor :connection
-    attr_writer :schema
 
-    def load_schema
+    def definition
       raw_schema = connection.request(:get, SCHEMA_PATH)
       resources = {}
 
@@ -77,17 +70,17 @@ module Syncano
         end
       end
 
-      self.schema = resources
+      resources
     end
 
-    class << self
-      def generate_client_method(resource_name, resource_class)
-        method_name = resource_name.tableize
-
-        ::Syncano::API.send(:define_method, method_name) do
-          ::Syncano::QueryBuilder.new(connection, resource_class)
-        end
-      end
-    end
+    # class << self
+    #   def generate_client_method(resource_name, resource_class)
+    #     method_name = resource_name.tableize
+    #
+    #     ::Syncano::API.send(:define_method, method_name) do
+    #       ::Syncano::QueryBuilder.new(connection, resource_class)
+    #     end
+    #   end
+    # end
   end
 end

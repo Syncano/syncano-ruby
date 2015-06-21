@@ -20,6 +20,11 @@ module Syncano
         @raw_definition[key]
       end
 
+      def top_level?
+        @raw_definition[:collection].present? &&
+          @raw_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
+      end
+
       private
 
       def delete_colliding_links

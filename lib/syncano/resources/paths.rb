@@ -20,7 +20,7 @@ module Syncano
         end
 
         def define(path, resource)
-          @map[Regexp.new("\\A#{path.gsub(/{\w+(_\w+)}/, '([^\/]+)')}\\z")] = resource
+          @map[Regexp.new("\\A#{path.gsub(/{(\w+)?(_\w+)}/, '([^\/]+)')}\\z")] = resource
         end
 
         def match(path)

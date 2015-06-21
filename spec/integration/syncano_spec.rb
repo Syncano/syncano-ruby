@@ -63,7 +63,7 @@ describe Syncano do
     subject { @class.objects }
 
 
-    specify 'basic operations' do
+    xspecify 'basic operations' do
       expect { subject.create currency: 'USD', ballance: 1337 }.to create_resource
 
       object = subject.first

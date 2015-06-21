@@ -22,4 +22,9 @@ describe Syncano::Schema::ResourceDefinition do
   it 'should delete colliding links' do
     expect(definition[:associations]['links']).to be_empty
   end
+
+  context 'top level resource' do
+
+    # if
+  end
 end

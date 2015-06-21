@@ -1,65 +1,16 @@
 require_relative '../spec_helper'
 
-
-require 'rspec/expectations'
-require 'active_attr/matchers/have_attribute_matcher'
-require 'shoulda-matchers'
-
 describe Syncano::Schema do
-  include ActiveAttr::Matchers
+  let(:connection) { double 'connection' }
 
   before do
-    allow_any_instance_of(Syncano::Connection).
-      to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
-
-    ::Syncano::Resources.instance_eval do
-      constants.each do |const|
-        if ![:Base, :Collection, :Space, :Paths].include?(const) && const_defined?(const)
-          remove_const const
-        end
-      end
-    end
+    expect(connection).to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
   end
 
-  describe 'instantation' do
-    let(:connection) { double 'connection' }
+  subject { described_class.new(connection) }
 
-    it 'defines classes according to the schema' do
-      expect { Syncano::Resources::Class }.to raise_error(NameError)
-
-      Class.new(Syncano::Schema).instance
-
-      expect { Syncano::Resources::Class }.to_not raise_error
-
-      expect(Syncano::Resources::Class).to have_attribute(:name)
-      expect(Syncano::Resources::Class).to have_attribute(:status)
-      expect(Syncano::Resources::Class).to have_attribute(:created_at)
-      expect(Syncano::Resources::Class).to have_attribute(:description)
-      expect(Syncano::Resources::Class).to have_attribute(:updated_at)
-      expect(Syncano::Resources::Class).to have_attribute(:objects_count)
-      expect(Syncano::Resources::Class).to have_attribute(:metadata)
-      expect(Syncano::Resources::Class).to have_attribute(:revision)
-
-      class_instance = Syncano::Resources::Class.new(connection, {}, { links: {} })
-
-      expect(class_instance).to validate_presence_of(:name)
-      expect(class_instance).to validate_length_of(:name).is_at_most(50)
-
-      expect(class_instance).to respond_to(:objects)
-
-      code_box_instance = Syncano::Resources::CodeBox.new(connection, {}, { links: {} })
-      expect(code_box_instance).to validate_inclusion_of(:runtime_name).
-                                             in_array(%w(nodejs ruby python))
-
-    end
-
-    it 'defines foreign keys attributes when attributes names collide with links' do
-      Class.new(Syncano::Schema).instance
-
-      schedule_instance = Syncano::Resources::Schedule.new connection, {}, links: {}
-
-      expect(schedule_instance).to respond_to(:codebox)
-    end
+  specify '#resource_definitions' do
+    expect(subject.definition).to be_kind_of(Hash)
   end
 
   def schema
