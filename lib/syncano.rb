@@ -37,21 +37,20 @@ module Syncano
   class RuntimeError < StandardError; end
 
   class HTTPError < StandardError
-    alias :to_s :inspect
   end
 
   class NotFound < HTTPError
-    # attr_accessor :path, :method_name, :params
+    attr_accessor :path, :method_name, :params
 
-    def initialize(path, method, params)
-      # self.path = path
-      # self.method_name = method_name
-      # self.params = params
+    def initialize(path, method_name, params)
+      self.path = path
+      self.method_name = method_name
+      self.params = params
     end
 
-    # def inspect
-    #   %{#{self.class.name} path: "#{path}" method: "#{method_name}" params: #{params}}
-    # end
+    def inspect
+      %{#{self.class.name} path: "#{path}" method: "#{method_name}" params: #{params}}
+    end
   end
 
   class HTTPErrorWithBody < HTTPError
@@ -66,6 +65,8 @@ module Syncano
     def inspect
       "<#{self.class.name} #{body} #{original_response}>"
     end
+
+    alias :to_s :inspect
   end
 
   class ClientError < HTTPErrorWithBody; end
@@ -81,7 +82,5 @@ module Syncano
     def inspect
       "The server returned unsupported status code #{original_response.status}"
     end
-
-    alias :to_s :inspect
   end
 end
