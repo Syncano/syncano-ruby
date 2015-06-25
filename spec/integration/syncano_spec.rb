@@ -191,7 +191,7 @@ describe Syncano do
   describe 'working with webhooks' do
     subject { @instance.webhooks }
 
-    let!(:codebox) { @instance.codeboxes.create name: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
+    let!(:codebox) { @instance.codeboxes.create label: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
 
     specify do
       skip 'waiting for API change'
@@ -243,7 +243,7 @@ describe Syncano do
       content_creators = nil
 
       expect {
-        content_creators = subject.create name: 'content creators'
+        content_creators = subject.create label: 'content creators'
       }.to create_resource
 
       expect {
@@ -282,7 +282,7 @@ describe Syncano do
       Syncano.connect(api_key: user_api_key, user_key: another_user.user_key).
         instances.first
     }
-    let(:group) { @instance.groups.create name: 'content creators' }
+    let(:group) { @instance.groups.create label: 'content creators' }
 
     before do
       group.users.create user: user.primary_key

@@ -51,7 +51,7 @@ module Syncano
         when Status.successful
           parse_response response
         when Status.not_found
-          raise NotFound.new path, method, params
+          raise NotFound.new(path, method, params)
         when Status.client_error # TODO figure out if we want to raise an exception on not found or not
           raise ClientError.new response.body, response
         when Status.server_error
