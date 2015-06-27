@@ -12,20 +12,6 @@ module Syncano
       self.connection = connection
     end
 
-    # def process
-    #   # TODO pass a class to define resources within
-    #
-    #   schema.each do |name, raw_resource_definition|
-    #     resource_definition = ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
-    #     resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
-    #
-    #     if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-    #       self.class.generate_client_method(name, resource_class)
-    #     end
-    #   end
-    # end
-
-
     attr_accessor :connection
 
     def definition
@@ -72,15 +58,5 @@ module Syncano
 
       resources
     end
-
-    # class << self
-    #   def generate_client_method(resource_name, resource_class)
-    #     method_name = resource_name.tableize
-    #
-    #     ::Syncano::API.send(:define_method, method_name) do
-    #       ::Syncano::QueryBuilder.new(connection, resource_class)
-    #     end
-    #   end
-    # end
   end
 end

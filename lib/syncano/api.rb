@@ -18,16 +18,6 @@ module Syncano
         end
 
         self.initialized = true
-
-        # schema.each do |name, raw_resource_definition|
-
-          #     resource_definition = ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
-          #     resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
-          #
-          #     if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          #       self.class.generate_client_method(name, resource_class)
-          #     end
-          #   end
       end
 
       def initialized?
