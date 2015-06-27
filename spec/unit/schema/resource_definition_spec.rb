@@ -23,8 +23,13 @@ describe Syncano::Schema::ResourceDefinition do
     expect(definition[:associations]['links']).to be_empty
   end
 
-  context 'top level resource' do
+  describe 'top_level?' do
+    context "when is top level" do
+      pending "to be done"
+    end
 
-    # if
+    context "when is not top level" do
+      pending "to be done"
+    end
   end
 end
