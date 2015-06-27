@@ -10,11 +10,14 @@ describe Syncano do
 
   before(:each) do
     @api.instances.all.each &:destroy
-    @instance = @api.instances.create(name: random_name)
+    @instance = @api.instances.create(name: instance_name )
     @instance.classes.all.select { |c| c.name != 'user_profile'}.each &:destroy
     @instance.groups.all.each &:destroy
     @instance.users.all.each &:delete
   end
+
+  let(:instance_name) { "a#{SecureRandom.hex(24)}" }
+  let(:group) { @instance.groups.create name: 'wheel' }
 
   describe 'working with instances' do
     subject { @api.instances }
@@ -63,7 +66,7 @@ describe Syncano do
     subject { @class.objects }
 
 
-    xspecify 'basic operations' do
+    specify 'basic operations' do
       expect { subject.create currency: 'USD', ballance: 1337 }.to create_resource
 
       object = subject.first
@@ -158,8 +161,7 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      skip 'waiting for API change'
-      expect { subject.create name: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
+      expect { subject.create label: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
 
       codebox = subject.first
       codebox.run
@@ -175,13 +177,13 @@ describe Syncano do
       first = traces[1]
 
       expect(first.status).to eq('success')
-      expect(first.result).to eq('1337')
+      expect(first.result["stdout"]).to eq('1337')
 
       second = traces[0]
       expect(second.status).to eq('success')
-      expect(second.result).to eq('123')
+      expect(second.result["stdout"]).to eq('123')
 
-      expect { @instance.schedules.create name: 'test', interval_sec: 30, codebox: codebox.primary_key }.
+      expect { @instance.schedules.create label: 'test', interval_sec: 30, codebox: codebox.primary_key }.
           to change { @instance.schedules.all.count }.by(1)
 
       expect { codebox.destroy }.to destroy_resource
@@ -191,15 +193,35 @@ describe Syncano do
   describe 'working with webhooks' do
     subject { @instance.webhooks }
 
-    let!(:codebox) { @instance.codeboxes.create label: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
+    describe 'using the gem' do
+      let!(:codebox) { @instance.codeboxes.create label: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
 
-    specify do
-      skip 'waiting for API change'
-      expect { subject.create slug: 'web-wurst', codebox: codebox.primary_key }.to create_resource
+      specify do
+        expect { subject.create name: 'web-wurst', codebox: codebox.primary_key }.to create_resource
 
-      expect(subject.first.run['result']).to eq('currywurst')
+        expect(subject.first.run['result']["stdout"]).to eq('currywurst')
 
-      expect { subject.first.destroy }.to destroy_resource
+        expect { subject.first.destroy }.to destroy_resource
+      end
+    end
+
+    describe 'using curl' do
+      let(:source) {
+        <<-SOURCE
+          p ARGS["POST"]
+        SOURCE
+      }
+      let!(:codebox) { @instance.codeboxes.create label: 'curl', source: source, runtime_name: 'ruby' }
+      let!(:webhook) { subject.create name: 'web-curl', codebox: codebox.primary_key, public: true }
+
+      specify do
+        url = "#{ENV['API_ROOT']}/v1/instances/#{instance_name}/webhooks/p/#{webhook.public_link}/"
+        code = %{curl -k --form kiszka=koza -H "kiszonka: 007" -X POST #{url} 2>/dev/null}
+        output = JSON.parse(`#{code}`)
+
+        expect(output["status"]).to eq("success")
+        expect(output["result"]["stdout"]).to eq('{"kiszka"=>"koza"}')
+      end
     end
   end
 
@@ -261,7 +283,6 @@ describe Syncano do
 
 
     specify do
-      skip 'waiting for schema fix'
       expect { subject.create name: 'chat' }.to create_resource
     end
   end
@@ -322,10 +343,6 @@ describe Syncano do
 
   def destroy_resource
     change { resources_count }.to(0)
-  end
-
-  def random_name
-    "a#{SecureRandom.hex(24)}"
   end
 
   def without_profiling
