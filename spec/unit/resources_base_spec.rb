@@ -156,7 +156,7 @@ describe Syncano::Resources::Base do
   end
 
   describe '#new_record?' do
-    let(:resource) { subject.new connection, {}, {name: 'asd' }, from_db }
+    let(:resource) { subject.new connection, {}, { name: 'asd' }, from_db }
 
     context 'is true' do
       let(:from_db) { false }

@@ -42,9 +42,19 @@ module Syncano
           self.update_writable_attributes = []
 
           attributes_definitions.each do |attribute_definition|
+
             attribute attribute_definition.name,
                       type: attribute_definition.type,
                       default: attribute_definition.default
+
+            # TODO extract to a dynamically defined module
+            define_method("#{attribute_definition.name}=") do |new_value|
+              if new_value != read_attribute(attribute_definition.name)
+                send("#{attribute_definition.name}_will_change!")
+              end
+
+              super new_value
+            end
 
             if attribute_definition.required?
               validates attribute_definition.name, presence: true
