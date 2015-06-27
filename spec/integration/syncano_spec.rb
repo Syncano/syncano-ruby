@@ -158,8 +158,7 @@ describe Syncano do
 
 
     specify 'basic operations' do
-      skip 'waiting for API change'
-      expect { subject.create name: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
+      expect { subject.create label: 'df', source: 'puts 1337', runtime_name: 'ruby' }.to create_resource
 
       codebox = subject.first
       codebox.run
@@ -175,7 +174,7 @@ describe Syncano do
       first = traces[1]
 
       expect(first.status).to eq('success')
-      expect(first.result).to eq('1337')
+      expect(first.result["stdout"]).to eq('1337')
 
       second = traces[0]
       expect(second.status).to eq('success')
@@ -194,10 +193,9 @@ describe Syncano do
     let!(:codebox) { @instance.codeboxes.create label: 'wurst', source: 'puts "currywurst"', runtime_name: 'ruby' }
 
     specify do
-      skip 'waiting for API change'
-      expect { subject.create slug: 'web-wurst', codebox: codebox.primary_key }.to create_resource
+      expect { subject.create name: 'web-wurst', codebox: codebox.primary_key }.to create_resource
 
-      expect(subject.first.run['result']).to eq('currywurst')
+      expect(subject.first.run['result']['stdout']).to eq('currywurst')
 
       expect { subject.first.destroy }.to destroy_resource
     end
@@ -261,7 +259,6 @@ describe Syncano do
 
 
     specify do
-      skip 'waiting for schema fix'
       expect { subject.create name: 'chat' }.to create_resource
     end
   end
