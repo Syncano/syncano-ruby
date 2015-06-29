@@ -6,11 +6,6 @@ module Syncano
       def build_definitions(schema_definition)
         schema_definition.map do |name, raw_resource_definition|
           ::Syncano::Schema::ResourceDefinition.new(name, raw_resource_definition)
-          # resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
-
-          # if resource_definition[:collection].present? && resource_definition[:collection][:path].scan(/\{([^}]+)\}/).empty?
-          #   self.class.generate_client_method(name, resource_class)
-          # end
         end
       end
 
@@ -136,14 +131,19 @@ module Syncano
           end
 
           (definition[:associations]['links'] || []).each do |association_schema|
-            if association_schema['type'] == 'list'
-              define_method(association_schema['name']) do
-                has_many_association(association_schema['name'])
-              end
-            elsif association_schema['type'] == 'run'
-              define_method(association_schema['name']) do |config = nil|
-                custom_method association_schema['name'], config
-              end
+            case association_schema['type']
+              when 'list'
+                define_method(association_schema['name']) do
+                  has_many_association(association_schema['name'])
+                end
+              when 'run'
+                define_method(association_schema['name']) do |config = nil|
+                  custom_method association_schema['name'], config
+                end
+              when 'poll'
+                define_method(association_schema['name']) do |config = nil|
+                  custom_method association_schema['name'], config
+                end
             end
           end
 

@@ -169,7 +169,7 @@ describe Syncano do
       codebox.save
       codebox.run
 
-      without_profiling { sleep 5 }
+      without_profiling { sleep 10 }
       traces = codebox.traces.all
 
       expect(traces.count).to eq(2)
@@ -281,9 +281,26 @@ describe Syncano do
       @instance.channels
     end
 
+    specify do
+      channel = nil
+      expect { channel = subject.create(name: 'chat') }.to create_resource
+      expect { channel.destroy }.to destroy_resource
+    end
+  end
+
+
+  describe 'subscribing to a channel' do
+    let!(:notifications) do
+      @instance.classes.create(name: 'notifications', schema: [{name: 'message', type: 'string'}]).objects
+    end
+
+    let!(:notifications_channel) do
+      @instance.channels.create name: 'system-notifications', other_permissions: 'subscribe'
+    end
 
     specify do
-      expect { subject.create name: 'chat' }.to create_resource
+      notifications.create message: "A new koza's arrived", channel: 'system-notifications'
+      expect(notifications_channel.poll['payload']['message']).to eq("A new koza's arrived")
     end
   end
 
