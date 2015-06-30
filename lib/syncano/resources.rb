@@ -142,7 +142,7 @@ module Syncano
                 end
               when 'poll'
                 define_method(association_schema['name']) do |config = nil|
-                  custom_method association_schema['name'], config
+                  async_method association_schema['name'], config
                 end
             end
           end

@@ -299,8 +299,10 @@ describe Syncano do
     end
 
     specify do
+      poller = notifications_channel.poll
+
       notifications.create message: "A new koza's arrived", channel: 'system-notifications'
-      expect(notifications_channel.poll['payload']['message']).to eq("A new koza's arrived")
+      expect(poller.get_response['payload']['message']).to eq("A new koza's arrived")
     end
   end
 

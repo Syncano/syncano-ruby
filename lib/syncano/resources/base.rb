@@ -252,6 +252,14 @@ module Syncano
                            config
       end
 
+      def async_method(method_name, params)
+        poller = Poller.new(connection,
+                   self.class.custom_method_http_method(method_name),
+                   self.class.custom_method_path(method_name, primary_key, scope_parameters))
+        poller.async.poll
+        poller
+      end
+
       def self.custom_method_http_method(method_name)
         custom_method_definition(method_name)[:http_methods].first.to_sym
       end
