@@ -64,6 +64,9 @@ module Syncano
       end
 
       def set_default
+        # TODO temporary workaround
+        raw_definition.merge! raw_definition['type'] if raw_definition['type'].is_a?(Hash)
+
         self.default = if name == 'channel'
                          nil
                        elsif raw_definition['type'].present? && raw_definition['type'].to_sym == :field
