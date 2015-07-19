@@ -1,6 +1,6 @@
 module Syncano
   class Schema
-    class SupportedEndpoints
+    class EndpointsWhitelist
       include Enumerable
 
       # TODO change to supported paths, whitelist

@@ -9,7 +9,7 @@ module Syncano
 
     class << self
       def initialize(connection)
-        endpoints = Schema::SupportedEndpoints.new(Schema.new(connection))
+        endpoints = Schema::EndpointsWhitelist.new(Schema.new(connection))
 
         resource_definitions = Resources.build_definitions(endpoints)
         resource_definitions.each do |resource_definition|
