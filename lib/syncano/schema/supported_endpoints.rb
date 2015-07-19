@@ -3,6 +3,7 @@ module Syncano
     class SupportedEndpoints
       include Enumerable
 
+      # TODO change to supported paths, whitelist
       UNSUPPORTED_PATHS = /\A\/v1\/(marketplace|paths)/
 
       def initialize(schema)

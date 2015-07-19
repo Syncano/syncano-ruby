@@ -1,5 +1,7 @@
 require_relative './schema/attribute_definition'
 require_relative './schema/resource_definition'
+require_relative './schema/supported_endpoints'
+
 require 'singleton'
 
 module Syncano
