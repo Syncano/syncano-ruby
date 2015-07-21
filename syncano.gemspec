@@ -26,4 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'active_attr', '~> 0.8'
   spec.add_dependency 'dirty_hashy', '~> 0.2'
   spec.add_dependency 'celluloid'
+  spec.add_dependency 'celluloid-io'
+  spec.add_dependency 'http', '= 0.7.4'
 end

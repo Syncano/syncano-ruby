@@ -6,9 +6,12 @@ require 'singleton'
 
 module Syncano
   class Schema
-    SCHEMA_PATH = 'schema/'
 
     attr_reader :schema
+
+    def self.schema_path
+      "/#{Syncano::Connection::API_VERSION}/schema/"
+    end
 
     def initialize(connection = ::Syncano::Connection.new)
       self.connection = connection
@@ -17,7 +20,7 @@ module Syncano
     attr_accessor :connection
 
     def definition
-      raw_schema = connection.request(:get, SCHEMA_PATH)
+      raw_schema = connection.request(:get, self.class.schema_path)
       resources = {}
 
       raw_schema.each do |resource_schema|

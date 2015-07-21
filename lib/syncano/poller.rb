@@ -1,9 +1,8 @@
-require 'celluloid'
+require 'celluloid/io'
+require 'http'
 
 module Syncano
   class Poller
-    include Celluloid
-
     attr_accessor :connection, :method_name, :path, :responses
 
     def initialize(connection, method_name, path)
@@ -14,7 +13,7 @@ module Syncano
     end
 
     def poll
-      responses << connection.request(method_name, path)
+      responses << connection.http_fetcher.get(path)
     end
 
     def get_response
