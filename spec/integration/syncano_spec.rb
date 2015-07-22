@@ -290,6 +290,10 @@ describe Syncano do
 
 
   describe 'subscribing to a channel' do
+    before(:each) { Celluloid.boot }
+
+    after(:each) { Celluloid.shutdown }
+
     let!(:notifications) do
       @instance.classes.create(name: 'notifications', schema: [{name: 'message', type: 'string'}]).objects
     end
@@ -301,8 +305,13 @@ describe Syncano do
     specify do
       poller = notifications_channel.poll
 
-      notifications.create message: "A new koza's arrived", channel: 'system-notifications'
-      expect(poller.get_response['payload']['message']).to eq("A new koza's arrived")
+      3.times do
+        notifications.create message: "A new koza's arrived", channel: 'system-notifications'
+      end
+
+      expect(poller.responses).to_not be_empty
+      expect(poller.responses.size).to eq(1)
+      expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A new koza's arrived")
     end
   end
 

@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dirty_hashy', '~> 0.2'
   spec.add_dependency 'celluloid'
   spec.add_dependency 'celluloid-io'
-  spec.add_dependency 'http', '= 0.7.4'
+  spec.add_dependency 'http', '= 0.7.4' # should work with no version constraint once 0.8.2 is released https://github.com/httprb/http.rb/issues/203#issuecomment-100299898
 end

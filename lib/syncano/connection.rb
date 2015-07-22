@@ -1,5 +1,4 @@
 require 'json'
-require 'celluloid/io'
 
 module Syncano
   class Connection
@@ -44,51 +43,12 @@ module Syncano
       end
     end
 
-    class HttpFetcher
-      include Celluloid::IO
-
-      attr_accessor :api_key, :user_key
-
-      def initialize(api_key, user_key)
-        self.api_key = api_key
-        self.user_key = user_key
-      end
-
-      def get(path, params = {})
-        url = Syncano::Connection.api_root + path
-
-        STDOUT.write %{curl --header "X-API-KEY: #{api_key}" #{url} \n}
-        STDOUT.flush
-
-        response = HTTP.
-          with_headers('X-API-KEY' => api_key,
-                          'X-USER-KEY' => user_key,
-                          'User-Agent' => "Syncano Ruby Gem #{Syncano::VERSION}").
-          get(url,
-              params: params,
-              ssl_socket_class: Celluloid::IO::SSLSocket,
-              socket_class: Celluloid::IO::TCPSocket)
-
-        STDOUT.write response.to_s
-        STDOUT.flush
-
-        response
-      end
-    end
-
     def request(method, path, params = {})
       raise %{Unsupported method "#{method}"} unless METHODS.include? method
 
       conn.headers['X-API-KEY'] = api_key if api_key
       conn.headers['X-USER-KEY'] = user_key if user_key
       conn.headers['User-Agent'] = "Syncano Ruby Gem #{Syncano::VERSION}"
-
-      url = self.class.api_root + path
-
-      if path =~ /notifications/
-        STDOUT.write %{echo '#{params.to_json.t}' | curl --header "X-API-KEY: #{api_key}" -X POST -d @- #{url}\n}
-        STDOUT.flush
-      end
 
       response = conn.send(method, path, params)
 

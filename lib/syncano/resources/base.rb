@@ -256,7 +256,7 @@ module Syncano
         poller = Poller.new(connection,
                    self.class.custom_method_http_method(method_name),
                    self.class.custom_method_path(method_name, primary_key, scope_parameters))
-        poller.poll
+        poller.async.poll
         poller
       end
 
