@@ -16,7 +16,9 @@ module Syncano
     end
 
     def poll
-      responses << http_fetcher.get(path)
+      loop do
+        responses << http_fetcher.get(path)
+      end
     end
 
     private

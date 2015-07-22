@@ -305,13 +305,13 @@ describe Syncano do
     specify do
       poller = notifications_channel.poll
 
-      3.times do
-        notifications.create message: "A new koza's arrived", channel: 'system-notifications'
-      end
+      notifications.create message: "A new koza's arrived", channel: 'system-notifications'
 
       expect(poller.responses).to_not be_empty
       expect(poller.responses.size).to eq(1)
       expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A new koza's arrived")
+
+      poller.terminate
     end
   end
 

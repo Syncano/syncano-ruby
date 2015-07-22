@@ -4,7 +4,7 @@ describe Syncano::Schema do
   let(:connection) { double 'connection' }
 
   before do
-    expect(connection).to receive(:request).with(:get, described_class::SCHEMA_PATH) { schema }
+    expect(connection).to receive(:request).with(:get, described_class.schema_path) { schema }
   end
 
   subject { described_class.new(connection) }
