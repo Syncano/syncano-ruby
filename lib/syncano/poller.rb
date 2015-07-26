@@ -1,6 +1,3 @@
-require 'celluloid/io'
-require 'http'
-
 module Syncano
   class Poller
     include Celluloid::IO
@@ -19,6 +16,10 @@ module Syncano
       loop do
         responses << http_fetcher.get(path)
       end
+    end
+
+    def last_response
+      responses.last
     end
 
     private

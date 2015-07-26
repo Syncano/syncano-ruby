@@ -6,8 +6,12 @@ module Syncano
     AUTH_PATH = 'account/auth/'
     METHODS = Set.new [:get, :post, :put, :delete, :head, :patch, :options]
 
-    def self.api_root
-      ENV['API_ROOT']
+    attr_accessor :api_key
+
+    class << self
+      def api_root
+        ENV['API_ROOT']
+      end
     end
 
     def http_fetcher
@@ -32,15 +36,10 @@ module Syncano
     end
 
     def authenticate
-      response = conn.post(AUTH_PATH, email: email, password: password)
-      body = parse_response(response)
-
-      case response
-        when Status.successful
-          self.api_key = body['account_key']
-        when Status.client_error
-          raise ClientError.new(body, response)
-      end
+      api_key = request(:post, AUTH_PATH,
+                        email: email,
+                        password: password)['account_key']
+      self.api_key = api_key
     end
 
     def request(method, path, params = {})
@@ -50,54 +49,37 @@ module Syncano
       conn.headers['X-USER-KEY'] = user_key if user_key
       conn.headers['User-Agent'] = "Syncano Ruby Gem #{Syncano::VERSION}"
 
-      response = conn.send(method, path, params)
+      raw_response = conn.send(method, path, params)
 
-      case response
-        when Status.no_content
-        when Status.successful
-          parse_response response
-        when Status.not_found
-          raise NotFound.new(path, method, params)
-        when Status.client_error # TODO figure out if we want to raise an exception on not found or not
-          raise ClientError.new response.body, response
-        when Status.server_error
-          raise ServerError.new response.body, response
-        else
-          raise UnsupportedStatusError.new response
+      Syncano::Response.handle ResponseWrapper.new(raw_response)
+    end
+
+    private
+
+    class ResponseWrapper < BasicObject
+      def initialize(response)
+        @response = response
       end
-    end
 
-    # private
+      def method_missing(name, *args, &block)
+        @response.__send__(name, *args, &block)
+      end
 
-    def parse_response(response)
-      JSON.parse(response.body)
-    end
+      def status
+        Status.new @response.status
+      end
 
-    class Status
-      class << self
-        def successful
-          ->(response) { (200...300).include? response.status }
-        end
+      private
 
-        def client_error
-          ->(response) { (400...500).include? response.status }
-        end
+      class Status
+        attr_accessor :code
 
-        def no_content
-          ->(response) { response.status == 204 }
-        end
-
-        def server_error
-          ->(response) { response.status >= 500 }
-        end
-
-        def not_found
-          ->(response) { response.status == 404 }
+        def initialize(code)
+          self.code = code
         end
       end
     end
 
-    attr_accessor :api_key
     attr_accessor :api_root
     attr_accessor :email
     attr_accessor :password

@@ -9,7 +9,6 @@ require 'syncano'
 require 'webmock/rspec'
 require 'celluloid/test'
 
-
 WebMock.disable_net_connect!
 
 def generate_body(params)

@@ -343,7 +343,6 @@ describe Syncano do
                                group_permissions: 'create_objects'
     end
 
-
     specify do
       owner_books = user_instance.classes.find('book').objects
       book = owner_books.create(title: 'Oliver Twist', owner_permissions: 'write')

@@ -6,7 +6,10 @@ require 'active_support/concern'
 require 'active_support/core_ext/class/attribute.rb'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/inflector'
+require 'celluloid/future'
+require 'celluloid/io'
 require 'faraday'
+require 'http'
 
 require 'syncano/query_builder'
 require 'syncano/version'
@@ -20,6 +23,7 @@ require 'syncano/resources/base'
 require 'syncano/resources/collection'
 require 'syncano/resources/paths'
 require 'syncano/resources/space'
+require 'syncano/response'
 require 'syncano/query_builder'
 
 module Syncano
@@ -41,16 +45,15 @@ module Syncano
   end
 
   class NotFound < HTTPError
-    attr_accessor :path, :method_name, :params
+    attr_accessor :path, :method_name
 
-    def initialize(path, method_name, params)
+    def initialize(path, method_name)
       self.path = path
       self.method_name = method_name
-      self.params = params
     end
 
     def inspect
-      %{#{self.class.name} path: "#{path}" method: "#{method_name}" params: #{params}}
+      %{#{self.class.name} path: "#{path}" method: "#{method_name}"}
     end
   end
 
