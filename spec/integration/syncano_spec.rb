@@ -4,6 +4,8 @@ WebMock.allow_net_connect!
 
 describe Syncano do
   before(:all) do
+    Syncano::API.send :initialized=, false
+
     @api_key = ENV['INTEGRATION_TEST_API_KEY']
     @api = Syncano.connect(api_key: @api_key)
   end
@@ -289,7 +291,7 @@ describe Syncano do
   end
 
 
-  describe 'subscribing to a channel' do
+  xdescribe 'subscribing to a channel' do
     before(:each) { Celluloid.boot }
 
     after(:each) { Celluloid.shutdown }
