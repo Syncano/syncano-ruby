@@ -12,6 +12,7 @@ module Syncano
         endpoints = Schema::EndpointsWhitelist.new(Schema.new(connection))
 
         resource_definitions = Resources.build_definitions(endpoints)
+
         resource_definitions.each do |resource_definition|
           resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
 

@@ -7,6 +7,7 @@ module Syncano
     METHODS = Set.new [:get, :post, :put, :delete, :head, :patch, :options]
 
     attr_accessor :api_key
+    attr_accessor :user_key
 
     class << self
       def api_root
@@ -84,6 +85,5 @@ module Syncano
     attr_accessor :email
     attr_accessor :password
     attr_accessor :conn
-    attr_accessor :user_key
   end
 end

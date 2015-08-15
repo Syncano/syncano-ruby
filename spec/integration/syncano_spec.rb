@@ -291,7 +291,7 @@ describe Syncano do
   end
 
 
-  xdescribe 'subscribing to a channel' do
+  describe 'subscribing to a channel' do
     before(:each) { Celluloid.boot }
 
     after(:each) { Celluloid.shutdown }
@@ -308,6 +308,8 @@ describe Syncano do
       poller = notifications_channel.poll
 
       notifications.create message: "A new koza's arrived", channel: 'system-notifications'
+
+      sleep 5
 
       expect(poller.responses).to_not be_empty
       expect(poller.responses.size).to eq(1)
