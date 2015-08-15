@@ -319,6 +319,28 @@ describe Syncano do
     end
   end
 
+  describe 'subscribing to a room' do
+    before(:each) { Celluloid.boot }
+
+    after(:each) { Celluloid.shutdown }
+
+    let!(:house) {
+      @instance.channels.create name: 'house', type: 'separate_rooms', other_permissions: 'publish', custom_publish: true
+    }
+    let!(:shout) {
+      @instance.classes.create name: 'shout', schema: [{name: 'message', type: 'string'}]
+    }
+
+    specify do
+      shout.objects.create channel: 'house', channel_room: 'bathroom', message: "Where's the water?"
+      shout.objects.create channel: 'house', channel_room: 'basement', message: "Where's the light?"
+
+      expect(house.history.all(room: 'bathroom').count).to eq(1)
+      expect(house.history.all(room: 'basement').count).to eq(1)
+      expect(house.history.all.count).to eq(2)
+    end
+  end
+
   describe 'using syncano on behalf of the user' do
     let(:user_api_key) { @instance.api_keys.create.api_key }
     let(:user) {
