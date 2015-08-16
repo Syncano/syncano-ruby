@@ -244,6 +244,13 @@ describe Syncano do
   describe 'managing users' do
     subject { @instance.users }
 
+    let(:user_profile) { @instance.classes.find("user_profile") }
+
+    before do
+      user_profile.schema = [{ name: "nickname", type: "text" }]
+      user_profile.save
+    end
+
     specify do
       user = nil
 
@@ -254,9 +261,17 @@ describe Syncano do
       user.update_attributes username: 'kiszka'
       expect(subject.find(user.primary_key).username).to eq('kiszka')
 
+
+      profile =  @instance.classes.find("user_profile").objects.find(1)
+      profile.nickname = "k0z4"
+      profile.save
+
+      expect(profile.nickname).to eq("k0z4")
+
       expect { user.destroy }.to destroy_resource
     end
   end
+
 
   describe 'managing groups' do
     subject { @instance.groups }
