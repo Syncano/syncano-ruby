@@ -307,13 +307,20 @@ describe Syncano do
     specify do
       poller = notifications_channel.poll
 
-      notifications.create message: "A new koza's arrived", channel: 'system-notifications'
+      notification = notifications.create(message: "A new koza's arrived", channel: 'system-notifications')
 
       sleep 5
 
-      expect(poller.responses).to_not be_empty
       expect(poller.responses.size).to eq(1)
       expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A new koza's arrived")
+
+      notification.message = "A koza's gone"
+      notification.save
+
+      sleep 5
+
+      expect(poller.responses.size).to eq(2)
+      expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A koza's gone")
 
       poller.terminate
     end
