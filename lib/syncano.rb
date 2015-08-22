@@ -25,6 +25,7 @@ require 'syncano/resources/collection'
 require 'syncano/resources/paths'
 require 'syncano/resources/space'
 require 'syncano/response'
+require 'syncano/upload_io'
 require 'syncano/query_builder'
 
 module Syncano

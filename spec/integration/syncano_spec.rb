@@ -265,7 +265,7 @@ describe Syncano do
 
       profile =  @instance.classes.find("user_profile").objects.find(1)
       profile.nickname = "k0z4"
-      profile.resume = Faraday::UploadIO.new(File.absolute_path(__FILE__), 'text/plain')
+      profile.resume = Syncano::UploadIO.new(File.absolute_path(__FILE__))
       profile.save
 
       expect(profile.nickname).to eq("k0z4")
