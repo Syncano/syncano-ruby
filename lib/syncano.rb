@@ -10,6 +10,8 @@ require 'celluloid/future'
 require 'celluloid/io'
 require 'faraday'
 require 'http'
+require 'yaml'
+require 'mimetype_fu'
 
 require 'syncano/query_builder'
 require 'syncano/version'
