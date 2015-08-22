@@ -11,26 +11,15 @@ module Syncano
       def initialize(connection)
         endpoints = Schema::EndpointsWhitelist.new(Schema.new(connection))
 
-        resource_definitions = Resources.build_definitions(endpoints)
+        resources_definitions = Resources.build_definitions(endpoints)
 
-        resource_definitions.each do |resource_definition|
-          resource_class = ::Syncano::Resources.define_resource_class(resource_definition)
-
-          # TODO define a module to include instad of defining indivudal methods
-          define_client_method resource_definition, resource_class if resource_definition.top_level?
-        end
+        include Syncano::API::Endpoints.definition(resources_definitions)
 
         self.initialized = true
       end
 
       def initialized?
         initialized
-      end
-
-      def define_client_method(resource_definition, resource_class)
-        define_method(resource_definition.name.tableize) do
-          ::Syncano::QueryBuilder.new(connection, resource_class)
-        end
       end
     end
 
