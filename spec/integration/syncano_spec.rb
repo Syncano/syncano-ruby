@@ -247,7 +247,8 @@ describe Syncano do
     let(:user_profile) { @instance.classes.find("user_profile") }
 
     before do
-      user_profile.schema = [{ name: "nickname", type: "text" }]
+      user_profile.schema = [{ name: "nickname", type: "text" },
+                             { name: "resume", type: "file" }]
       user_profile.save
     end
 
@@ -264,6 +265,7 @@ describe Syncano do
 
       profile =  @instance.classes.find("user_profile").objects.find(1)
       profile.nickname = "k0z4"
+      profile.resume = Faraday::UploadIO.new(File.absolute_path(__FILE__), 'text/plain')
       profile.save
 
       expect(profile.nickname).to eq("k0z4")

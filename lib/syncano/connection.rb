@@ -27,9 +27,15 @@ module Syncano
 
       # TODO: take it easy with SSL for development only, temporary solution
       self.conn = Faraday.new(self.class.api_root,
-        ssl: { ca_file: File.join(File.dirname(__FILE__), '../certs/ca-bundle.crt') })
-      conn.path_prefix = API_VERSION
-      conn.request :url_encoded
+                              ssl: {
+                                ca_file: File.join(File.dirname(__FILE__),
+                                                   '../certs/ca-bundle.crt')
+                              }) do |faraday|
+        faraday.path_prefix = API_VERSION
+        faraday.request :multipart
+        faraday.request  :url_encoded
+        faraday.adapter  Faraday.default_adapter
+      end
     end
 
     def authenticated?
