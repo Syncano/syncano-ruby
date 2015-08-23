@@ -111,7 +111,7 @@ module Syncano
       end
 
       def save
-        # TODO: Call validation here
+        raise Syncano::Resources::ResourceInvalid.new(self) unless valid?
 
         if new_record?
           response = connection.request(:post, collection_path, select_create_attributes)

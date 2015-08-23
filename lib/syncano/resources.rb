@@ -51,7 +51,7 @@ module Syncano
               super new_value
             end
 
-            if attribute_definition.required?
+            if attribute_definition.validate?
               validates attribute_definition.name, presence: true
             end
 

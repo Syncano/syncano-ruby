@@ -22,6 +22,10 @@ module Syncano
         set_default
       end
 
+      def validate?
+        writable? && required?
+      end
+
       def writable?
         raw_definition['read_only'] == false
       end
