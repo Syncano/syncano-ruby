@@ -24,8 +24,6 @@ module Syncano
       self.email = options[:email]
       self.password = options[:password]
       self.user_key = options[:user_key]
-
-      # TODO: take it easy with SSL for development only, temporary solution
       self.conn = Faraday.new(self.class.api_root,
                               ssl: {
                                 ca_file: File.join(File.dirname(__FILE__),

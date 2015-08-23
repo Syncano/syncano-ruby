@@ -10,7 +10,7 @@ module Syncano
             parse_response raw_response
           when Status.not_found
             raise NotFound.new(raw_response.env.url, raw_response.env.method)
-          when Status.client_error # TODO figure out if we want to raise an exception on not found or not
+          when Status.client_error
             raise ClientError.new raw_response.body, raw_response
           when Status.server_error
             raise ServerError.new raw_response.body, raw_response

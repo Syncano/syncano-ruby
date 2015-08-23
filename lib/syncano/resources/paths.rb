@@ -36,7 +36,6 @@ module Syncano
 
         def define(path, resource)
           resource_name = resource.name
-          # raise 'duplicated resource' if @map.has_key?(resource_name)
           @map[resource_name] = path
         end
 
