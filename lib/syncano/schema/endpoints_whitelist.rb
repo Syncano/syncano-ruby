@@ -3,20 +3,37 @@ module Syncano
     class EndpointsWhitelist
       include Enumerable
 
-      # TODO change to supported paths, whitelist
-      UNSUPPORTED_PATHS = /\A\/v1\/(marketplace|paths)/
+      class SupportedDefinitionPredicate
+        attr_accessor :definition
+
+        def initialize(definition)
+          self.definition = definition
+        end
+
+        def call
+          path =~ /\A\/v1\/instances/ && path !~ /invitation/
+        end
+
+        private
+
+        def path
+          definition[:collection] && definition[:collection][:path] ||
+            definition[:member] && definition[:member][:path]
+        end
+      end
+
+      SUPPORTED_DEFINITIONS = -> (definition) {
+        SupportedDefinitionPredicate.new(definition).call
+      }
 
       def initialize(schema)
         @definition = schema.definition
       end
 
       def each(&block)
-        defs = @definition.select { |_name, definition|
-          definition[:collection] && definition[:collection][:path] !~ UNSUPPORTED_PATHS ||
-            definition[:member] && definition[:member][:path] !~ UNSUPPORTED_PATHS
-        }
-
-        defs.each &block
+        @definition.select { |_name, definition|
+          SUPPORTED_DEFINITIONS === definition
+        }.each &block
       end
     end
   end
