@@ -67,7 +67,6 @@ describe Syncano do
 
     subject { @class.objects }
 
-
     specify 'basic operations' do
       expect { subject.create currency: 'USD', ballance: 1337 }.to create_resource
 
@@ -326,7 +325,7 @@ describe Syncano do
 
       notification = notifications.create(message: "A new koza's arrived", channel: 'system-notifications')
 
-      sleep 5
+      sleep 20
 
       expect(poller.responses.size).to eq(1)
       expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A new koza's arrived")
@@ -334,7 +333,7 @@ describe Syncano do
       notification.message = "A koza's gone"
       notification.save
 
-      sleep 5
+      sleep 20
 
       expect(poller.responses.size).to eq(2)
       expect(JSON.parse(poller.responses.last.body)["payload"]["message"]).to eq("A koza's gone")

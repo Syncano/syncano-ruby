@@ -34,7 +34,15 @@ module Syncano
         def create(connection, scope_parameters, attributes)
           check_resource_method_existance!(:create)
 
-          new(connection, scope_parameters, attributes).save
+          record = new(connection, scope_parameters, attributes)
+          record.save
+          record
+        end
+
+        def create!(connection, scope_parameters, attribues)
+          check_resource_method_existance!(:create)
+
+          new(connection, scope_parameters, attributes).save!
         end
 
         def destroy(connection, scope_parameters, pk)
@@ -111,8 +119,18 @@ module Syncano
       end
 
       def save
+        return false unless valid?
+
+        commit_save
+      end
+
+      def save!
         raise Syncano::Resources::ResourceInvalid.new(self) unless valid?
 
+        commit_save
+      end
+
+      def commit_save
         if new_record?
           response = connection.request(:post, collection_path, select_create_attributes)
         else
@@ -120,6 +138,7 @@ module Syncano
         end
 
         initialize!(response, true)
+
       end
 
       def destroy

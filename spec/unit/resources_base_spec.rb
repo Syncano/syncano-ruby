@@ -171,21 +171,76 @@ describe Syncano::Resources::Base do
     end
   end
 
-  describe '.create' do
-    it 'should create new object in Syncano' do
-
+  describe "persisting data" do
+    shared_context "resource invalid" do
+      before { expect(resource).to receive(:valid?) { false } }
     end
-  end
 
-  describe '.update_attributes' do
-    it 'should create update object\'s attributes in Syncano' do
+    shared_context "resource valid" do
+      before do
+        # expect(instance_of(Syncano::Resource::Base)).to receive(:valid?) { true }
 
+        expect(resource).to receive(:valid?) { true }
+
+        expect(connection).to receive(:request).
+                                with(instance_of(Symbol), instance_of(String), instance_of(Hash)).
+                                and_return({})
+      end
     end
-  end
 
-  describe '.destroy' do
-    it 'should delete object from Syncano' do
+    let(:resource) { subject.new connection, {}, {}, false }
 
+    describe ".create!" do
+      before do
+        expect(subject).to receive(:new).and_return(resource)
+        expect(resource).to receive(:save!).and_return(resource)
+      end
+
+      specify { expect(subject.create!(connection, {}, {})).to eq(resource) }
+    end
+
+    describe ".create" do
+      before do
+        expect(subject).to receive(:new).and_return(resource)
+        expect(resource).to receive(:save).and_return(false)
+      end
+
+      specify { expect(subject.create(connection, {}, {})).to eq(resource) }
+      specify { expect(subject.create(connection, {}, {}).new_record?).to eq(true) }
+    end
+
+    describe "#save" do
+      context "when invalid" do
+        include_context "resource invalid"
+
+        specify { expect(resource.save).to eq(false) }
+      end
+
+      context "when valid" do
+        include_context "resource valid"
+
+        specify { expect(resource.save).to be_kind_of(Syncano::Resources::Base) }
+      end
+    end
+
+    describe "#save!" do
+      context "when invalid" do
+        include_context "resource invalid"
+
+        specify do
+          expect {
+            resource.save!
+          }.to raise_error(Syncano::Resources::ResourceInvalid)
+        end
+      end
+
+      context "when valid" do
+        include_context "resource valid"
+
+        specify do
+          expect(resource.save!).to be_kind_of(Syncano::Resources::Base)
+        end
+      end
     end
   end
 end
