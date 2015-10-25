@@ -24,11 +24,7 @@ module Syncano
       self.email = options[:email]
       self.password = options[:password]
       self.user_key = options[:user_key]
-      self.conn = Faraday.new(self.class.api_root,
-                              ssl: {
-                                ca_file: File.join(File.dirname(__FILE__),
-                                                   '../certs/ca-bundle.crt')
-                              }) do |faraday|
+      self.conn = Faraday.new(self.class.api_root) do |faraday|
         faraday.path_prefix = API_VERSION
         faraday.request :multipart
         faraday.request  :url_encoded
