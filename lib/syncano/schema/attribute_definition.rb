@@ -73,7 +73,7 @@ module Syncano
                        elsif raw_definition['type'].present? && raw_definition['type'].to_sym == :field
                          {}
                        elsif raw_definition['type'].present? && raw_definition['type'].to_sym == :choice
-                          raw_definition['choices'].first['value']
+                         raw_definition['choices'].try(:first).try :[], 'value'
                        else
                          nil
                        end
