@@ -27,8 +27,8 @@ module Syncano
       self.conn = Faraday.new(self.class.api_root) do |faraday|
         faraday.path_prefix = API_VERSION
         faraday.request :multipart
-        faraday.request  :url_encoded
-        faraday.adapter  Faraday.default_adapter
+        faraday.request :url_encoded
+        faraday.adapter Faraday.default_adapter
       end
     end
 
