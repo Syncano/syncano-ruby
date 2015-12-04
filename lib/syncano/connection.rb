@@ -11,7 +11,7 @@ module Syncano
 
     class << self
       def api_root
-        ENV['API_ROOT']
+        "https://api.syncano.io"
       end
     end
 
