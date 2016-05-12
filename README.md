@@ -5,9 +5,9 @@
 
 Syncano ruby gem provides communication with Syncano platform - ([www.syncano.io](http://www.syncano.io/?utm_source=github&utm_medium=readme&utm_campaign=syncano-ruby))
 
-You can find quick start on installing and using Syncano's Ruby library in our [documentation](http://docs.syncano.io/docs/ruby/?utm_source=github&utm_medium=readme&utm_campaign=syncano-js).
+You can find quick start on installing and using Syncano's Ruby library in our [documentation](http://docs.syncano.io/docs/ruby/?utm_source=github&utm_medium=readme&utm_campaign=syncano-ruby).
 
-For more detailed information on how to use Syncano and its features - our [Developer Manual](http://docs.syncano.io/docs/getting-started-with-syncano/?utm_source=github&utm_medium=readme&utm_campaign=syncano-js) should be very helpful.
+For more detailed information on how to use Syncano and its features - our [Developer Manual](http://docs.syncano.io/docs/getting-started-with-syncano/?utm_source=github&utm_medium=readme&utm_campaign=syncano-ruby) should be very helpful.
 
 In case you need help working with the library - email us at libraries@syncano.com - we will be happy to help!
 
